@@ -163,9 +163,11 @@ function(
 	var kgsPrelimLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:1}], id:"KGS Preliminary Events", visible:false} );
 	var neicLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:2}], id:"NEIC Cataloged Events", visible:false} );
 	var ogsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:3}], id:"OGS Cataloged Events", visible:false} );
+	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
+	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, naip2014Layer, wellsLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
+		layers: [basemapLayer, naip2014Layer, wellsLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -1473,26 +1475,17 @@ function(
         $("#lyrs-toc").html(tocContent);
 
         // Add addtional layer-specific controls and content (reference by hyphenated layer id):
-        $("#Oil-and-Gas-Wells").append("</span><span class='esri-icon-filter toc-icon' onclick='$( &quot;#og-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Wells'></span><span class='esri-icon-labels toc-icon' onclick='labelWells(&quot;og&quot;);' title='Label Wells'>");
-        $("#WWC5-Water-Wells").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#wwc5-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Wells'></span><span class='esri-icon-labels toc-icon' onclick='labelWells(&quot;wwc5&quot;);' title='Label Wells'></span>");
+        $("#KGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#KGS-Preliminary-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#NEIC-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#OGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
 
-        var eventDesc = "Data for all events occurring between 1/9/2013 and 3/7/2014 was provided by the Oklahoma Geological Survey - all other data is from the USGS.</p>";
-        eventDesc += "<p>Earthquake data for Oklahoma is incomplete and only extends back to 12/2/2014. Only events occurring in northern Oklahoma<br>(north of Medford) are included on the mapper.</p>";
-        $("#Earthquakes").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span><span class='esri-icon-description toc-icon' id='event-desc-icon'></span><span class='tooltip hide' id='event-desc'>" + eventDesc + "</span>");
-        $("#event-desc-icon").click(function() {
-            $("#event-desc").toggleClass("show");
-        } );
-
-        var lepcDesc = "<p>The Lesser Prairie Chicken (LEPC) Crucial Habitat map layer is part of the Southern Great Plains Crucial Habitat Assessment Tool (SGP CHAT), produced and maintained";
-        lepcDesc += "by the Kansas Biological Survey. For more information, including inquiries, please visit the <a href='http://kars.ku.edu/geodata/maps/sgpchat' target='_blank'>project website</a>.</p>";
-        lepcDesc += "<p>SGP CHAT is intended to provide useful and non-regulatory information during the early planning stages of development projects, conservation opportunities, and environmental review.</p>";
-        lepcDesc += "<p>SGP CHAT is not intended to replace consultation with local, state, or federal agencies.</p>";
-        lepcDesc += "<p>The finest data resolution is one square mile hexagons, and use of this data layer at a more localized scale is not appropriate and may lead to inaccurate interpretations.";
-        lepcDesc += "The classification may or may not apply to the entire section. Consult with local biologists for more localized information.</p>";
-        $("#LEPC-Crucial-Habitat").append("<span class='esri-icon-description toc-icon' id='lepc-desc-icon'></span><span class='tooltip hide' id='lepc-desc'>" + lepcDesc + "</span>");
-        $("#lepc-desc-icon").click(function() {
-            $("#lepc-desc").toggleClass("show");
-        } );
+        // var eventDesc = "Data for all events occurring between 1/9/2013 and 3/7/2014 was provided by the Oklahoma Geological Survey - all other data is from the USGS.</p>";
+        // eventDesc += "<p>Earthquake data for Oklahoma is incomplete and only extends back to 12/2/2014. Only events occurring in northern Oklahoma<br>(north of Medford) are included on the mapper.</p>";
+        // $("#Earthquakes").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span><span class='esri-icon-description toc-icon' id='event-desc-icon'></span><span class='tooltip hide' id='event-desc'>" + eventDesc + "</span>");
+        // $("#event-desc-icon").click(function() {
+        //     $("#event-desc").toggleClass("show");
+        // } );
     }
 
 
