@@ -86,8 +86,8 @@ function(
 
 
     // Set up basic frame:
-    window.document.title = "FooBar";
-    $("#title").html("Kansas Oil and Gas<a id='kgs-brand' href='http://www.kgs.ku.edu'>Kansas Geological Survey</a>");
+    window.document.title = "Tremor Database Mapper";
+    $("#title").html("Kansas Earthquakes<a id='kgs-brand' href='http://www.kgs.ku.edu'>Kansas Geological Survey</a>");
 
     var showDrawerSize = 850;
 
@@ -149,21 +149,23 @@ function(
 	findParams.returnGeometry = true;
 
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map"} );
-    var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
-    var wellsLayer = new MapImageLayer( {url:ogGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells"} );
-    var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range"} );
-    var wwc5Layer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/wwc5/wwc5_general/MapServer", sublayers:[{id:8}], id:"WWC5 Water Wells", visible:false} );
-    var usgsEventsLayer = new MapImageLayer( {url:ogGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
-    var lepcLayer = new MapImageLayer( {url:"http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer", id:"LEPC Crucial Habitat", visible: false} );
-    var topoLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/USGS_Topo/USGStopo_DRG/ImageServer", id:"Topography", visible:false} );
+    // var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
+    var wellsLayer = new MapImageLayer( {url:ogGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
+    // var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range"} );
+    // var wwc5Layer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/wwc5/wwc5_general/MapServer", sublayers:[{id:8}], id:"WWC5 Water Wells", visible:false} );
+    // var usgsEventsLayer = new MapImageLayer( {url:ogGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
+    // var lepcLayer = new MapImageLayer( {url:"http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer", id:"LEPC Crucial Habitat", visible: false} );
+    // var topoLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/USGS_Topo/USGStopo_DRG/ImageServer", id:"Topography", visible:false} );
 	var naip2014Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2014_Color/ImageServer", id:"2014 Aerials", visible:false} );
-    var doqq2002Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_2002/ImageServer", id:"2002 Aerials", visible:false} );
-    var doqq1991Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_1991/ImageServer", id:"1991 Aerials", visible:false} );
+    // var doqq2002Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_2002/ImageServer", id:"2002 Aerials", visible:false} );
+    // var doqq1991Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_1991/ImageServer", id:"1991 Aerials", visible:false} );
+	var kgsCatalogedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:0}], id:"KGS Cataloged Events", visible:false} );
+	var kgsPrelimLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:1}], id:"KGS Preliminary Events", visible:false} );
+	var neicLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:2}], id:"NEIC Cataloged Events", visible:false} );
+	var ogsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/events/MapServer", sublayers:[{id:3}], id:"OGS Cataloged Events", visible:false} );
 
     var map = new Map( {
-        // Not defining basemap here for TOC toggle reasons.
-        //basemap: "topo",
-        layers: [basemapLayer, doqq1991Layer, doqq2002Layer, naip2014Layer, topoLayer, lepcLayer, fieldsLayer, plssLayer, usgsEventsLayer, wwc5Layer, wellsLayer]
+		layers: [basemapLayer, naip2014Layer, wellsLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -1356,7 +1358,7 @@ function(
         content += '<tr><td></td><td><button class="find-button" onclick="zoomToLatLong();">Find</button></td></tr>';
         content += '</table></div>';
         // field:
-        content += '<div class="find-header esri-icon-right-triangle-arrow" id="field"><span class="find-hdr-txt"> Field</span></div>';
+        content += '<div class="find-header esri-icon-right-triangle-arrow" id="field"><span class="find-hdr-txt"> Oil-Gas Field</span></div>';
         content += '<div class="find-body hide" id="find-field">';
         content += '<table><tr><td class="find-label">Name:</td><td><input id="field-select"></td></tr>';
 		content += '<tr><td colspan="2"><input type="checkbox" id="field-list-wells">List wells assigned to this field</td></tr>';
@@ -1368,10 +1370,10 @@ function(
         content += '<table><tr><td class="find-label">County:</td><td><select id="lstCounty"></select></td><td><button class=find-button onclick=findIt("county")>Find</button></td></tr></table>';
         content += '</div>';
 		// bookmarks
-		content += '<div class="panel-sub-txt">Bookmarks <span class="esri-icon-plus-circled" id="add-bookmark" title="Add Bookmark" onclick="addBookmark()"></span></div>';
-		content += '<div class="bookmark-link"><span onclick="originalLocation()">Original Location</div>';
-        content += '</div>';
-        content += '</div>';
+		// content += '<div class="panel-sub-txt">Bookmarks <span class="esri-icon-plus-circled" id="add-bookmark" title="Add Bookmark" onclick="addBookmark()"></span></div>';
+		// content += '<div class="bookmark-link"><span onclick="originalLocation()">Original Location</div>';
+        // content += '</div>';
+        // content += '</div>';
 
         menuObj = {
             label: '<div class="icon-zoom-in"></div><div class="icon-text">Find</div>',
@@ -1397,8 +1399,8 @@ function(
         content += '<div class="panel-container" id="tools-panel">';
         content += '<div class="panel-header">Tools <span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
         content += '<div class="panel-padding">';
-        content += '<div class="find-header tools-icon esri-icon-radio-checked" id="buff-tool"><span class="find-hdr-txt tools-txt"> Buffer and Select</span></div>';
-		//content += '<div class="find-header tools-icon esri-icon-minus" id="meas-tool"><span class="find-hdr-txt tools-txt"> Measure Distance</span></div>';
+        // content += '<div class="find-header tools-icon esri-icon-radio-checked" id="buff-tool"><span class="find-hdr-txt tools-txt"> Buffer and Select</span></div>';
+		// content += '<div class="find-header tools-icon esri-icon-minus" id="meas-tool"><span class="find-hdr-txt tools-txt"> Measure Distance</span></div>';
 		content += '</div>';
 		content += '<div id="wells-tbl"></div>';
         content += '</div>';
