@@ -111,7 +111,6 @@ function(
     } );
 
     createMenus();
-    popCountyDropdown();
 
     // Combo boxes:
     var autocomplete =  (isMobile) ? false : true; // auto-complete doesn't work properly on mobile (gets stuck on a name and won't allow further typing), so turn it off.
@@ -185,6 +184,7 @@ function(
     view.then(function() {
 		createTOC();
 		createDialogs();
+		popCountyDropdown();
 
         on(view, "click", executeIdTask);
 
@@ -290,35 +290,28 @@ function(
 
     function popCountyDropdown() {
         var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
-
+		$('#evt-county').html('<option value="all">All</option>');
         for(var i=0; i<cntyArr.length; i++) {
             theCnty = cntyArr[i];
             $('#lstCounty').append('<option value="' + theCnty + '">' + theCnty + '</option>');
+			$('#evt-county').append('<option value="' + theCnty + '">' + theCnty + '</option>');
         }
     }
 
 
     function createDialogs() {
         // Earthquake filter:
-        var magOptions = "<option value='all'>All</option><option value='2'>2.0 to 2.9</option><option value='3'>3.0 to 3.9</option><option value='4'>4.0 +</option>";
-        var eqF = "<span class='filter-hdr'>By Day:</span><br>";
-        eqF += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='eq-from-date' placeholder='mm/dd/yyyy'></td></tr>";
-        eqF += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='eq-to-date' placeholder='mm/dd/yyyy'></td></tr>";
-        eqF += "<tr><td class='find-label'>Magnitude:</td><td><select name='day-mag' id='day-mag'>";
-        eqF += magOptions;
-        eqF += "</select></td></tr><tr><td></td><td><button class='find-button' id='day-btn' onclick='filterQuakes(this.id);'>Apply Filter</button></td></tr></table><hr>";
-        eqF += "<span class='filter-hdr'>By Year</span><br>";
-        eqF += "<table><tr><td class='find-label'>Year:</td><td><select name='year' id='year'><option value='all'>All</option>";
-        for (var y=2016; y>2012; y--) {
-            eqF += "<option value='" + y + "'>" + y + "</option>";
-        }
-        eqF += "</select></td></tr>";
-        eqF += "<tr><td class='find-label'>Magnitude:</td><td><select name='year-mag' id='year-mag'>";
-        eqF += magOptions;
-        eqF += "</select></td></tr>";
-        eqF += "<tr><td></td><td><button class='find-button' id='year-btn' onclick='filterQuakes(this.id);'>Apply Filter</button></td></tr></table><hr>";
-        eqF += "<button onclick='filterQuakesLast();'>Show Last Event in Kansas</button><hr>";
-        eqF += "<button onclick='clearQuakeFilter();' autofocus>Clear Filter</button>";
+		var eqF = "<table><tr><td class='find-label'>From Date:</td><td><input class='eqf' type='text' size='12' id='eq-from-date' placeholder='mm/dd/yyyy'></td></tr>";
+		eqF += "<tr><td class='find-label'>To Date:</td><td><input class='eqf' type='text' size='12' id='eq-to-date' placeholder='mm/dd/yyyy'></td></tr>";
+		eqF += "<tr><td class='find-label' colspan='2'>Magnitude >=&nbsp;<input class='eqf' type='text' size='8' id='mag-from'></td></tr>";
+		eqF += "<tr><td class='find-label' colspan='2'>Magnitude <=&nbsp;<input class='eqf' type='text' size='8' id='mag-from'></td></tr>";
+		eqF += "<tr><td class='find-label'>County:</td><td><select id='evt-county'></select></td></tr></table>";
+		eqF += "<table><tr><td class='find-label'>Category:</td><td></td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>KGS Cataloged</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>KGS Preliminary</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>NEIC Cataloged</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>OGS Cataloged</td></tr></table>";
+		eqF += "<hr><table><tr><td><button onclick='filterQuakes();'>Apply</button></td><td><button onclick='clearQuakeFilter();' autofocus>Clear</button></td></tr></table>";
 
         var eqN = domConstruct.create("div", { id: "eq-filter", class: "filter-dialog", innerHTML: eqF } );
         $("body").append(eqN);
@@ -791,13 +784,15 @@ function(
 
 
     clearQuakeFilter = function() {
-        usgsEventsLayer.sublayers[13].definitionExpression = null;
-        dom.byId("year").options[0].selected="selected";
-        dom.byId("year-mag").options[0].selected="selected";
-        dom.byId("day-mag").options[0].selected="selected";
-        dom.byId("eq-from-date").value = "";
-        dom.byId("eq-to-date").value = "";
-		idDef[13] = "";
+		// TODO: fix next line:
+        //usgsEventsLayer.sublayers[13].definitionExpression = null;
+
+		$(".eqf").val("");
+		$("#evt-county").prop("selectedIndex", 0);
+		$("[name=evt-category]").prop("checked", false);
+		
+		// TODO: fix next line:
+		//idDef[13] = "";
     }
 
 
@@ -1475,10 +1470,10 @@ function(
         $("#lyrs-toc").html(tocContent);
 
         // Add addtional layer-specific controls and content (reference by hyphenated layer id):
-        $("#KGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#KGS-Preliminary-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#NEIC-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#OGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#event-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+        $("#KGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#KGS-Preliminary-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#NEIC-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
+		$("#OGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
 
         // var eventDesc = "Data for all events occurring between 1/9/2013 and 3/7/2014 was provided by the Oklahoma Geological Survey - all other data is from the USGS.</p>";
         // eventDesc += "<p>Earthquake data for Oklahoma is incomplete and only extends back to 12/2/2014. Only events occurring in northern Oklahoma<br>(north of Medford) are included on the mapper.</p>";
