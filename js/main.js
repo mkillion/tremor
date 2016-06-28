@@ -303,14 +303,15 @@ function(
         // Earthquake filter:
 		var eqF = "<table><tr><td class='find-label'>From Date:</td><td><input class='eqf' type='text' size='12' id='eq-from-date' placeholder='mm/dd/yyyy'></td></tr>";
 		eqF += "<tr><td class='find-label'>To Date:</td><td><input class='eqf' type='text' size='12' id='eq-to-date' placeholder='mm/dd/yyyy'></td></tr>";
-		eqF += "<tr><td class='find-label' colspan='2'>Magnitude >=&nbsp;<input class='eqf' type='text' size='8' id='mag-from'></td></tr>";
-		eqF += "<tr><td class='find-label' colspan='2'>Magnitude <=&nbsp;<input class='eqf' type='text' size='8' id='mag-from'></td></tr>";
+		eqF += "<tr><td class='find-label' colspan='2'>Magnitude >=&nbsp;<input class='eqf' type='text' size='8' id='low-mag'></td></tr>";
+		eqF += "<tr><td class='find-label' colspan='2'>Magnitude <=&nbsp;<input class='eqf' type='text' size='8' id='high-mag'></td></tr>";
 		eqF += "<tr><td class='find-label'>County:</td><td><select id='evt-county'></select></td></tr></table>";
-		eqF += "<table><tr><td class='find-label'>Category:</td><td></td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>KGS Cataloged</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>KGS Preliminary</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>NEIC Cataloged</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value='kgs-cat'></td><td>OGS Cataloged</td></tr></table>";
+		eqF += "<table><tr><td class='find-label'>Apply To:</td><td></td></tr>";
+		// Values in next 4 lines must match layer IDs:
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=0></td><td>KGS Cataloged</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=1></td><td>KGS Preliminary</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=2></td><td>NEIC Cataloged</td></tr>";
+		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=3></td><td>OGS Cataloged</td></tr></table>";
 		eqF += "<hr><table><tr><td><button onclick='filterQuakes();'>Apply</button></td><td><button onclick='clearQuakeFilter();' autofocus>Clear</button></td></tr></table>";
 
         var eqN = domConstruct.create("div", { id: "eq-filter", class: "filter-dialog", innerHTML: eqF } );
@@ -728,58 +729,77 @@ function(
 
 
     filterQuakes = function(btn) {
-        var def = [];
-        var lMag, uMag;
-        if (btn === "day-btn") {
-            lMag = dom.byId("day-mag").value;
-            uMag = parseInt(lMag) + 0.99;
-			var fromDate = dom.byId('eq-from-date').value;
-			var toDate = dom.byId('eq-to-date').value;
-			var fromWhr = "central_standard_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
-			var toWhr = "central_standard_time < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-			var netWhr = " and net in ('us', ' ', 'US')";
+		var def = [];
+		var where, dateWhere, magWhere, coWhere;
+		var fromDate = dom.byId('eq-from-date').value;
+		var toDate = dom.byId('eq-to-date').value;
+		var lMag = dom.byId('low-mag').value;
+		var uMag = dom.byId('high-mag').value;
+		var co = dom.byId('evt-county').value;
+		var lIDs = $('input[name="evt-category"]:checked').map(function() {
+		    return this.value;
+		} ).get();
 
-            if (lMag !== "all") {
-				if (fromDate && toDate) {
-                	def[13] = fromWhr + " and " + toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-				} else if (fromDate && !toDate) {
-					def[13] = fromWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-				} else if (!fromDate && toDate) {
-					def[13] = toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-				}
-            } else {
-				if (fromDate && toDate) {
-                	def[13] = fromWhr + " and " + toWhr + netWhr;
-				} else if (fromDate && !toDate) {
-					def[13] = fromWhr + netWhr;
-				} else if (!fromDate && toDate) {
-					def[13] = toWhr + netWhr;
-				}
-            }
-        } else {
-            var year = dom.byId("year").value;
-            var nextYear = parseInt(year) + 1;
+		// next block in progress, 28 June 2016:
+		if (fromDate && toDate) {
+        	dateWhere =
+		} else if (fromDate && !toDate) {
+			def[13] = fromWhr + netWhr;
+		} else if (!fromDate && toDate) {
+			def[13] = toWhr + netWhr;
+		}
 
-            lMag = dom.byId("year-mag").value;
-            uMag = parseInt(lMag) + 0.99;
 
-            if (year !== "all") {
-				var whr = "central_standard_time >= to_date('01/01/" + year + "','mm/dd/yyyy') and central_standard_time < to_date('01/01/" + nextYear + "','mm/dd/yyyy') and net in ('us', ' ', 'US')";
-                if (lMag !== "all") {
-                    def[13] = whr + " and mag >= " + lMag + " and mag <= " + uMag;
-                } else {
-                    def[13] = whr;
-                }
-            } else {
-                if (lMag !== "all") {
-                    def[13] = " mag >= " + lMag + " and mag <= " + uMag;
-                } else {
-                    def[13] = "";
-                }
-            }
-        }
-		idDef[13] = def[13];
-		usgsEventsLayer.sublayers[13].definitionExpression = def[13];
+        // if (btn === "day-btn") {
+        //     lMag = dom.byId("day-mag").value;
+        //     uMag = parseInt(lMag) + 0.99;
+		// 	var fromDate = dom.byId('eq-from-date').value;
+		// 	var toDate = dom.byId('eq-to-date').value;
+		// 	var fromWhr = "central_standard_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
+		// 	var toWhr = "central_standard_time < to_date('" + toDate + "','mm/dd/yyyy') + 1";
+		// 	var netWhr = " and net in ('us', ' ', 'US')";
+		//
+        //     if (lMag !== "all") {
+		// 		if (fromDate && toDate) {
+        //         	def[13] = fromWhr + " and " + toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
+		// 		} else if (fromDate && !toDate) {
+		// 			def[13] = fromWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
+		// 		} else if (!fromDate && toDate) {
+		// 			def[13] = toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
+		// 		}
+        //     } else {
+		// 		if (fromDate && toDate) {
+        //         	def[13] = fromWhr + " and " + toWhr + netWhr;
+		// 		} else if (fromDate && !toDate) {
+		// 			def[13] = fromWhr + netWhr;
+		// 		} else if (!fromDate && toDate) {
+		// 			def[13] = toWhr + netWhr;
+		// 		}
+        //     }
+        // } else {
+        //     var year = dom.byId("year").value;
+        //     var nextYear = parseInt(year) + 1;
+		//
+        //     lMag = dom.byId("year-mag").value;
+        //     uMag = parseInt(lMag) + 0.99;
+		//
+        //     if (year !== "all") {
+		// 		var whr = "central_standard_time >= to_date('01/01/" + year + "','mm/dd/yyyy') and central_standard_time < to_date('01/01/" + nextYear + "','mm/dd/yyyy') and net in ('us', ' ', 'US')";
+        //         if (lMag !== "all") {
+        //             def[13] = whr + " and mag >= " + lMag + " and mag <= " + uMag;
+        //         } else {
+        //             def[13] = whr;
+        //         }
+        //     } else {
+        //         if (lMag !== "all") {
+        //             def[13] = " mag >= " + lMag + " and mag <= " + uMag;
+        //         } else {
+        //             def[13] = "";
+        //         }
+        //     }
+        // }
+		// idDef[13] = def[13];
+		// usgsEventsLayer.sublayers[13].definitionExpression = def[13];
     }
 
 
@@ -790,7 +810,7 @@ function(
 		$(".eqf").val("");
 		$("#evt-county").prop("selectedIndex", 0);
 		$("[name=evt-category]").prop("checked", false);
-		
+
 		// TODO: fix next line:
 		//idDef[13] = "";
     }
