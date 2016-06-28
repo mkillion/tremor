@@ -192,7 +192,7 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 3;
-        identifyParams.layerIds = [0, 13, 8, 1];
+        identifyParams.layerIds = [0, 14, 15, 16, 17];
         identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
@@ -1022,6 +1022,8 @@ function(
                 findParams.searchFields = ["api_number"];
                 findParams.searchText = apiText;
 				findParams.contains = false;
+				wellsLayer.visible = true;
+                $("#Oil-and-Gas-Wells input").prop("checked", true);
                 break;
             case "county":
                 findParams.layerIds = [2];
@@ -1235,6 +1237,8 @@ function(
 
 
     zoomToLatLong = function() {
+		graphicsLayer.removeAll();
+
         var lat = dom.byId("lat").value;
         var lon = dom.byId("lon").value;
         var datum = dom.byId("datum").value;
@@ -1566,9 +1570,9 @@ function(
 				} );
 				feature.popupTemplate = wwc5Template;
 			}
-			else if (layerName === 'EARTHQUAKES') {
+			else if (layerName === 'KGS Cataloged' || layerName === 'KGS Preliminary' || layerName === 'NEIC Cataloged' || layerName === 'OGS Cataloged') {
 				var earthquakeTemplate = new PopupTemplate( {
-					title: "Earthquake Event: ",
+					title: layerName + " Event: ",
 					content: earthquakeContent(feature)
 				} );
 				feature.popupTemplate = earthquakeTemplate;
@@ -1579,14 +1583,14 @@ function(
 
 
     function earthquakeContent(feature) {
-        var date = feature.attributes.CENTRAL_STANDARD_TIME !== "Null" ? feature.attributes.CENTRAL_STANDARD_TIME : "";
-        var content = "<table id='popup-tbl'><tr><td>Magnitude: </td><td>{MAG}</td></tr>";
-        content += "<tr><td>Date/Time (CST): </td><td>" + date + "</td></tr>";
-        content += "<tr><td>Latitude: </td><td>{LATITUDE}</td></tr>";
+        var place = feature.attributes.PLACE !== "Null" ? feature.attributes.PLACE : "";
+
+        var content = "<table id='popup-tbl'><tr><td>Magnitude (mc): </td><td>{MC}</td></tr>";
+        content += "<tr><td>Date/Time (CST): </td><td>{ORIGIN_TIME}</td></tr>";
+        content += "<tr><td>Depth (km): </td><td>{DEPTH}</td></tr>";
+        content += "<tr><td>Place: </td><td>" + place + "</td></tr>";
+		content += "<tr><td>Latitude: </td><td>{LATITUDE}</td></tr>";
         content += "<tr><td>Longitude: </td><td>{LONGITUDE}</td></tr>";
-        content += "<tr><td>Depth: </td><td>{DEPTH} km</td></tr>";
-        content += "<tr><td>Magnitude Type: </td><td>{MAGTYPE}</td></tr>";
-        content += "<tr><td>Data Source: </td><td>{SOURCE}</td></tr>";
         content += "<span id='usgs-id' class='hide'>{ID}</span></table>";
 
         return content;
