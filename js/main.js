@@ -1583,15 +1583,40 @@ function(
 
 
     function earthquakeContent(feature) {
-        var place = feature.attributes.PLACE !== "Null" ? feature.attributes.PLACE : "";
+		var f = feature.attributes;
+		var ag = f.AGENCY !== "Null" ? f.AGENCY : "";
+		var ote = f.ORIGIN_TIME_ERR !== "Null" ? f.ORIGIN_TIME_ERR : "";
+		var lat = f.LATITUDE !== "Null" ? f.LATITUDE : "";
+		var latErr = f.LATITUDE_ERR !== "Null" ? f.LATITUDE_ERR : "";
+		var lon = f.LONGITUDE !== "Null" ? f.LONGITUDE : "";
+		var lonErr = f.LONGITUDE_ERR !== "Null" ? f.LONGITUDE_ERR : "";
+		var dep = f.DEPTH !== "Null" ? f.DEPTH + " km" : "";
+		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
+		var m = f.MC !== "Null" ? f.MC : "";
+		var sas = f.SAS !== "Null" ? f.SAS : "";
+		var co = f.COUNTY !== "Null" ? f.COUNTY : "";
+		var hu = "";
 
-        var content = "<table id='popup-tbl'><tr><td>Magnitude (mc): </td><td>{MC}</td></tr>";
-        content += "<tr><td>Date/Time (CST): </td><td>{ORIGIN_TIME}</td></tr>";
-        content += "<tr><td>Depth (km): </td><td>{DEPTH}</td></tr>";
-        content += "<tr><td>Place: </td><td>" + place + "</td></tr>";
-		content += "<tr><td>Latitude: </td><td>{LATITUDE}</td></tr>";
-        content += "<tr><td>Longitude: </td><td>{LONGITUDE}</td></tr>";
-        content += "<span id='usgs-id' class='hide'>{ID}</span></table>";
+		if (latErr && lonErr) {
+			var horizontalUncertainty = Math.sqrt(Math.pow(latErr,2) + Math.pow(lonErr,2));
+			hu = horizontalUncertainty.toFixed(2);
+		}
+
+
+
+		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
+		content += "<tr><td>Agency: </td><td>" + ag + "</td></tr>";
+		content += "<tr><td>Origin Time (UTC): </td><td>{ORIGIN_TIME}</td></tr>";
+		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
+		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
+        content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
+		content += "<tr><td>Horizontal Uncertainty: </td><td>" + hu + "</td></tr>";
+		content += "<tr><td>Depth: </td><td>" + dep + "</td></tr>";
+		content += "<tr><td>Vertical Uncertainty: </td><td>" + de + "</td></tr>";
+        content += "<tr><td>Magnitude (mc): </td><td>" + m + "</td></tr>";
+		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
+		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
+        content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";
 
         return content;
     }
