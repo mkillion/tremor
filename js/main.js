@@ -1037,6 +1037,16 @@ function(
                 findParams.searchText = dom.byId("field-select").value;
                 fieldsLayer.visible = true;
                 $("#Oil-and-Gas-Fields input").prop("checked", true);
+				break;
+			case "event":
+				// 20160629 - not working, throws a NaN error after execution, think it's because it's returning x,y geometry in NAD83 instead of webmercator. Tabled for now.
+				findParams.layerIds = [14, 15, 16, 17];
+				findParams.searchFields = ["event_id"];
+				//findParams.contains = false;
+				findParams.searchText = parseInt(dom.byId("eventid").value);
+				// fieldsLayer.visible = true;
+				// $("#Oil-and-Gas-Fields input").prop("checked", true);
+				break;
         }
         findTask.execute(findParams).then(function(response) {
             zoomToFeature(response.results[0].feature);
@@ -1353,6 +1363,11 @@ function(
 		// content += '<tr class="list-opts hide"><td></td><td><input type="radio" name="welltype" value="none" checked> Don&#39;t List</td></tr>';
         content += '<tr><td></td><td><button class="find-button" onclick=findIt("plss")>Find</button></td></tr>';
         content += '</table></div>';
+		// earthquake event id:
+		// content += '<div class="find-header esri-icon-right-triangle-arrow" id="event"><span class="find-hdr-txt"> Event ID</span></div>';
+        // content += '<div class="find-body hide" id="find-event">';
+        // content += '<table><tr><td class="find-label">Event ID:</td><td><input id="eventid" size="14"></td><td><button class=find-button onclick=findIt("event")>Find</button></td></tr></table>';
+        // content += '</div>';
         // api:
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="api"><span class="find-hdr-txt"> Well API</span></div>';
         content += '<div class="find-body hide" id="find-api">';
