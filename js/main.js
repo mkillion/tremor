@@ -1605,19 +1605,25 @@ function(
 		var latErr = f.LATITUDE_ERR !== "Null" ? f.LATITUDE_ERR : "";
 		var lon = f.LONGITUDE !== "Null" ? f.LONGITUDE : "";
 		var lonErr = f.LONGITUDE_ERR !== "Null" ? f.LONGITUDE_ERR : "";
-		var dep = f.DEPTH !== "Null" ? f.DEPTH + " km" : "";
+		var dep = f.DEPTH !== "Null" ? f.DEPTH : "";
 		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
 		var m = f.MC !== "Null" ? f.MC : "";
 		var sas = f.SAS !== "Null" ? f.SAS : "";
 		var co = f.COUNTY !== "Null" ? f.COUNTY : "";
-		var hu = "";
 
+		if (dep) { dep = parseFloat(dep).toFixed(1) + " km"; }
+		if (de) {
+			if (de === "0") {
+				de = "0 (fixed)";
+			} else {
+				de = parseFloat(de).toFixed(1) + " km";
+			}
+		}
+		var hu = "";
 		if (latErr && lonErr) {
 			var horizontalUncertainty = Math.sqrt(Math.pow(latErr,2) + Math.pow(lonErr,2));
-			hu = horizontalUncertainty.toFixed(2);
+			hu = horizontalUncertainty.toFixed(1) + " km";
 		}
-
-
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
@@ -1628,7 +1634,7 @@ function(
 		content += "<tr><td>Horizontal Uncertainty: </td><td>" + hu + "</td></tr>";
 		content += "<tr><td>Depth: </td><td>" + dep + "</td></tr>";
 		content += "<tr><td>Vertical Uncertainty: </td><td>" + de + "</td></tr>";
-        content += "<tr><td>Magnitude (mc): </td><td>" + m + "</td></tr>";
+        content += "<tr><td>Magnitude (MC): </td><td>" + m + "</td></tr>";
 		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
 		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
         content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";
