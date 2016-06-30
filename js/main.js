@@ -729,6 +729,7 @@ function(
 
 
     filterQuakes = function(btn) {
+		clearQuakeDefQueries();
 		var def = [];
 		var theWhere = "";
 		var dateWhere = "";
@@ -759,7 +760,7 @@ function(
 			magWhere = "mc <= " + uMag;
 		}
 
-		if (co) {
+		if (co !== "all") {
 			coWhere = "county = '" + co + "'";
 		}
 
@@ -792,22 +793,28 @@ function(
 					ogsLayer.sublayers[17].definitionExpression = theWhere;
 			}
 		}
-
+		// TODO:
 		//idDef[0] = def[0];
     }
 
 
     clearQuakeFilter = function() {
-		// TODO: fix next line:
-        //usgsEventsLayer.sublayers[13].definitionExpression = null;
-
 		$(".eqf").val("");
 		$("#evt-county").prop("selectedIndex", 0);
 		$("[name=evt-category]").prop("checked", false);
-
-		// TODO: fix next line:
-		//idDef[13] = "";
+		clearQuakeDefQueries();
     }
+
+
+	function clearQuakeDefQueries() {
+		kgsCatalogedLayer.sublayers[14].definitionExpression = "";
+		kgsPrelimLayer.sublayers[15].definitionExpression = "";
+		neicLayer.sublayers[16].definitionExpression = "";
+		ogsLayer.sublayers[17].definitionExpression = "";
+
+		// TODO:
+		//idDef[13] = "";
+	}
 
 
     filterQuakesLast = function() {
