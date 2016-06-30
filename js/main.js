@@ -1600,7 +1600,7 @@ function(
     function earthquakeContent(feature) {
 		var f = feature.attributes;
 		var ag = f.AGENCY !== "Null" ? f.AGENCY : "";
-		var ote = f.ORIGIN_TIME_ERR !== "Null" ? f.ORIGIN_TIME_ERR : "";
+		var ote = f.ORIGIN_TIME_ERR !== "Null" ? f.ORIGIN_TIME_ERR + " seconds" : "";
 		var lat = f.LATITUDE !== "Null" ? f.LATITUDE : "";
 		var latErr = f.LATITUDE_ERR !== "Null" ? f.LATITUDE_ERR : "";
 		var lon = f.LONGITUDE !== "Null" ? f.LONGITUDE : "";
@@ -1620,7 +1620,7 @@ function(
 
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
-		content += "<tr><td>Agency: </td><td>" + ag + "</td></tr>";
+		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
 		content += "<tr><td>Origin Time (UTC): </td><td>{ORIGIN_TIME}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
