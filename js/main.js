@@ -730,7 +730,10 @@ function(
 
     filterQuakes = function(btn) {
 		var def = [];
-		var where, dateWhere, magWhere, coWhere;
+		var theWhere = "";
+		var dateWhere = "";
+		var magWhere = "";
+		var coWhere = "";
 		var fromDate = dom.byId('eq-from-date').value;
 		var toDate = dom.byId('eq-to-date').value;
 		var lMag = dom.byId('low-mag').value;
@@ -740,59 +743,57 @@ function(
 		    return this.value;
 		} ).get();
 
+		if (fromDate && toDate) {
+			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+		} else if (fromDate && !toDate) {
+			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
+		} else if (!fromDate && toDate) {
+			dateWhere = "origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+		}
 
+		if (lMag && uMag) {
+			magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+		} else if (lMag && !uMag) {
+			magWhere = "mc >= " + lMag;
+		} else if (!lMag && uMag) {
+			magWhere = "mc <= " + uMag;
+		}
 
+		if (co) {
+			coWhere = "county = '" + co + "'";
+		}
 
-        // if (btn === "day-btn") {
-        //     lMag = dom.byId("day-mag").value;
-        //     uMag = parseInt(lMag) + 0.99;
-		// 	var fromDate = dom.byId('eq-from-date').value;
-		// 	var toDate = dom.byId('eq-to-date').value;
-		// 	var fromWhr = "central_standard_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
-		// 	var toWhr = "central_standard_time < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-		// 	var netWhr = " and net in ('us', ' ', 'US')";
-		//
-        //     if (lMag !== "all") {
-		// 		if (fromDate && toDate) {
-        //         	def[13] = fromWhr + " and " + toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-		// 		} else if (fromDate && !toDate) {
-		// 			def[13] = fromWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-		// 		} else if (!fromDate && toDate) {
-		// 			def[13] = toWhr + " and mag >= " + lMag + " and mag <= " + uMag + netWhr;
-		// 		}
-        //     } else {
-		// 		if (fromDate && toDate) {
-        //         	def[13] = fromWhr + " and " + toWhr + netWhr;
-		// 		} else if (fromDate && !toDate) {
-		// 			def[13] = fromWhr + netWhr;
-		// 		} else if (!fromDate && toDate) {
-		// 			def[13] = toWhr + netWhr;
-		// 		}
-        //     }
-        // } else {
-        //     var year = dom.byId("year").value;
-        //     var nextYear = parseInt(year) + 1;
-		//
-        //     lMag = dom.byId("year-mag").value;
-        //     uMag = parseInt(lMag) + 0.99;
-		//
-        //     if (year !== "all") {
-		// 		var whr = "central_standard_time >= to_date('01/01/" + year + "','mm/dd/yyyy') and central_standard_time < to_date('01/01/" + nextYear + "','mm/dd/yyyy') and net in ('us', ' ', 'US')";
-        //         if (lMag !== "all") {
-        //             def[13] = whr + " and mag >= " + lMag + " and mag <= " + uMag;
-        //         } else {
-        //             def[13] = whr;
-        //         }
-        //     } else {
-        //         if (lMag !== "all") {
-        //             def[13] = " mag >= " + lMag + " and mag <= " + uMag;
-        //         } else {
-        //             def[13] = "";
-        //         }
-        //     }
-        // }
-		// idDef[13] = def[13];
-		// usgsEventsLayer.sublayers[13].definitionExpression = def[13];
+		if (dateWhere !== "") {
+			theWhere += dateWhere + " and ";
+		}
+		if (magWhere !== "") {
+			theWhere += magWhere + " and ";
+		}
+		if (coWhere !== "") {
+			theWhere += coWhere + " and ";
+		}
+
+		if (theWhere.substr(theWhere.length - 5) === " and ") {
+			theWhere = theWhere.slice(0,theWhere.length - 5);
+		}
+
+		for (var i=0; i<lIDs.length; i++) {
+			switch (lIDs[i]) {
+				case "14":
+					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+					break;
+				case "15":
+					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+					break;
+				case "16":
+					neicLayer.sublayers[16].definitionExpression = theWhere;
+					break;
+				case "17":
+					ogsLayer.sublayers[17].definitionExpression = theWhere;
+			}
+		}
+
+		//idDef[0] = def[0];
     }
 
 
@@ -1621,7 +1622,7 @@ function(
 		}
 		var hu = "";
 		if (latErr && lonErr) {
-			var horizontalUncertainty = Math.sqrt(Math.pow(latErr,2) + Math.pow(lonErr,2));
+			var horizontalUncertainty = Math.sqrt( Math.pow(latErr,2) + Math.pow(lonErr,2) );
 			hu = horizontalUncertainty.toFixed(1) + " km";
 		}
 
