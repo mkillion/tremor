@@ -306,13 +306,8 @@ function(
 		eqF += "<tr><td class='find-label' colspan='2'>Magnitude >=&nbsp;<input class='eqf' type='text' size='8' id='low-mag'></td></tr>";
 		eqF += "<tr><td class='find-label' colspan='2'>Magnitude <=&nbsp;<input class='eqf' type='text' size='8' id='high-mag'></td></tr>";
 		eqF += "<tr><td class='find-label'>County:</td><td><select id='evt-county'></select></td></tr></table>";
-		eqF += "<table><tr><td class='find-label'>Apply To:</td><td></td></tr>";
-		// Values in next 4 lines must match layer IDs:
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=14></td><td>KGS Cataloged</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=15></td><td>KGS Preliminary</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=16></td><td>NEIC Cataloged</td></tr>";
-		eqF += "<tr><td style='text-align:right'><input type='checkbox' name='evt-category' value=17></td><td>OGS Cataloged</td></tr></table>";
-		eqF += "<hr><table><tr><td><button onclick='filterQuakes();'>Apply</button></td><td><button onclick='clearQuakeFilter();' autofocus>Clear</button></td></tr></table>";
+		eqF += "<hr><table><tr><td><button onclick='filterQuakes();'>Apply</button></td><td><button onclick='clearQuakeFilter();' autofocus>Clear</button></td></tr>";
+		eqF += "<tr><td class='pu-note' colspan='2'>(applies to all earthquake layers)</td></tr></table>";
 
         var eqN = domConstruct.create("div", { id: "eq-filter", class: "filter-dialog", innerHTML: eqF } );
         $("body").append(eqN);
@@ -730,7 +725,7 @@ function(
 
     filterQuakes = function(btn) {
 		clearQuakeDefQueries();
-		var def = [];
+
 		var theWhere = "";
 		var dateWhere = "";
 		var magWhere = "";
@@ -740,9 +735,6 @@ function(
 		var lMag = dom.byId('low-mag').value;
 		var uMag = dom.byId('high-mag').value;
 		var co = dom.byId('evt-county').value;
-		var lIDs = $('input[name="evt-category"]:checked').map(function() {
-		    return this.value;
-		} ).get();
 
 		if (fromDate && toDate) {
 			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
@@ -778,23 +770,14 @@ function(
 			theWhere = theWhere.slice(0,theWhere.length - 5);
 		}
 
-		for (var i=0; i<lIDs.length; i++) {
-			switch (lIDs[i]) {
-				case "14":
-					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
-					break;
-				case "15":
-					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
-					break;
-				case "16":
-					neicLayer.sublayers[16].definitionExpression = theWhere;
-					break;
-				case "17":
-					ogsLayer.sublayers[17].definitionExpression = theWhere;
-			}
-		}
-		// TODO:
-		//idDef[0] = def[0];
+		kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+		kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+		neicLayer.sublayers[16].definitionExpression = theWhere;
+		ogsLayer.sublayers[17].definitionExpression = theWhere;
+		idDef[14] = theWhere;
+		idDef[15] = theWhere;
+		idDef[16] = theWhere;
+		idDef[17] = theWhere;
     }
 
 
@@ -811,9 +794,10 @@ function(
 		kgsPrelimLayer.sublayers[15].definitionExpression = "";
 		neicLayer.sublayers[16].definitionExpression = "";
 		ogsLayer.sublayers[17].definitionExpression = "";
-
-		// TODO:
-		//idDef[13] = "";
+		idDef[14] = "";
+		idDef[15] = "";
+		idDef[16] = "";
+		idDef[17] = "";
 	}
 
 
