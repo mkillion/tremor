@@ -164,9 +164,10 @@ function(
 	var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
+	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, naip2014Layer, plssLayer, wellsLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, naip2014Layer, plssLayer, wellsLayer, class1Layer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
