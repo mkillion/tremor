@@ -452,13 +452,13 @@ function(
 			buffDia += "<option value='" + units[j] + "'>" + units[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
-		buffDia += '<tr><td></td><td><button id="buff-opts-btn" class="find-button" onclick=$(".buff-opts").toggleClass("hide")>Options</button></td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2">List Within Buffer:</td><td></td></tr>';
+		buffDia += '<tr><td colspan="2"><button id="buff-opts-btn" class="find-button" onclick=$(".buff-opts").toggleClass("hide")>Options</button></td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2">List Features Within Buffer:</td><td></td></tr>';
 		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Earthquakes"> Earthquakes</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="kgscat" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="kgspre" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="neiccat" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="ogscat" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
 		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
 		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
 		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="none" checked onchange="resetEvtChk()"> Don&#39;t List</td></tr>';
@@ -872,16 +872,24 @@ function(
 			var idTask = new IdentifyTask(tremorGeneralServiceURL);
 	        var idParams = new IdentifyParameters();
 			var arrFeatures = [];
+			var lIDs = [];
 			var twn, rng, dir, sec, count, what;
+			if (selectBuffWellType === "Oil and Gas") {
+				lIDs.push(0);
+			} else if (selectBuffWellType === "Class I Injection") {
+				lID.push(18);
+			} else if (selectBuffWellType === "Earthquakes") {
+				var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
+					return $(this).val();
+			    } ).get();
+				$.each(chkdIDs, function(idx, val) {
+					lIDs.push(parseInt(val));
+				} );
+				what = "earthquake";
+			}
+
 			idParams.geometry = buffPoly;
-			///idParams.layerIds = (selectBuffWellType === "Oil and Gas") ? [0] : [8];
-			// if (selectBuffWellType === "Oil and Gas") {
-			// 	var lIDs = [0];
-			// } else if (selectBuffWellType === "Earthquakes") {
-			// 	lID = ;
-			// } else if (selectBuffWellType === "Class I Injection") {
-			// 	var lIDs = [18];
-			// }
+			idParams.layerIds = lIDs;
 			idParams.returnGeometry = true;
 			idParams.tolerance = 0;
 			idParams.mapExtent = view.extent;
@@ -1163,6 +1171,8 @@ function(
 
 		if (what === "field") {
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Oil and Gas Wells assigned to " + fSet.features[0].attributes.FIELD_NAME + "</div>";
+		} else if (what === "earthquake") {
+			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + wellType + " in " + locationString + "</div>";
 		} else {
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + wellType + " Wells in " + locationString + "</div>";
 		}
@@ -1181,13 +1191,14 @@ function(
 
 			var downloadIcon = "<img id='loader' class='hide' src='images/ajax-loader.gif'><a class='esri-icon-download' title='Download List to Text File'></a>";
 			$("#list-txt").append(downloadIcon);
+
 			if (wellType === "Oil and Gas") {
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Name</th><th>API</th></tr>";
 				for (var i=0; i<fSet.features.length; i++) {
 					wellsTbl += "<tr><td style='width:48%'>" + fSet.features[i].attributes.LEASE_NAME + " " + fSet.features[i].attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.features[i].attributes.API_NUMBER + "</td><td class='hide'>" + fSet.features[i].attributes.KID + "</td></tr>";
 					apiNums.push(fSet.features[i].attributes.API_NUMBER);
 				}
-			} else {
+			} else if (wellType === "Water") {
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='wwc5-tbl'><tr><th>Owner</th><th>Use</th></tr>";
 				for (var i=0; i<fSet.features.length; i++) {
 					wellsTbl += "<tr><td>" + fSet.features[i].attributes.OWNER_NAME + "</td><td>" + fSet.features[i].attributes.USE_DESC + "</td><td class='hide'>" + fSet.features[i].attributes.INPUT_SEQ_NUMBER + "</td></tr>";
@@ -1195,13 +1206,17 @@ function(
 				}
 				wwc5Layer.visible = true;
 				$("#WWC5-Water-Wells input").prop("checked", true);
+			} else if (wellType === "Earthquakes") {
+				console.log("hey!");
+				var junk = fSet.features.length;
+				console.log(junk);
 			}
 			wellsTbl += "</table>";
 		} else {
 			if (view.zoom <= 13) {
 				var wellsTbl = "<div class='toc-note'>Zoom in and re-run buffer to list wells</div>";
 			} else {
-				var wellsTbl = "<div class='toc-note'>No wells found</div>";
+				var wellsTbl = "<div class='toc-note'>No features found</div>";
 			}
 		}
 
