@@ -193,7 +193,7 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 3;
-        identifyParams.layerIds = [0, 14, 15, 16, 17];
+        identifyParams.layerIds = [0, 14, 15, 16, 17, 18];
         identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
@@ -1574,7 +1574,7 @@ function(
 			var feature = result.feature;
 			var layerName = result.layerName;
 
-			if (layerName === 'OG_WELLS') {
+			if (layerName === 'OG_WELLS' || layerName === 'CLASS1 WELLS') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
 					content: wellContent(feature)
@@ -1704,7 +1704,6 @@ function(
 
     function wellContent(feature) {
         var f = feature.attributes;
-
         var dpth = f.ROTARY_TOTAL_DEPTH !== "Null" ? f.ROTARY_TOTAL_DEPTH.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
         var elev = f.ELEVATION_KB !== "Null" ? f.ELEVATION_KB.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
 
