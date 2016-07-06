@@ -453,11 +453,16 @@ function(
 		}
 		buffDia += '</select></td></tr>';
 		buffDia += '<tr><td></td><td><button id="buff-opts-btn" class="find-button" onclick=$(".buff-opts").toggleClass("hide")>Options</button></td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2">List Wells Within Buffer:</td><td></td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td></td><td><input type="radio" name="buffwelltype" value="Oil and Gas"> Oil and Gas</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td></td><td><input type="radio" name="buffwelltype" value="Water"> Water (WWC5)</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td></td><td><input type="radio" name="buffwelltype" value="none" checked> Don&#39;t List</td></tr>';
-		buffDia += '<tr><td></td><td><button class="find-button" onclick="bufferFeature()">Create Buffer</button></td></tr></table>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2">List Within Buffer:</td><td></td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Earthquakes"> Earthquakes</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="kgscat" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="kgspre" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="neiccat" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="ogscat" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
+		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="none" checked onchange="resetEvtChk()"> Don&#39;t List</td></tr>';
+		buffDia += '<tr><td colspan="2"><button class="find-button" onclick="bufferFeature()">Create Buffer</button></td></tr></table>';
 
 		var buffN = domConstruct.create("div", { id: "buff-dia", class: "filter-dialog", innerHTML: buffDia } );
         $("body").append(buffN);
@@ -483,6 +488,17 @@ function(
 			width: 375
         } );
     }
+
+
+	changeEvtChk = function() {
+		$("[name=buffwelltype]").prop("checked", false);
+		$("[name=buffwelltype]").filter("[value='Earthquakes']").prop("checked", true);
+	}
+
+
+	resetEvtChk = function() {
+		$(".evt-chk").prop("checked", false);
+	}
 
 
 	sendProblem = function() {
@@ -850,7 +866,7 @@ function(
 
 		$("#buff-dia").dialog("close");
 
-		// List wells w/in buffer:
+		// List wells/events w/in buffer:
 		var selectBuffWellType = $("input:radio[name=buffwelltype]:checked").val();
 		if (selectBuffWellType !== "none") {
 			var idTask = new IdentifyTask(tremorGeneralServiceURL);
@@ -858,7 +874,14 @@ function(
 			var arrFeatures = [];
 			var twn, rng, dir, sec, count, what;
 			idParams.geometry = buffPoly;
-			idParams.layerIds = (selectBuffWellType === "Oil and Gas") ? [0] : [8];
+			///idParams.layerIds = (selectBuffWellType === "Oil and Gas") ? [0] : [8];
+			// if (selectBuffWellType === "Oil and Gas") {
+			// 	var lIDs = [0];
+			// } else if (selectBuffWellType === "Earthquakes") {
+			// 	lID = ;
+			// } else if (selectBuffWellType === "Class I Injection") {
+			// 	var lIDs = [18];
+			// }
 			idParams.returnGeometry = true;
 			idParams.tolerance = 0;
 			idParams.mapExtent = view.extent;

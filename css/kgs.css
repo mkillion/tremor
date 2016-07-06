@@ -18,6 +18,10 @@ th, td {
     padding: 3px;
 }
 
+.evt-chk {
+	margin-left: 40px;
+}
+
 #reset-finds {
 	left: 75px;
 	position: relative;
