@@ -890,6 +890,7 @@ function(
 
 			idParams.geometry = buffPoly;
 			idParams.layerIds = lIDs;
+			idParams.layerOption = "visible";
 			idParams.returnGeometry = true;
 			idParams.tolerance = 0;
 			idParams.mapExtent = view.extent;
@@ -1151,7 +1152,13 @@ function(
 
 
 	function sortList(a, b) {
-		var att =  (a.attributes.API_NUMBER) ? "API_NUMBER" : "OWNER_NAME";
+		if (a.attributes.API_NUMBER) {
+			var att = "API_NUMBER";
+		} else if (a.attributes.OWNER_NAME) {
+			var att = "OWNER_NAME";
+		} else if (a.attributes.LAYER) {
+			var att = "LAYER";
+		}
         var numA = a.attributes[att];
         var numB = b.attributes[att];
         if (numA < numB) { return -1 }
@@ -1172,8 +1179,9 @@ function(
 		if (what === "field") {
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Oil and Gas Wells assigned to " + fSet.features[0].attributes.FIELD_NAME + "</div>";
 		} else if (what === "earthquake") {
-			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + wellType + " in " + locationString + "</div>";
+			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Earthquake events in " + locationString + "</div>";
 		} else {
+			// oil and water wells.
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + wellType + " Wells in " + locationString + "</div>";
 		}
 
@@ -1184,7 +1192,8 @@ function(
 
 		var apiNums = [];
 		var seqNums = [];
-		var apis,seqs;
+		var evtIdNums = [];
+		var apis,seqs, evts;
 
 		if (fSet.features.length > 0) {
 			fSet.features.sort(sortList);
@@ -1207,14 +1216,34 @@ function(
 				wwc5Layer.visible = true;
 				$("#WWC5-Water-Wells input").prop("checked", true);
 			} else if (wellType === "Earthquakes") {
-				console.log("hey!");
-				var junk = fSet.features.length;
-				console.log(junk);
+				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='eq-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>";
+				var source, formatted;
+				for (var i=0; i<fSet.features.length; i++) {
+					switch (fSet.features[i].attributes.LAYER) {
+						case "KGS":
+							source = "KGS Cataloged";
+							break;
+						case "EWA":
+							source = "KGS Preliminary";
+							break;
+						case "NEIC":
+							source = "NEIC Cataloged";
+							break;
+						case "OGS":
+							source = "OGS Cataloged";
+							break;
+						default:
+							source = "";
+					}
+					formatted = $.datepicker.formatDate("m/d/yy", new Date(fSet.features[i].attributes.ORIGIN_TIME) );
+					wellsTbl += "<tr><td>" + source + "</td><td>" + formatted + "</td><td>" + fSet.features[i].attributes.MC + "</td><td class='hide'>" + fSet.features[i].attributes.EVENT_ID + "</td></tr>";
+					evtIdNums.push(fSet.features[i].attributes.EVENT_ID);
+				}
 			}
 			wellsTbl += "</table>";
 		} else {
 			if (view.zoom <= 13) {
-				var wellsTbl = "<div class='toc-note'>Zoom in and re-run buffer to list wells</div>";
+				var wellsTbl = "<div class='toc-note'>Zoom in and re-run buffer to create list</div>";
 			} else {
 				var wellsTbl = "<div class='toc-note'>No features found</div>";
 			}
@@ -1228,8 +1257,11 @@ function(
 		if (seqNums.length > 0) {
 			seqs = seqNums.join(",");
 		}
+		if (evtIdNums.length > 0) {
+			evts = evtIdNums.join(",");
+		}
 
-		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs };
+		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs, "evts": evts };
 		$(".esri-icon-download").click( {cf:cfParams}, downloadList);
 
 		// Open tools drawer-menu:
@@ -1238,7 +1270,7 @@ function(
 		$(".icon-wrench").closest(".item").addClass("item-selected");
 		$("#tools-panel").closest(".panel").addClass("panel-selected");
 
-		// Select a well by clicking on table row:
+		// Select a well/event by clicking on table row:
 		$('.striped-tbl').find('tr').click(function() {
 			$(this).closest("tr").siblings().removeClass("highlighted");
     		$(this).toggleClass("highlighted");
