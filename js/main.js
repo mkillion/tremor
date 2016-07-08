@@ -1153,12 +1153,26 @@ function(
 
 	function sortList(a, b) {
 		if (a.attributes.API_NUMBER) {
+			// oil wells.
 			var att = "API_NUMBER";
 		} else if (a.attributes.OWNER_NAME) {
+			// water wells.
 			var att = "OWNER_NAME";
 		} else if (a.attributes.LAYER) {
-			var att = "LAYER";
+			// sort earthquakes by source ("layer") first, then date:
+			if (a.attributes["LAYER"] < b.attributes["LAYER"]) { return -1; }
+			if (a.attributes["LAYER"] > b.attributes["LAYER"]) { return 1; }
+			if (a.attributes["LAYER"] === b.attributes["LAYER"]) {
+				var aDate = new Date(a.attributes["ORIGIN_TIME"]);
+				var bDate = new Date(b.attributes["ORIGIN_TIME"]);
+				if (aDate < bDate) { return -1; }
+				if (aDate > bDate) { return 1; }
+				return 0;
+			}
+			return 0;
 		}
+
+		// sorting for og/water wells:
         var numA = a.attributes[att];
         var numB = b.attributes[att];
         if (numA < numB) { return -1 }
