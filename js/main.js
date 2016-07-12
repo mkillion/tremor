@@ -1274,7 +1274,7 @@ function(
 		if (evtIdNums.length > 0) {
 			evts = evtIdNums.join(",");
 		}
-
+		
 		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs, "evts": evts };
 		$(".esri-icon-download").click( {cf:cfParams}, downloadList);
 
@@ -1331,7 +1331,7 @@ function(
 			plssStr += "twn=" + evt.data.cf.twn + "&rng=" + evt.data.cf.rng + "&dir=" + evt.data.cf.dir + "&type=" + evt.data.cf.type;
 		} else {
 			// Download from buffer.
-			data = {"type": evt.data.cf.type, "apis": evt.data.cf.apis, "seqs": evt.data.cf.seqs};
+			data = { "type": evt.data.cf.type, "apis": evt.data.cf.apis, "seqs": evt.data.cf.seqs, "evts": evt.data.cf.evts };
 		}
 
 		$.post( "downloadPointsInPoly.cfm?" + plssStr, data, function(response) {
