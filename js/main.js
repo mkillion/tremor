@@ -1560,7 +1560,7 @@ function(
         content += '</div>';
 
         menuObj = {
-            label: '<div class="icon-wrench"></div><div class="icon-text">Tools & Lists</div>',
+            label: '<div class="icon-wrench"></div><div class="icon-text">Lists</div>',
             content: content
         };
         drawerMenus.push(menuObj);
@@ -1576,7 +1576,7 @@ function(
         content += '</div>';
 
         menuObj = {
-            label: '<div class="icon-list"></div><div class="icon-text">Legend/Links</div>',
+            label: '<div class="icon-list"></div><div class="icon-text">Legend</div>',
             content: content
         };
         drawerMenus.push(menuObj);
