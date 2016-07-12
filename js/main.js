@@ -1210,7 +1210,8 @@ function(
 		var apiNums = [];
 		var seqNums = [];
 		var evtIdNums = [];
-		var apis,seqs, evts;
+		var kidNums = [];
+		var apis,seqs, evts, kids;
 
 		if (fSet.features.length > 0) {
 			fSet.features.sort(sortList);
@@ -1236,7 +1237,7 @@ function(
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='class1-tbl'><tr><th>Name</th><th>API</th></tr>";
 				for (var i=0; i<fSet.features.length; i++) {
 					wellsTbl += "<tr><td style='width:48%'>" + fSet.features[i].attributes.LEASE_NAME + " " + fSet.features[i].attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.features[i].attributes.API_NUMBER + "</td><td class='hide'>" + fSet.features[i].attributes.KID + "</td></tr>";
-					apiNums.push(fSet.features[i].attributes.API_NUMBER);
+					kidNums.push(fSet.features[i].attributes.KID);
 				}
 				class1Layer.visible = true;
 				$("#Class-I-Injection-Wells input").prop("checked", true);
@@ -1285,8 +1286,11 @@ function(
 		if (evtIdNums.length > 0) {
 			evts = evtIdNums.join(",");
 		}
+		if (kidNums.length > 0) {
+			kids = kidNums.join(",");
+		}
 
-		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs, "evts": evts };
+		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs, "evts": evts, "kids": kids };
 		$(".esri-icon-download").click( {cf:cfParams}, downloadList);
 
 		// Open tools drawer-menu:
@@ -1347,7 +1351,7 @@ function(
 			plssStr += "twn=" + evt.data.cf.twn + "&rng=" + evt.data.cf.rng + "&dir=" + evt.data.cf.dir + "&type=" + evt.data.cf.type;
 		} else {
 			// Download from buffer.
-			data = { "type": evt.data.cf.type, "apis": evt.data.cf.apis, "seqs": evt.data.cf.seqs, "evts": evt.data.cf.evts };
+			data = { "type": evt.data.cf.type, "apis": evt.data.cf.apis, "seqs": evt.data.cf.seqs, "evts": evt.data.cf.evts, "kids": evt.data.cf.kids };
 		}
 
 		$.post( "downloadPointsInPoly.cfm?" + plssStr, data, function(response) {
