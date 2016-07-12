@@ -1274,7 +1274,7 @@ function(
 		if (evtIdNums.length > 0) {
 			evts = evtIdNums.join(",");
 		}
-		
+
 		var cfParams = { "twn": twn, "rng": rng, "dir": dir, "sec": sec, "type": wellType, "apis": apis, "seqs": seqs, "evts": evts };
 		$(".esri-icon-download").click( {cf:cfParams}, downloadList);
 
@@ -1291,11 +1291,16 @@ function(
 
 			// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
 			var kgsID =  $(this).find('td:eq(2)').text();
+			var evtID =  $(this).find('td:eq(3)').text();
 
 			if (wellType === "Oil and Gas" || what === "field") {
 				findParams.layerIds = [0];
 				findParams.searchFields = ["KID"];
 		        findParams.searchText = kgsID;
+			} else if (wellType === "Earthquakes") {
+				findParams.layerIds = [14,15,16,17];
+				findParams.searchFields = ["EVENT_ID"];
+		        findParams.searchText = evtID;
 			} else {
 				findParams.layerIds = [8];
 				findParams.searchFields = ["INPUT_SEQ_NUMBER"];
@@ -1641,6 +1646,8 @@ function(
 					var ptID = fAtts.INPUT_SEQ_NUMBER;
 				} else if (fAtts.hasOwnProperty('KID')) {
 					var ptID = fAtts.KID;
+				} else if (fAtts.hasOwnProperty('EVENT_ID')) {
+					var ptID = fAtts.EVENT_ID;
 				}
 				$(".well-list-tbl tr").removeClass("highlighted");
 				$(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
