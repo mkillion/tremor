@@ -1225,6 +1225,8 @@ function(
 					wellsTbl += "<tr><td style='width:48%'>" + fSet.features[i].attributes.LEASE_NAME + " " + fSet.features[i].attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.features[i].attributes.API_NUMBER + "</td><td class='hide'>" + fSet.features[i].attributes.KID + "</td></tr>";
 					apiNums.push(fSet.features[i].attributes.API_NUMBER);
 				}
+				wellsLayer.visible = true;
+				$("#Oil-and-Gas-Wells input").prop("checked", true);
 			} else if (wellType === "Water") {
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='wwc5-tbl'><tr><th>Owner</th><th>Use</th></tr>";
 				for (var i=0; i<fSet.features.length; i++) {
@@ -1248,15 +1250,23 @@ function(
 					switch (fSet.features[i].attributes.LAYER) {
 						case "KGS":
 							source = "KGS Cataloged";
+							kgsCatalogedLayer.visible = true;
+							$("#KGS-Cataloged-Events input").prop("checked", true);
 							break;
 						case "EWA":
 							source = "KGS Preliminary";
+							kgsPrelimLayer.visible = true;
+							$("#KGS-Preliminary-Events input").prop("checked", true);
 							break;
 						case "NEIC":
 							source = "NEIC Cataloged";
+							neicLayer.visible = true;
+							$("#NEIC-Cataloged-Events input").prop("checked", true);
 							break;
 						case "OGS":
 							source = "OGS Cataloged";
+							ogsLayer.visible = true;
+							$("#OGS-Cataloged-Events input").prop("checked", true);
 							break;
 						default:
 							source = "";
