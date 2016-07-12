@@ -877,7 +877,8 @@ function(
 			if (selectBuffWellType === "Oil and Gas") {
 				lIDs.push(0);
 			} else if (selectBuffWellType === "Class I Injection") {
-				lID.push(18);
+				lIDs.push(18);
+				what = "class1";
 			} else if (selectBuffWellType === "Earthquakes") {
 				var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
 					return $(this).val();
@@ -1194,6 +1195,8 @@ function(
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Oil and Gas Wells assigned to " + fSet.features[0].attributes.FIELD_NAME + "</div>";
 		} else if (what === "earthquake") {
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Earthquake events in " + locationString + "</div>";
+		} else if (what === "class1") {
+			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>Class I injection wells in " + locationString + "</div>";
 		} else {
 			// oil and water wells.
 			var wellsLst = "<div class='panel-sub-txt' id='list-txt'>List</div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + wellType + " Wells in " + locationString + "</div>";
@@ -1229,6 +1232,14 @@ function(
 				}
 				wwc5Layer.visible = true;
 				$("#WWC5-Water-Wells input").prop("checked", true);
+			} else if (wellType === "Class I Injection") {
+				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='class1-tbl'><tr><th>Name</th><th>API</th></tr>";
+				for (var i=0; i<fSet.features.length; i++) {
+					wellsTbl += "<tr><td style='width:48%'>" + fSet.features[i].attributes.LEASE_NAME + " " + fSet.features[i].attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.features[i].attributes.API_NUMBER + "</td><td class='hide'>" + fSet.features[i].attributes.KID + "</td></tr>";
+					apiNums.push(fSet.features[i].attributes.API_NUMBER);
+				}
+				class1Layer.visible = true;
+				$("#Class-I-Injection-Wells input").prop("checked", true);
 			} else if (wellType === "Earthquakes") {
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='eq-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>";
 				var source, formatted;
@@ -1293,7 +1304,7 @@ function(
 			var kgsID =  $(this).find('td:eq(2)').text();
 			var evtID =  $(this).find('td:eq(3)').text();
 
-			if (wellType === "Oil and Gas" || what === "field") {
+			if (wellType === "Oil and Gas" || wellType === "Class I Injection" || what === "field") {
 				findParams.layerIds = [0];
 				findParams.searchFields = ["KID"];
 		        findParams.searchText = kgsID;
