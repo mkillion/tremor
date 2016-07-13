@@ -28,6 +28,12 @@ th, td {
 	top: -3px;
 }
 
+#clear-filters {
+	left: 33px;
+	position: relative;
+	top: -3px;
+}
+
 #add-bookmark {
 	font-size: 22px;
 	left: 147px;

@@ -1432,7 +1432,7 @@ function(
 		$("#twn, #rng, #sec, #datum, #lstCounty").prop("selectedIndex", 0);
 		$("#rngdir-w").prop("checked", "checked");
 		$("[name=welltype]").filter("[value='none']").prop("checked",true);
-		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select").val("");
+		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select, #eventid").val("");
 	}
 
 
@@ -1535,7 +1535,7 @@ function(
         // Layers panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Layers* <span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
+        content += '<div class="panel-header">Layers* <span id="clear-filters"><button onclick="clearQuakeFilter()">Clear All Filters</button></span><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1568,7 +1568,7 @@ function(
         content += '<div class="panel-header">Legend <span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
         content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
-		content += '<div class="panel-header">Links</div>';
+		// content += '<div class="panel-header">Links</div>';
         content += '</div>';
         content += '</div>';
 
