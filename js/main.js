@@ -827,11 +827,6 @@ function(
 
 
 	bufferFeature = function() {
-		// var listOption = $("input:radio[name=buffwelltype]:checked").val();
-		// if (view.zoom <= 13 && listOption !== 'none') {
-		// 	alert("Must zoom-in at least one level to list wells within buffer.")
-		// }
-
 		graphicsLayer.remove(bufferGraphic);
 
 		var f = view.popup.selectedFeature;
@@ -895,6 +890,8 @@ function(
 			idParams.returnGeometry = true;
 			idParams.tolerance = 0;
 			idParams.mapExtent = view.extent;
+			idParams.height = view.height;
+			idParams.width = view.width;
 			idTask.execute(idParams).then(function(response) {
 				for (var i=0; i<response.results.length; i++) {
 					arrFeatures.push(response.results[i].feature);
@@ -1278,8 +1275,8 @@ function(
 			}
 			wellsTbl += "</table>";
 		} else {
-			if (view.zoom <= 13) {
-				var wellsTbl = "<div class='toc-note'>Zoom in and re-run buffer to create list</div>";
+			if (wellType === "Oil and Gas") {
+				var wellsTbl = "<div class='toc-note'>Oil wells must be visible to be selected</div>";
 			} else {
 				var wellsTbl = "<div class='toc-note'>No features found</div>";
 			}
@@ -1551,7 +1548,7 @@ function(
         // Tools panel:
         content = '';
         content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">Tools <span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
+        content += '<div class="panel-header"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
         content += '<div class="panel-padding">';
         // content += '<div class="find-header tools-icon esri-icon-radio-checked" id="buff-tool"><span class="find-hdr-txt tools-txt"> Buffer and Select</span></div>';
 		// content += '<div class="find-header tools-icon esri-icon-minus" id="meas-tool"><span class="find-hdr-txt tools-txt"> Measure Distance</span></div>';
