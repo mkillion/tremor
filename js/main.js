@@ -1220,7 +1220,7 @@ function(
 				var wellsTbl = "<table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Name</th><th>API</th></tr>";
 				for (var i=0; i<fSet.features.length; i++) {
 					wellsTbl += "<tr><td style='width:48%'>" + fSet.features[i].attributes.LEASE_NAME + " " + fSet.features[i].attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.features[i].attributes.API_NUMBER + "</td><td class='hide'>" + fSet.features[i].attributes.KID + "</td></tr>";
-					apiNums.push(fSet.features[i].attributes.API_NUMBER);
+					kidNums.push(fSet.features[i].attributes.KID);
 				}
 				wellsLayer.visible = true;
 				$("#Oil-and-Gas-Wells input").prop("checked", true);
