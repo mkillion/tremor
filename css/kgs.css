@@ -205,12 +205,14 @@ input[type=checkbox] {
 	font-size: 22px;
 }
 
+.esri-icon-filter,
 .esri-icon-erase,
 .esri-icon-download {
 	color: #000 !important;
 	cursor: pointer;
 	float: right;
 	font-size: 22px;
+	padding-left: 10px;
 	text-decoration: none;
 }
 

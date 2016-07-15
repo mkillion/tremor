@@ -207,9 +207,9 @@ function(
         view.popup.actions.push(fullInfoAction);
 
         var bufferFeatureAction = {
-            title: "Buffer Feature",
-            id: "buffer-feature",
-            className: "esri-icon-radio-checked pu-icon"
+            title: "Filter & Buffer",
+            id: "filter-buffer-feature",
+            className: "esri-icon-filter pu-icon"
         };
         view.popup.actions.push(bufferFeatureAction);
 
@@ -223,8 +223,8 @@ function(
         view.popup.on("trigger-action", function(evt) {
             if(evt.action.id === "full-report") {
                 showFullInfo();
-            } else if (evt.action.id === "buffer-feature") {
-				$("#buff-dia").dialog("open");
+            } else if (evt.action.id === "filter-buffer-feature") {
+				$("#filter-buff-dia").dialog("open");
             } else if (evt.action.id === "report-error") {
                 $("#prob-dia").dialog("open");
             }
@@ -276,9 +276,9 @@ function(
 		graphicsLayer.removeAll();
     } );
 
-	$("#buff-tool").click(function() {
-        $("#buff-dia").dialog("open");
-    } );
+	$(".esri-icon-filter").click(function() {
+		$("#filter-buff-dia").dialog("open");
+	} );
 
 	$("#buff-opts-btn").click(function() {
 		$("#buff-opts").toggleClass("show");
@@ -464,13 +464,13 @@ function(
 		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="none" checked onchange="resetEvtChk()"> Don&#39;t List</td></tr>';
 		buffDia += '<tr><td colspan="2"><button class="find-button" onclick="bufferFeature()">Create Buffer</button></td></tr></table>';
 
-		var buffN = domConstruct.create("div", { id: "buff-dia", class: "filter-dialog", innerHTML: buffDia } );
+		var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
         $("body").append(buffN);
 
-        $("#buff-dia").dialog( {
+        $("#filter-buff-dia").dialog( {
             autoOpen: false,
             dialogClass: "dialog",
-			title: "Buffer Features"
+			title: "Filter/Select Features"
         } );
 
 		// Report problem dialog:
@@ -859,7 +859,7 @@ function(
 
 		graphicsLayer.add(bufferGraphic);
 
-		$("#buff-dia").dialog("close");
+		$("#filter-buff-dia").dialog("close");
 
 		// List wells/events w/in buffer:
 		var selectBuffWellType = $("input:radio[name=buffwelltype]:checked").val();
@@ -1442,7 +1442,7 @@ function(
 
 
 	addBookmark = function() {
-		
+
 	}
 
 
@@ -1535,7 +1535,7 @@ function(
         // Layers panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Layers* <span id="clear-filters"><button onclick="clearQuakeFilter()">Clear All Filters</button></span><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
+        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter & Buffer"></span></div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1550,8 +1550,6 @@ function(
         content += '<div class="panel-container" id="tools-panel">';
         content += '<div class="panel-header"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
         content += '<div class="panel-padding">';
-        // content += '<div class="find-header tools-icon esri-icon-radio-checked" id="buff-tool"><span class="find-hdr-txt tools-txt"> Buffer and Select</span></div>';
-		// content += '<div class="find-header tools-icon esri-icon-minus" id="meas-tool"><span class="find-hdr-txt tools-txt"> Measure Distance</span></div>';
 		content += '</div>';
 		content += '<div id="wells-tbl"></div>';
         content += '</div>';
@@ -1624,10 +1622,6 @@ function(
         $("#lyrs-toc").html(tocContent);
 
         // Add addtional layer-specific controls and content (reference by hyphenated layer id):
-        $("#KGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#KGS-Preliminary-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#NEIC-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
-		$("#OGS-Cataloged-Events").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span></span>");
 
         // var eventDesc = "Data for all events occurring between 1/9/2013 and 3/7/2014 was provided by the Oklahoma Geological Survey - all other data is from the USGS.</p>";
         // eventDesc += "<p>Earthquake data for Oklahoma is incomplete and only extends back to 12/2/2014. Only events occurring in northern Oklahoma<br>(north of Medford) are included on the mapper.</p>";
