@@ -1442,7 +1442,7 @@ function(
 
 
 	addBookmark = function() {
-		console.log("add bookmark");
+		
 	}
 
 
