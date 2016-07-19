@@ -213,6 +213,7 @@ input[type=checkbox] {
 	float: right;
 	font-size: 22px;
 	padding-left: 10px;
+	padding-right: 7px;
 	text-decoration: none;
 }
 

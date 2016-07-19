@@ -295,113 +295,13 @@ function(
         for(var i=0; i<cntyArr.length; i++) {
             theCnty = cntyArr[i];
             $('#lstCounty').append('<option value="' + theCnty + '">' + theCnty + '</option>');
+			$('#lstCounty2').append('<option value="' + theCnty + '">' + theCnty + '</option>');
 			$('#evt-county').append('<option value="' + theCnty + '">' + theCnty + '</option>');
         }
     }
 
 
     function createDialogs() {
-        // Earthquake filter:
-		var eqF = "<table><tr><td class='find-label'>From Date:</td><td><input class='eqf' type='text' size='12' id='eq-from-date' placeholder='mm/dd/yyyy'></td></tr>";
-		eqF += "<tr><td class='find-label'>To Date:</td><td><input class='eqf' type='text' size='12' id='eq-to-date' placeholder='mm/dd/yyyy'></td></tr>";
-		eqF += "<tr><td class='find-label' colspan='2'>Magnitude >=&nbsp;<input class='eqf' type='text' size='8' id='low-mag'></td></tr>";
-		eqF += "<tr><td class='find-label' colspan='2'>Magnitude <=&nbsp;<input class='eqf' type='text' size='8' id='high-mag'></td></tr>";
-		eqF += "<tr><td class='find-label'>County:</td><td><select id='evt-county'></select></td></tr></table>";
-		eqF += "<hr><table><tr><td><button onclick='filterQuakes();'>Apply</button></td><td><button onclick='clearQuakeFilter();' autofocus>Clear</button></td></tr>";
-		eqF += "<tr><td class='pu-note' colspan='2'>(applies to all earthquake layers)</td></tr></table>";
-
-        var eqN = domConstruct.create("div", { id: "eq-filter", class: "filter-dialog", innerHTML: eqF } );
-        $("body").append(eqN);
-
-        $("#eq-filter").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Filter Earthquakes",
-            width: 270
-        } );
-
-        $("#eq-from-date").datepicker( {
-            minDate: new Date("01/01/2013")
-        } );
-        $("#eq-to-date").datepicker();
-
-        // WWC5 wells filter:
-		var wwc5Status = ["Constructed","Plugged","Reconstructed"];
-		var wwc5UseNames = {
-			"Air Conditioning": "Air Conditioning",
-			"Cathodic Protection Borehole": "Cathodic Protection",
-			"Dewatering": "Dewatering",
-			"Domestic": "Domestic",
-			"Lawn and Garden - domestic only": "Domestic-Lawn and Garden",
-			"Domestic, Livestock": "Domestic-Livestock",
-			"Domestic, changed from Irrigation": "Domestic-was irrig",
-			"Domestic, changed from Oil Field Water Supply": "Domestic-was Oil Field supply",
-			"Feedlot": "Feedlot",
-			"Feedlot/Livestock/Windmill": "Feedlot/Livestock/Windmill",
-			"Geothermal, Closed Loop, Horizontal": "Geothermal-Closed-Horiz",
-			"Geothermal, Closed Loop, Vertical": "Geothermal-Closed-Vert",
-			"Heat Pump (Closed Loop/Disposal)": "Geothermal/Heat Pump",
-			"Geothermal, Open Loop, Inj. of Water": "Geothermal Open-inj Water",
-			"Geothermal, Open Loop, Surface Discharge": "Geothermal-Open-Surf Discharge",
-			"Industrial": "Industrial",
-			"Irrigation": "Irrigation",
-			"Monitoring well/observation/piezometer": "Monitor/Observe/Piezometer",
-			"Oil Field Water Supply": "Oil Field Water Supply",
-			"Other": "Other",
-			"Pond/Swimming Pool/Recreation": "Pond/Pool/Recreation",
-			"Public Water Supply": "Public Water Supply",
-			"Recharge Well": "Recharge",
-			"Environmental Remediation, Air Sparge": "Remediation-Air Sparge",
-			"Environmental Remediation, Injection": "Remediation-Injection",
-			"Injection well/air sparge (AS)/shallow": "Remediation-inject/Air Sparge",
-			"Environmental Remediation, Recovery": "Remediation-Recovery",
-			"Recovery/Soil Vapor Extraction/Soil Vent": "Remediation-Recovery/SVE",
-			"Environmental Remediation, Soil Vapor Extraction": "Remediation-Soil Vapor Extr",
-			"Road Construction": "Road Construction",
-			"Test Hole, Cased": "Test Hole, Cased",
-			"Test Hole, Geotechnical": "Test Hole, Geotechnical",
-			"Test Hole, Uncased": "Test Hole, Uncased",
-			"Test hole/well": "Test Hole/Well",
-			"(unstated)/abandoned": "Unstated/Abandoned"
-		}
-
-		var wwc5F = "<span class='filter-hdr'>Completion Date:</span><br>";
-        wwc5F += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='wwc5-from-date' placeholder='mm/dd/yyyy'></td></tr>";
-        wwc5F += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='wwc5-to-date' placeholder='mm/dd/yyyy'></td></tr></table>";
-		wwc5F += "<span class='filter-hdr'>Construction Status:</span><br><table>";
-		for (var i = 0; i < wwc5Status.length; i++) {
-			wwc5F += "<tr><td><input type='checkbox' name='const-status' value='" + wwc5Status[i] + "'>" + wwc5Status[i] + "</td></tr>"
-		}
-		wwc5F += "</table>"
-		wwc5F += "<span class='filter-hdr'>Well Use:</span><br>";
-		wwc5F += "<table><tr><td><select id='well-use' multiple size='6'>";
-		if (!isMobile) {
-			wwc5F += "<option value='' class='opt-note'>select one or many (ctrl or cmd)</option>";
-		}
-		for (var key in wwc5UseNames) {
-  			if (wwc5UseNames.hasOwnProperty(key) ) {
-				wwc5F += "<option value='" + key + "'>" + wwc5UseNames[key] + "</option>";
-  			}
-		}
-		wwc5F += "</select></td></tr>";
-		wwc5F += "<tr><td colspan='2'><button class='find-button' id='wwc5-go-btn' onclick='filterWWC5();'>Apply Filter</button>&nbsp;&nbsp;<button class='find-button' onclick='clearwwc5F();' autofocus>Clear Filter</button></td></tr>";
-		wwc5F += "</table>";
-
-        var wwc5N = domConstruct.create("div", { id: "wwc5-filter", class: "filter-dialog", innerHTML: wwc5F } );
-        $("body").append(wwc5N);
-
-		var wwc5Width = (WURFL.form_factor === "Smartphone") ? 315 : 345;
-
-        $("#wwc5-filter").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Filter Water Wells",
-            width: wwc5Width
-        } );
-
-		//$("#wwc5-from-date").datepicker();
-        //$("#wwc5-to-date").datepicker();
-
         // OG wells filter:
 		var wellType = ["Coal Bed Methane","Coal Bed Methane, Plugged","Dry and Abandoned","Enhanced Oil Recovery","Enhanced Oil Recovery, Plugged","Gas","Gas, Plugged","Injection","Injection, Plugged","Intent","Location","Oil","Oil and Gas","Oil and Gas, Plugged","Oil, Plugged","Other","Other, Plugged","Salt Water Disposal","Salt Water Disposal, Plugged"];
 		var ogF = "<span class='filter-hdr'>Well Type:</span><br>";
@@ -446,23 +346,41 @@ function(
 
 		// Buffer dialog:
 		var units = ["feet","yards","meters","kilometers","miles"];
-		var buffDia = '<table><tr><td class="find-label">Distance:</td><td><input type="text" size="4" id="buff-dist"></td></tr>';
-		buffDia += '<tr><td class="find-label">Units:</td><td><select id="buff-units">';
-		for (var j = 0; j < units.length; j++) {
-			buffDia += "<option value='" + units[j] + "'>" + units[j] + "</option>";
+		var seismicAreas = ["1 - Anthony","2 - Freeport","3 - Bluff City","4 - Milan","5 - Caldwell","Expanded Area"];
+
+		var buffDia = '<table><tr><td colspan="2" style="font-weight:bold;">Area of Interest:</td><td></td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value=""> Statewide</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="co"> County:</td></tr>';
+		buffDia += '<tr><td></td><td><select id="lstCounty2"></select></td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
+		buffDia += '<tr><td></td><td><select id="sca">';
+		for (var j = 0; j < seismicAreas.length; j++) {
+			buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
-		buffDia += '<tr><td colspan="2"><button id="buff-opts-btn" class="find-button" onclick=$(".buff-opts").toggleClass("hide")>Options</button></td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2">List Features Within Buffer:</td><td></td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Earthquakes"> Earthquakes</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		buffDia += '<tr class="buff-opts hide"><td colspan="2"><input type="radio" name="buffwelltype" value="none" checked onchange="resetEvtChk()"> Don&#39;t List</td></tr>';
-		buffDia += '<tr><td colspan="2"><button class="find-button" onclick="bufferFeature()">Create Buffer</button></td></tr></table>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="bf"> Buffer Around Feature:</td></tr>';
+		buffDia += '<tr><td class="find-label" style="font-size:14px;">Distance:</td><td><input type="text" size="4" id="buff-dist"></td></tr>';
+		buffDia += '<tr><td class="find-label" style="font-size:14px;">Units:</td><td><select id="buff-units">';
+		for (var i = 0; i < units.length; i++) {
+			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
+		}
+		buffDia += '</select></td></tr></table>';
+		buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Return Features:</td><td></td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
+		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		buffDia += '<tr><td class="find-label">From Date:</td><td><input class="eqf" type="text" size="12" id="eq-from-date" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td class="find-label">To Date:</td><td><input class="eqf" type="text" size="12" id="eq-to-date" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td class="find-label" colspan="2">Magnitude >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag"></td></tr>';
+		buffDia += '<tr><td class="find-label" colspan="2">Magnitude <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag"></td></tr>';
+		buffDia += '</table>';
+		buffDia += '<hr>';
+		buffDia += '<table><tr><td><button class="find-button" onclick="filterBufferFeature()">Apply</button></td>';
+		buffDia += '<td><button class="find-button" onclick="clearFilterBufferFeature()">Clear</button></td></tr></table>'
 
 		var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
         $("body").append(buffN);
@@ -472,6 +390,9 @@ function(
             dialogClass: "dialog",
 			title: "Filter/Select Features"
         } );
+
+		$("#eq-from-date").datepicker();
+        $("#eq-to-date").datepicker();
 
 		// Report problem dialog:
 		var probDia = "<table><tr><td class='find-label'>Message:</td><td><textarea rows='4' cols='25' id='prob-msg' placeholder='Feature ID is automatically appended. Messages are anonymous unless contact info is included.'></textarea></td></tr>";
