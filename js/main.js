@@ -345,42 +345,42 @@ function(
         //$("#og-to-date").datepicker();
 
 		// Buffer dialog:
-		var units = ["feet","yards","meters","kilometers","miles"];
+		var units = ["miles","kilometers","meters","yards","feet"];
 		var seismicAreas = ["1 - Anthony","2 - Freeport","3 - Bluff City","4 - Milan","5 - Caldwell","Expanded Area"];
 
 		var buffDia = '<table><tr><td colspan="2" style="font-weight:bold;">Area of Interest:</td><td></td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value=""> Statewide</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="co"> County:</td></tr>';
-		buffDia += '<tr><td></td><td><select id="lstCounty2"></select></td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
-		buffDia += '<tr><td></td><td><select id="sca">';
+		buffDia += '<tr><td><input type="radio" name="area-type" value=""> Statewide</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
+		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2"></select></td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
+		buffDia += '<tr><td style="text-align:right"><select id="sca">';
 		for (var j = 0; j < seismicAreas.length; j++) {
 			buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="area-type" value="bf"> Buffer Around Feature:</td></tr>';
-		buffDia += '<tr><td class="find-label" style="font-size:14px;">Distance:</td><td><input type="text" size="4" id="buff-dist"></td></tr>';
-		buffDia += '<tr><td class="find-label" style="font-size:14px;">Units:</td><td><select id="buff-units">';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="bf"> Buffer Around Feature:</td></tr>';
+		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist"></td></tr>';
+		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units">';
 		for (var i = 0; i < units.length; i++) {
 			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
 		}
 		buffDia += '</select></td></tr></table>';
-		buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Return Features:</td><td></td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		buffDia += '<tr><td colspan="2"><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		buffDia += '<tr><td class="find-label">From Date:</td><td><input class="eqf" type="text" size="12" id="eq-from-date" placeholder="mm/dd/yyyy"></td></tr>';
-		buffDia += '<tr><td class="find-label">To Date:</td><td><input class="eqf" type="text" size="12" id="eq-to-date" placeholder="mm/dd/yyyy"></td></tr>';
-		buffDia += '<tr><td class="find-label" colspan="2">Magnitude >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag"></td></tr>';
-		buffDia += '<tr><td class="find-label" colspan="2">Magnitude <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag"></td></tr>';
+		buffDia += '<table><tr><td style="font-weight:bold;">Return Features:</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" placeholder="mm/dd/yyyy"></td></tr>';
 		buffDia += '</table>';
 		buffDia += '<hr>';
 		buffDia += '<table><tr><td><button class="find-button" onclick="filterBufferFeature()">Apply</button></td>';
-		buffDia += '<td><button class="find-button" onclick="clearFilterBufferFeature()">Clear</button></td></tr></table>'
+		buffDia += '<td><button class="find-button" onclick="clearFilterBuffer()" autofocus>Clear</button></td></tr></table>'
 
 		var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
         $("body").append(buffN);
@@ -411,15 +411,24 @@ function(
     }
 
 
+	clearFilterBuffer = function() {
+		$("[name=area-type]").prop("checked", false);
+		$("[name=return-type]").prop("checked", false);
+		$("[name=evt-lay]").prop("checked", false);
+		$(".eqf").val("");
+		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
+	}
+
+
 	changeEvtChk = function() {
 		$("[name=buffwelltype]").prop("checked", false);
 		$("[name=buffwelltype]").filter("[value='Earthquakes']").prop("checked", true);
 	}
 
 
-	resetEvtChk = function() {
-		$(".evt-chk").prop("checked", false);
-	}
+	// resetEvtChk = function() {
+	// 	$(".evt-chk").prop("checked", false);
+	// }
 
 
 	sendProblem = function() {
@@ -823,6 +832,10 @@ function(
 				createWellsList(objFeatures, selectBuffWellType, twn, rng, dir, sec, count, what);
 			} );
 		}
+	}
+
+	filterBufferFeature = function() {
+		console.log("hey");
 	}
 
 
