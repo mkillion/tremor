@@ -349,18 +349,18 @@ function(
 		var seismicAreas = ["1 - Anthony","2 - Freeport","3 - Bluff City","4 - Milan","5 - Caldwell","Expanded Area"];
 
 		var buffDia = '<table><tr><td colspan="2" style="font-weight:bold;">Area of Interest:</td><td></td></tr>';
-		buffDia += '<tr><td><input type="radio" name="area-type" value=""> Statewide</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="state"> Statewide</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
-		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2"></select></td></tr>';
+		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
-		buffDia += '<tr><td style="text-align:right"><select id="sca">';
+		buffDia += '<tr><td style="text-align:right"><select id="sca" onchange="changeSelect(&quot;sca&quot;)">';
 		for (var j = 0; j < seismicAreas.length; j++) {
 			buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="bf"> Buffer Around Feature:</td></tr>';
-		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist"></td></tr>';
-		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units">';
+		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist" oninput="changeSelect(&quot;bf&quot;)"></td></tr>';
+		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;bf&quot;)">';
 		for (var i = 0; i < units.length; i++) {
 			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
 		}
@@ -373,10 +373,10 @@ function(
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" placeholder="mm/dd/yyyy"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
 		buffDia += '</table>';
 		buffDia += '<hr>';
 		buffDia += '<table><tr><td><button class="find-button" onclick="filterBufferFeature()">Apply</button></td>';
@@ -410,6 +410,11 @@ function(
         } );
     }
 
+	changeSelect = function(what) {
+		$("[name=area-type]").prop("checked", false);
+		$("[name=area-type]").filter("[value='" + what + "']").prop("checked", true);
+	}
+
 
 	clearFilterBuffer = function() {
 		$("[name=area-type]").prop("checked", false);
@@ -421,14 +426,15 @@ function(
 
 
 	changeEvtChk = function() {
-		$("[name=buffwelltype]").prop("checked", false);
-		$("[name=buffwelltype]").filter("[value='Earthquakes']").prop("checked", true);
+		$("[name=return-type]").prop("checked", false);
+		$("[name=return-type]").filter("[value='Earthquakes']").prop("checked", true);
 	}
 
 
-	// resetEvtChk = function() {
-	// 	$(".evt-chk").prop("checked", false);
-	// }
+	resetEvtChk = function() {
+		$(".evt-chk").prop("checked", false);
+		$(".eqf").val("");
+	}
 
 
 	sendProblem = function() {
