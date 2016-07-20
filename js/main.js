@@ -207,7 +207,7 @@ function(
         view.popup.actions.push(fullInfoAction);
 
         var bufferFeatureAction = {
-            title: "Filter & Buffer",
+            title: "Filter Features",
             id: "filter-buffer-feature",
             className: "esri-icon-filter pu-icon"
         };
@@ -348,7 +348,22 @@ function(
 		var units = ["miles","kilometers","meters","yards","feet"];
 		var seismicAreas = ["1 - Anthony","2 - Freeport","3 - Bluff City","4 - Milan","5 - Caldwell","Expanded Area"];
 
-		var buffDia = '<table><tr><td colspan="2" style="font-weight:bold;">Area of Interest:</td><td></td></tr>';
+
+		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
+		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
+		buffDia += '</table>';
+
+		buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Within This Area:</td><td></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="state"> Statewide</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
 		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
@@ -365,19 +380,7 @@ function(
 			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
 		}
 		buffDia += '</select></td></tr></table>';
-		buffDia += '<table><tr><td style="font-weight:bold;">Return Features:</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
-		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		buffDia += '</table>';
+
 		buffDia += '<hr>';
 		buffDia += '<table><tr><td><button class="find-button" onclick="filterBufferFeature()">Apply</button></td>';
 		buffDia += '<td><button class="find-button" onclick="clearFilterBuffer()" autofocus>Clear</button></td></tr></table>'
@@ -1393,7 +1396,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Find <span id="reset-finds"><button onclick="resetFinds()">Reset</button></span><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span></div>';
+        content += '<div class="panel-header">Find <span id="reset-finds"><button onclick="resetFinds()">Reset</button></span><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div class="panel-padding">';
         // address:
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="address"><span class="find-hdr-txt"> Address or Place<span></div>';
@@ -1475,7 +1478,7 @@ function(
         // Layers panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter & Buffer"></span></div>';
+        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
