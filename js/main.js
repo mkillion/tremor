@@ -351,7 +351,7 @@ function(
 
 		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk()"> Oil and Gas Wells</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
@@ -364,7 +364,7 @@ function(
 		buffDia += '</table>';
 
 		buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Within This Area:</td><td></td></tr>';
-		buffDia += '<tr><td><input type="radio" name="area-type" value="state"> Statewide</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="state" onchange="checkOgState()" checked> Statewide</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
 		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
@@ -373,7 +373,7 @@ function(
 			buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
-		buffDia += '<tr><td><input type="radio" name="area-type" value="bf"> Buffer Around Feature:</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="buff"> Buffer Around Feature:</td></tr>';
 		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist" oninput="changeSelect(&quot;bf&quot;)"></td></tr>';
 		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;bf&quot;)">';
 		for (var i = 0; i < units.length; i++) {
@@ -382,8 +382,8 @@ function(
 		buffDia += '</select></td></tr></table>';
 
 		buffDia += '<hr>';
-		buffDia += '<table><tr><td><button class="find-button" onclick="filterBufferFeature()">Apply</button></td>';
-		buffDia += '<td><button class="find-button" onclick="clearFilterBuffer()" autofocus>Clear</button></td></tr></table>'
+		buffDia += '<table><tr><td><button class="find-button" onclick="filterSwitch()">Apply</button></td>';
+		buffDia += '<td><button class="find-button" onclick="clearFilter()" autofocus>Clear</button></td></tr></table>'
 
 		var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
         $("body").append(buffN);
@@ -413,13 +413,21 @@ function(
         } );
     }
 
+
+	checkOgState = function() {
+		if ( $("[name=area-type]").filter("[value='state']").prop("checked") && $("[name=return-type]").filter("[value='Oil and Gas']").prop("checked") ) {
+			alert("Oil wells cannot be selected statewide. Please select a smaller area.")
+		}
+	}
+
+
 	changeSelect = function(what) {
 		$("[name=area-type]").prop("checked", false);
 		$("[name=area-type]").filter("[value='" + what + "']").prop("checked", true);
 	}
 
 
-	clearFilterBuffer = function() {
+	clearFilter = function() {
 		$("[name=area-type]").prop("checked", false);
 		$("[name=return-type]").prop("checked", false);
 		$("[name=evt-lay]").prop("checked", false);
@@ -843,8 +851,66 @@ function(
 		}
 	}
 
-	filterBufferFeature = function() {
-		console.log("hey");
+	filterSwitch = function() {
+		$("#filter-buff-dia").dialog("close");
+		switch ( $('input[name=area-type]:checked').val() ) {
+			case "state":
+				filterState();
+				break;
+			case "co":
+				filterCo();
+				break;
+			case "sca":
+				filterSca();
+				break;
+			case "buff":
+				filterBuff();
+				break;
+		}
+	}
+
+
+	function filterState() {
+		var returnType = $('input[name=return-type]:checked').val();
+		var ft = new FindTask(tremorGeneralServiceURL);
+		var fp = new FindParameters();
+
+		if ( returnType === "Class I Injection" ) {
+			fp.layerIds = [18];
+			fp.returnGeometry = true;
+			fp.searchFields = ["WELL_TYPE"];
+			fp.searchText = "CLASS1";
+
+			class1Layer.visible = true;
+			///class1Layer.sublayers[18].definitionExpression = "COUNTY = 'Rice'";
+			$("#Class-I-Injection-Wells input").prop("checked", true);
+		}
+
+		if ( returnType === "Earthquakes" ) {
+			// format where clause
+			// turn on spefic layer(s)
+			// set params, incl layerIDs and layerdef
+		}
+
+		ft.execute(fp).then(function(result) {
+			console.log(result);
+			//createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
+		} );
+	}
+
+
+	function filterCo() {
+
+	}
+
+
+	function filterSca() {
+
+	}
+
+
+	function filterBuff() {
+
 	}
 
 
