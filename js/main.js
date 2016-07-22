@@ -435,7 +435,7 @@ function(
 		$(".eqf").val("");
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
 		// Clear definitionExpression:
-		
+
 	}
 
 
@@ -858,10 +858,10 @@ function(
 		$("#filter-buff-dia").dialog("close");
 		switch ( $('input[name=area-type]:checked').val() ) {
 			case "state":
-				filterState();
+				filterStateCounty("state");
 				break;
 			case "co":
-				filterCo();
+				filterStateCounty("co");
 				break;
 			case "sca":
 				filterSca();
@@ -873,8 +873,9 @@ function(
 	}
 
 
-	function filterState() {
+	function filterStateCounty(area) {
 		var returnType = $('input[name=return-type]:checked').val();
+		var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask(tremorGeneralServiceURL);
 		var fp = new FindParameters();
 		fp.returnGeometry = true;
@@ -882,11 +883,25 @@ function(
 
 		if ( returnType === "Class I Injection" ) {
 			fp.layerIds = [18];
-			fp.searchFields = ["WELL_TYPE"];
-			fp.searchText = "CLASS1";
-
+			if (area === "state") {
+				fp.searchFields = ["WELL_TYPE"];
+				fp.searchText = "CLASS1";
+			} else {
+				fp.searchFields = ["COUNTY"];
+				fp.searchText = dom.byId("lstCounty2").value;
+				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			}
 			class1Layer.visible = true;
 			$("#Class-I-Injection-Wells input").prop("checked", true);
+		}
+
+		if ( returnType === "Oil and Gas" && areaType === "co") {
+			fp.layerIds = [0];
+			fp.searchFields = ["COUNTY"];
+			fp.searchText = dom.byId("lstCounty2").value;
+			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			wellsLayer.visible = true;
+			$("#Oil-and-Gas-Wells input").prop("checked", true);
 		}
 
 		if ( returnType === "Earthquakes" ) {
@@ -907,10 +922,12 @@ function(
 			var theWhere = "";
 			var dateWhere = "";
 			var magWhere = "";
+			var countyWhere = "";
 			var fromDate = dom.byId('eq-from-date').value;
 			var toDate = dom.byId('eq-to-date').value;
 			var lMag = dom.byId('low-mag').value;
 			var uMag = dom.byId('high-mag').value;
+			var county = dom.byId("lstCounty2").value;
 
 			if (fromDate && toDate) {
 				dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
@@ -928,11 +945,18 @@ function(
 				magWhere = "mc <= " + uMag;
 			}
 
+			if (areaType === "co") {
+				countyWhere = "county = '" + dom.byId("lstCounty2").value + "'";
+			}
+
 			if (dateWhere !== "") {
 				theWhere += dateWhere + " and ";
 			}
 			if (magWhere !== "") {
 				theWhere += magWhere + " and ";
+			}
+			if (countyWhere !== "") {
+				theWhere += countyWhere + " and ";
 			}
 
 			if (theWhere.substr(theWhere.length - 5) === " and ") {
@@ -981,7 +1005,7 @@ function(
 			}
 		}
 		ft.execute(fp).then(function(result) {
-			console.log(result)
+			console.log(result);
 			//createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
 		} );
 	}
@@ -1297,8 +1321,8 @@ function(
 		}
 
 		$("#wells-tbl").html(wellsLst);
-		if (count > 2000) {
-			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 2000 of " + count + " records)");
+		if (count > 1000) {
+			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 1000 of " + count + " records)");
 		}
 
 		var apiNums = [];
