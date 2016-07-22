@@ -373,8 +373,8 @@ function(
 			buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		buffDia += '</select></td></tr>';
-		buffDia += '<tr><td><input type="radio" name="area-type" value="buff"> Buffer Around Feature:</td></tr>';
-		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist" oninput="changeSelect(&quot;bf&quot;)"></td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="buff" onchange="changeSelect(&quot;buff&quot;)"> Buffer Around Feature:</td></tr>';
+		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist" oninput="changeSelect(&quot;buff&quot;)"></td></tr>';
 		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;bf&quot;)">';
 		for (var i = 0; i < units.length; i++) {
 			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
@@ -424,6 +424,9 @@ function(
 	changeSelect = function(what) {
 		$("[name=area-type]").prop("checked", false);
 		$("[name=area-type]").filter("[value='" + what + "']").prop("checked", true);
+		if (what === "buff" && !view.popup.selectedFeature) {
+			alert("Please select a feature to buffer.")
+		}
 	}
 
 
@@ -1026,7 +1029,36 @@ function(
 
 
 	function filterBuff() {
+		graphicsLayer.remove(bufferGraphic);
 
+		var f = view.popup.selectedFeature;
+		if (f.geometry.type === "point") {
+			var buffFeature = new Point( {
+			    x: f.geometry.x,
+			    y: f.geometry.y,
+			    spatialReference: wmSR
+			 } );
+		} else {
+			var buffFeature = new Polygon( {
+			    rings: f.geometry.rings,
+			    spatialReference: wmSR
+			 } );
+		}
+
+		var buffPoly = geometryEngine.geodesicBuffer(buffFeature, dom.byId('buff-dist').value, dom.byId('buff-units').value);
+		var fillSymbol = new SimpleFillSymbol( {
+			color: [102, 205, 170, 0.4],
+			outline: new SimpleLineSymbol( {
+				color: [0, 0, 0],
+			  	width: 1
+			} )
+		} );
+		bufferGraphic = new Graphic( {
+			geometry: buffPoly,
+			symbol: fillSymbol
+		} );
+
+		graphicsLayer.add(bufferGraphic);
 	}
 
 
