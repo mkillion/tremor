@@ -429,10 +429,13 @@ function(
 
 	clearFilter = function() {
 		$("[name=area-type]").prop("checked", false);
+		$("[name=area-type]").filter("[value='state']").prop("checked", true);
 		$("[name=return-type]").prop("checked", false);
 		$("[name=evt-lay]").prop("checked", false);
 		$(".eqf").val("");
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
+		// Clear definitionExpression:
+		
 	}
 
 
@@ -874,26 +877,111 @@ function(
 		var returnType = $('input[name=return-type]:checked').val();
 		var ft = new FindTask(tremorGeneralServiceURL);
 		var fp = new FindParameters();
+		fp.returnGeometry = true;
+		fp.layerDefinitions = [];
 
 		if ( returnType === "Class I Injection" ) {
 			fp.layerIds = [18];
-			fp.returnGeometry = true;
 			fp.searchFields = ["WELL_TYPE"];
 			fp.searchText = "CLASS1";
 
 			class1Layer.visible = true;
-			///class1Layer.sublayers[18].definitionExpression = "COUNTY = 'Rice'";
 			$("#Class-I-Injection-Wells input").prop("checked", true);
 		}
 
 		if ( returnType === "Earthquakes" ) {
-			// format where clause
-			// turn on spefic layer(s)
-			// set params, incl layerIDs and layerdef
-		}
+			// Get checked earthquake layers:
+			var lIDs = [];
+			var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
+				return $(this).val();
+			} ).get();
+			$.each(chkdIDs, function(idx, val) {
+				lIDs.push(parseInt(val));
+			} );
+			fp.layerIds = lIDs;
+			// Next property is a dummy. SearchText is required by findTask. All EVENT_IDs contain a 1, so this finds
+			// all records. They are then pared down by the layerDefinition containing the where clause.
+			fp.searchText = "1";
 
+			// Format where clause:
+			var theWhere = "";
+			var dateWhere = "";
+			var magWhere = "";
+			var fromDate = dom.byId('eq-from-date').value;
+			var toDate = dom.byId('eq-to-date').value;
+			var lMag = dom.byId('low-mag').value;
+			var uMag = dom.byId('high-mag').value;
+
+			if (fromDate && toDate) {
+				dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+			} else if (fromDate && !toDate) {
+				dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
+			} else if (!fromDate && toDate) {
+				dateWhere = "origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+			}
+
+			if (lMag && uMag) {
+				magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+			} else if (lMag && !uMag) {
+				magWhere = "mc >= " + lMag;
+			} else if (!lMag && uMag) {
+				magWhere = "mc <= " + uMag;
+			}
+
+			if (dateWhere !== "") {
+				theWhere += dateWhere + " and ";
+			}
+			if (magWhere !== "") {
+				theWhere += magWhere + " and ";
+			}
+
+			if (theWhere.substr(theWhere.length - 5) === " and ") {
+				theWhere = theWhere.slice(0,theWhere.length - 5);
+			}
+
+			// Turn all event layers off:
+			kgsCatalogedLayer.visible = false;
+			$("#KGS-Cataloged-Events input").prop("checked", false);
+			kgsPrelimLayer.visible = false;
+			$("#KGS-Preliminary-Events input").prop("checked", false);
+			neicLayer.visible = false;
+			$("#NEIC-Cataloged-Events input").prop("checked", false);
+			ogsLayer.visible = false;
+			$("#OGS-Cataloged-Events input").prop("checked", false);
+
+			// Apply where clause to filter result featureset:
+			$.each(lIDs, function(idx, val) {
+				fp.layerDefinitions[val] = theWhere;
+			} );
+
+			// Apply definitionExpression to filter which features are visible and turn layer on:
+			for (var i = 0; i < lIDs.length; i++) {
+				switch (lIDs[i]) {
+					case 14:
+						kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+						kgsCatalogedLayer.visible = true;
+						$("#KGS-Cataloged-Events input").prop("checked", true);
+						break;
+					case 15:
+						kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+						kgsPrelimLayer.visible = true;
+						$("#KGS-Preliminary-Events input").prop("checked", true);
+						break;
+					case 16:
+						neicLayer.sublayers[16].definitionExpression = theWhere;
+						neicLayer.visible = true;
+						$("#NEIC-Cataloged-Events input").prop("checked", true);
+						break;
+					case 17:
+						ogsLayer.sublayers[17].definitionExpression = theWhere;
+						ogsLayer.visible = true;
+						$("#OGS-Cataloged-Events input").prop("checked", true);
+						break;
+				}
+			}
+		}
 		ft.execute(fp).then(function(result) {
-			console.log(result);
+			console.log(result)
 			//createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
 		} );
 	}
