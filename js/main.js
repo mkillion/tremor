@@ -346,7 +346,7 @@ function(
 
 		// Buffer dialog:
 		var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["1 - Anthony","2 - Freeport","3 - Bluff City","4 - Milan","5 - Caldwell","Expanded Area"];
+		var seismicAreas = ["Anthony","Freeport","Bluff City","Milan","Caldwell","Expanded Area"];
 
 
 		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
@@ -858,10 +858,8 @@ function(
 		$("#filter-buff-dia").dialog("close");
 		switch ( $('input[name=area-type]:checked').val() ) {
 			case "state":
-				filterStateCounty("state");
-				break;
 			case "co":
-				filterStateCounty("co");
+				filterStateCounty();
 				break;
 			case "sca":
 				filterSca();
@@ -873,7 +871,7 @@ function(
 	}
 
 
-	function filterStateCounty(area) {
+	function filterStateCounty() {
 		var returnType = $('input[name=return-type]:checked').val();
 		var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask(tremorGeneralServiceURL);
@@ -883,7 +881,7 @@ function(
 
 		if ( returnType === "Class I Injection" ) {
 			fp.layerIds = [18];
-			if (area === "state") {
+			if (areaType === "state") {
 				fp.searchFields = ["WELL_TYPE"];
 				fp.searchText = "CLASS1";
 			} else {
@@ -918,91 +916,14 @@ function(
 			// all records. They are then pared down by the layerDefinition containing the where clause.
 			fp.searchText = "1";
 
-			// Format where clause:
-			var theWhere = "";
-			var dateWhere = "";
-			var magWhere = "";
-			var countyWhere = "";
-			var fromDate = dom.byId('eq-from-date').value;
-			var toDate = dom.byId('eq-to-date').value;
-			var lMag = dom.byId('low-mag').value;
-			var uMag = dom.byId('high-mag').value;
-			var county = dom.byId("lstCounty2").value;
-
-			if (fromDate && toDate) {
-				dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
-			} else if (fromDate && !toDate) {
-				dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
-			} else if (!fromDate && toDate) {
-				dateWhere = "origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
-			}
-
-			if (lMag && uMag) {
-				magWhere = "mc >= " + lMag + " and mc <= " + uMag;
-			} else if (lMag && !uMag) {
-				magWhere = "mc >= " + lMag;
-			} else if (!lMag && uMag) {
-				magWhere = "mc <= " + uMag;
-			}
-
-			if (areaType === "co") {
-				countyWhere = "county = '" + dom.byId("lstCounty2").value + "'";
-			}
-
-			if (dateWhere !== "") {
-				theWhere += dateWhere + " and ";
-			}
-			if (magWhere !== "") {
-				theWhere += magWhere + " and ";
-			}
-			if (countyWhere !== "") {
-				theWhere += countyWhere + " and ";
-			}
-
-			if (theWhere.substr(theWhere.length - 5) === " and ") {
-				theWhere = theWhere.slice(0,theWhere.length - 5);
-			}
-
-			// Turn all event layers off:
-			kgsCatalogedLayer.visible = false;
-			$("#KGS-Cataloged-Events input").prop("checked", false);
-			kgsPrelimLayer.visible = false;
-			$("#KGS-Preliminary-Events input").prop("checked", false);
-			neicLayer.visible = false;
-			$("#NEIC-Cataloged-Events input").prop("checked", false);
-			ogsLayer.visible = false;
-			$("#OGS-Cataloged-Events input").prop("checked", false);
-
-			// Apply where clause to filter result featureset:
+			// Create and apply where clause to filter result featureset:
+			var theWhere = earthquakeWhereClause(areaType);
 			$.each(lIDs, function(idx, val) {
 				fp.layerDefinitions[val] = theWhere;
 			} );
 
-			// Apply definitionExpression to filter which features are visible and turn layer on:
-			for (var i = 0; i < lIDs.length; i++) {
-				switch (lIDs[i]) {
-					case 14:
-						kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
-						kgsCatalogedLayer.visible = true;
-						$("#KGS-Cataloged-Events input").prop("checked", true);
-						break;
-					case 15:
-						kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
-						kgsPrelimLayer.visible = true;
-						$("#KGS-Preliminary-Events input").prop("checked", true);
-						break;
-					case 16:
-						neicLayer.sublayers[16].definitionExpression = theWhere;
-						neicLayer.visible = true;
-						$("#NEIC-Cataloged-Events input").prop("checked", true);
-						break;
-					case 17:
-						ogsLayer.sublayers[17].definitionExpression = theWhere;
-						ogsLayer.visible = true;
-						$("#OGS-Cataloged-Events input").prop("checked", true);
-						break;
-				}
-			}
+			// Turn on selected layers and filter features w/ a definitionExpression:
+			applyDefExp(lIDs, theWhere);
 		}
 		ft.execute(fp).then(function(result) {
 			console.log(result);
@@ -1011,18 +932,189 @@ function(
 	}
 
 
-	function filterCo() {
-
-	}
-
-
 	function filterSca() {
+		var returnType = $('input[name=return-type]:checked').val();
+		var areaType = $('input[name=area-type]:checked').val();
+		var ft = new FindTask("http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer");
+		var fp = new FindParameters();
+		it = new IdentifyTask(tremorGeneralServiceURL);
+        ip = new IdentifyParameters();
 
+		fp.returnGeometry = true;
+		fp.layerDefinitions = [];
+
+		// Find task to get geometry of selected sca:
+		if (dom.byId("sca").value === "Expanded Area") {
+			fp.layerIds = [1];
+			fp.searchFields = ["OBJECTID"];
+			fp.searchText = "1";
+			seismicConcernExpandedLayer.visible = true;
+			$("#Expanded-Area-of-Seismic-Concern input").prop("checked", true);
+		} else {
+			fp.layerIds = [0];
+			fp.searchFields = ["AREA_NAME"];
+			fp.searchText = dom.byId("sca").value;
+			seismicConcernLayer.visible = true;
+			$("#Areas-of-Seismic-Concern input").prop("checked", true);
+		}
+		ft.execute(fp).then(function(result) {
+			// Highlight selected area:
+			graphicsLayer.remove(hilite);
+			var fill = new SimpleFillSymbol( {
+				style: "none",
+				outline: new SimpleLineSymbol( {
+					color: "yellow",
+					width: 5
+				} )
+			} );
+			var sym = fill;
+
+			hilite = new Graphic( {
+				geometry: result.results[0].feature.geometry,
+				symbol: sym
+			} );
+			graphicsLayer.add(hilite);
+
+			// ID task to get features within sca geometry:
+			if ( returnType === "Earthquakes" ) {
+				// Get checked earthquake layers:
+				var lIDs = [];
+				var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
+					return $(this).val();
+				} ).get();
+				$.each(chkdIDs, function(idx, val) {
+					lIDs.push(parseInt(val));
+				} );
+				ip.layerIds = lIDs;
+
+				// Create and apply where clause to filter result featureset:
+				var theWhere = earthquakeWhereClause(areaType);
+				$.each(lIDs, function(idx, val) {
+					fp.layerDefinitions[val] = theWhere;
+				} );
+
+				// Turn on selected layers and filter features w/ a definitionExpression:
+				applyDefExp(lIDs, theWhere);
+			}
+
+			if ( returnType === "Class I Injection" ) {
+				ip.layerIds = [18];
+				class1Layer.visible = true;
+				$("#Class-I-Injection-Wells input").prop("checked", true);
+			}
+
+			if ( returnType === "Oil and Gas" ) {
+				ip.layerIds = [0];
+				wellsLayer.visible = true;
+				$("#Oil-and-Gas-Wells input").prop("checked", true);
+			}
+
+			ip.geometry = result.results[0].feature.geometry;
+			ip.layerOption = "visible";
+			ip.returnGeometry = true;
+			ip.tolerance = 0;
+			ip.mapExtent = view.extent;
+			ip.height = view.height;
+			ip.width = view.width;
+
+			it.execute(ip).then(function(result) {
+				console.log(result);
+				// createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
+			} );
+		} );
 	}
 
 
 	function filterBuff() {
 
+	}
+
+
+	function applyDefExp(lIDs, theWhere) {
+		// Turn all event layers off:
+		kgsCatalogedLayer.visible = false;
+		$("#KGS-Cataloged-Events input").prop("checked", false);
+		kgsPrelimLayer.visible = false;
+		$("#KGS-Preliminary-Events input").prop("checked", false);
+		neicLayer.visible = false;
+		$("#NEIC-Cataloged-Events input").prop("checked", false);
+		ogsLayer.visible = false;
+		$("#OGS-Cataloged-Events input").prop("checked", false);
+
+		// Apply definitionExpression to filter which features are visible and turn layer on:
+		for (var i = 0; i < lIDs.length; i++) {
+			switch (lIDs[i]) {
+				case 14:
+					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+					kgsCatalogedLayer.visible = true;
+					$("#KGS-Cataloged-Events input").prop("checked", true);
+					break;
+				case 15:
+					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+					kgsPrelimLayer.visible = true;
+					$("#KGS-Preliminary-Events input").prop("checked", true);
+					break;
+				case 16:
+					neicLayer.sublayers[16].definitionExpression = theWhere;
+					neicLayer.visible = true;
+					$("#NEIC-Cataloged-Events input").prop("checked", true);
+					break;
+				case 17:
+					ogsLayer.sublayers[17].definitionExpression = theWhere;
+					ogsLayer.visible = true;
+					$("#OGS-Cataloged-Events input").prop("checked", true);
+					break;
+			}
+		}
+	}
+
+
+	function earthquakeWhereClause(areaType) {
+		var theWhere = "";
+		var dateWhere = "";
+		var magWhere = "";
+		var countyWhere = "";
+		var fromDate = dom.byId('eq-from-date').value;
+		var toDate = dom.byId('eq-to-date').value;
+		var lMag = dom.byId('low-mag').value;
+		var uMag = dom.byId('high-mag').value;
+		var county = dom.byId("lstCounty2").value;
+
+		if (fromDate && toDate) {
+			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+		} else if (fromDate && !toDate) {
+			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
+		} else if (!fromDate && toDate) {
+			dateWhere = "origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+		}
+
+		if (lMag && uMag) {
+			magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+		} else if (lMag && !uMag) {
+			magWhere = "mc >= " + lMag;
+		} else if (!lMag && uMag) {
+			magWhere = "mc <= " + uMag;
+		}
+
+		if (areaType === "co") {
+			countyWhere = "county = '" + dom.byId("lstCounty2").value + "'";
+		}
+
+		if (dateWhere !== "") {
+			theWhere += dateWhere + " and ";
+		}
+		if (magWhere !== "") {
+			theWhere += magWhere + " and ";
+		}
+		if (countyWhere !== "") {
+			theWhere += countyWhere + " and ";
+		}
+
+		if (theWhere.substr(theWhere.length - 5) === " and ") {
+			theWhere = theWhere.slice(0,theWhere.length - 5);
+		}
+
+		return theWhere;
 	}
 
 
