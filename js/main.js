@@ -890,7 +890,9 @@ function(
 			} else {
 				fp.searchFields = ["COUNTY"];
 				fp.searchText = dom.byId("lstCounty2").value;
-				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+				// TODO: not using defExp as of 7/23/2016 because of maxrecordcount limitations. Don't want to display viewer
+				// records in an area-type than there actually are. Someday look into using feature layer as a workaround.
+				/// class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
 			class1Layer.visible = true;
 			$("#Class-I-Injection-Wells input").prop("checked", true);
@@ -900,7 +902,7 @@ function(
 			fp.layerIds = [0];
 			fp.searchFields = ["COUNTY"];
 			fp.searchText = dom.byId("lstCounty2").value;
-			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			/// wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
 		}
@@ -932,6 +934,19 @@ function(
 			console.log(result);
 			//createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
 		} );
+
+		// Highlight county if needed:
+		if (areaType === "co") {
+			var ft2 = new FindTask(tremorGeneralServiceURL);
+			var fp2 = new FindParameters();
+			fp2.returnGeometry = true;
+			fp2.layerIds = [2];
+			fp2.searchFields = ["COUNTY"];
+			fp2.searchText = dom.byId("lstCounty2").value;
+			ft2.execute(fp2).then(function(result) {
+				highlightFeature(result.results[0].feature);
+			} );
+		}
 	}
 
 
@@ -961,22 +976,7 @@ function(
 			$("#Areas-of-Seismic-Concern input").prop("checked", true);
 		}
 		ft.execute(fp).then(function(result) {
-			// Highlight selected area:
-			graphicsLayer.remove(hilite);
-			var fill = new SimpleFillSymbol( {
-				style: "none",
-				outline: new SimpleLineSymbol( {
-					color: "yellow",
-					width: 5
-				} )
-			} );
-			var sym = fill;
-
-			hilite = new Graphic( {
-				geometry: result.results[0].feature.geometry,
-				symbol: sym
-			} );
-			graphicsLayer.add(hilite);
+			highlightFeature(result.results[0].feature);
 
 			// ID task to get features within sca geometry:
 			if ( returnType === "Earthquakes" ) {
@@ -1077,22 +1077,22 @@ function(
 		for (var i = 0; i < lIDs.length; i++) {
 			switch (lIDs[i]) {
 				case 14:
-					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+					/// kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
 					kgsCatalogedLayer.visible = true;
 					$("#KGS-Cataloged-Events input").prop("checked", true);
 					break;
 				case 15:
-					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+					/// kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
 					kgsPrelimLayer.visible = true;
 					$("#KGS-Preliminary-Events input").prop("checked", true);
 					break;
 				case 16:
-					neicLayer.sublayers[16].definitionExpression = theWhere;
+					/// neicLayer.sublayers[16].definitionExpression = theWhere;
 					neicLayer.visible = true;
 					$("#NEIC-Cataloged-Events input").prop("checked", true);
 					break;
 				case 17:
-					ogsLayer.sublayers[17].definitionExpression = theWhere;
+					/// ogsLayer.sublayers[17].definitionExpression = theWhere;
 					ogsLayer.visible = true;
 					$("#OGS-Cataloged-Events input").prop("checked", true);
 					break;
