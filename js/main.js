@@ -364,7 +364,7 @@ function(
 		buffDia += '</table>';
 
 		buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Within This Area:</td><td></td></tr>';
-		buffDia += '<tr><td><input type="radio" name="area-type" value="state" onchange="checkOgState()" checked> Statewide</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="area-type" value="state" onchange="checkOgState()"> Statewide</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
 		buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
@@ -374,8 +374,8 @@ function(
 		}
 		buffDia += '</select></td></tr>';
 		buffDia += '<tr><td><input type="radio" name="area-type" value="buff" onchange="changeSelect(&quot;buff&quot;)"> Buffer Around Feature:</td></tr>';
-		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" class="eqf" id="buff-dist" oninput="changeSelect(&quot;buff&quot;)"></td></tr>';
-		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;bf&quot;)">';
+		buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" id="buff-dist" oninput="changeSelect(&quot;buff&quot;)"></td></tr>';
+		buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;buff&quot;)">';
 		for (var i = 0; i < units.length; i++) {
 			buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
 		}
@@ -436,9 +436,8 @@ function(
 		$("[name=return-type]").prop("checked", false);
 		$("[name=evt-lay]").prop("checked", false);
 		$(".eqf").val("");
+		$("#buff-dist").val("");
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
-		// Clear definitionExpression:
-
 	}
 
 
@@ -858,7 +857,11 @@ function(
 	}
 
 	filterSwitch = function() {
-		$("#filter-buff-dia").dialog("close");
+		if ( !$('input[name=area-type]:checked').val() ) {
+			alert("Please select an area.");
+			return;
+		}
+
 		switch ( $('input[name=area-type]:checked').val() ) {
 			case "state":
 			case "co":
@@ -916,6 +919,10 @@ function(
 			$.each(chkdIDs, function(idx, val) {
 				lIDs.push(parseInt(val));
 			} );
+			if (lIDs.length === 0) {
+				alert("Please select at least one earthquake category.");
+				return;
+			}
 			fp.layerIds = lIDs;
 			// Next property is a dummy. SearchText is required by findTask. All EVENT_IDs contain a 1, so this finds
 			// all records. They are then pared down by the layerDefinition containing the where clause.
@@ -947,6 +954,7 @@ function(
 				highlightFeature(result.results[0].feature);
 			} );
 		}
+		$("#filter-buff-dia").dialog("close");
 	}
 
 
@@ -955,11 +963,11 @@ function(
 		var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask("http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer");
 		var fp = new FindParameters();
-		it = new IdentifyTask(tremorGeneralServiceURL);
-        ip = new IdentifyParameters();
-
 		fp.returnGeometry = true;
 		fp.layerDefinitions = [];
+		var it = new IdentifyTask(tremorGeneralServiceURL);
+        var ip = new IdentifyParameters();
+		ip.layerDefinitions = [];
 
 		// Find task to get geometry of selected sca:
 		if (dom.byId("sca").value === "Expanded Area") {
@@ -988,12 +996,16 @@ function(
 				$.each(chkdIDs, function(idx, val) {
 					lIDs.push(parseInt(val));
 				} );
+				if (lIDs.length === 0) {
+					alert("Please select at least one earthquake category.");
+					return;
+				}
 				ip.layerIds = lIDs;
 
 				// Create and apply where clause to filter result featureset:
 				var theWhere = earthquakeWhereClause(areaType);
 				$.each(lIDs, function(idx, val) {
-					fp.layerDefinitions[val] = theWhere;
+					ip.layerDefinitions[val] = theWhere;
 				} );
 
 				// Turn on selected layers and filter features w/ a definitionExpression:
@@ -1025,10 +1037,15 @@ function(
 				// createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
 			} );
 		} );
+		$("#filter-buff-dia").dialog("close");
 	}
 
 
 	function filterBuff() {
+		var returnType = $('input[name=return-type]:checked').val();
+		var areaType = $('input[name=area-type]:checked').val();
+
+		// Create buffer and display graphic:
 		graphicsLayer.remove(bufferGraphic);
 
 		var f = view.popup.selectedFeature;
@@ -1057,8 +1074,63 @@ function(
 			geometry: buffPoly,
 			symbol: fillSymbol
 		} );
-
 		graphicsLayer.add(bufferGraphic);
+
+		// Find features w/in buffer:
+		var it = new IdentifyTask(tremorGeneralServiceURL);
+        var ip = new IdentifyParameters();
+		ip.layerDefinitions = [];
+
+		if ( returnType === "Earthquakes" ) {
+			// Get checked earthquake layers:
+			var lIDs = [];
+			var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
+				return $(this).val();
+			} ).get();
+			$.each(chkdIDs, function(idx, val) {
+				lIDs.push(parseInt(val));
+			} );
+			if (lIDs.length === 0) {
+				alert("Please select at least one earthquake category.");
+				return;
+			}
+			ip.layerIds = lIDs;
+
+			// Create and apply where clause to filter result featureset:
+			var theWhere = earthquakeWhereClause(areaType);
+			$.each(lIDs, function(idx, val) {
+				ip.layerDefinitions[val] = theWhere;
+			} );
+
+			// Turn on selected layers and filter features w/ a definitionExpression:
+			applyDefExp(lIDs, theWhere);
+		}
+
+		if ( returnType === "Class I Injection" ) {
+			ip.layerIds = [18];
+			class1Layer.visible = true;
+			$("#Class-I-Injection-Wells input").prop("checked", true);
+		}
+
+		if ( returnType === "Oil and Gas" ) {
+			ip.layerIds = [0];
+			wellsLayer.visible = true;
+			$("#Oil-and-Gas-Wells input").prop("checked", true);
+		}
+
+		ip.geometry = buffPoly;
+		ip.layerOption = "visible";
+		ip.returnGeometry = true;
+		ip.tolerance = 0;
+		ip.mapExtent = view.extent;
+		ip.height = view.height;
+		ip.width = view.width;
+
+		it.execute(ip).then(function(result) {
+			console.log(result);
+			// createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
+		} );
+		$("#filter-buff-dia").dialog("close");
 	}
 
 
