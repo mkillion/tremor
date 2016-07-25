@@ -82,7 +82,8 @@ function(
     var isMobile = WURFL.is_mobile;
 	var idDef = [];
 	var wmSR = new SpatialReference(3857);
-	var urlParams, listCount, hilite, bufferGraphic;
+	var urlParams, hilite, bufferGraphic;
+	var listCount = 0;
 
 
     // Set up basic frame:
@@ -654,6 +655,7 @@ function(
 
 
 	function filterStateCounty() {
+		var theWhere = "";
 		var returnType = $('input[name=return-type]:checked').val();
 		var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask(tremorGeneralServiceURL);
@@ -666,9 +668,11 @@ function(
 			if (areaType === "state") {
 				fp.searchFields = ["WELL_TYPE"];
 				fp.searchText = "CLASS1";
+				theWhere += "well_type = '" + fp.searchText + "'";
 			} else {
 				fp.searchFields = ["COUNTY"];
 				fp.searchText = dom.byId("lstCounty2").value;
+				theWhere += "county = '" + fp.searchText + "'";
 				// TODO: not using defExp as of 7/23/2016 because of maxrecordcount limitations. Don't want to display viewer
 				// records in an area-type than there actually are. Someday look into using feature layer as a workaround.
 				/// class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
@@ -681,6 +685,7 @@ function(
 			fp.layerIds = [0];
 			fp.searchFields = ["COUNTY"];
 			fp.searchText = dom.byId("lstCounty2").value;
+			theWhere += "county = '" + fp.searchText + "'";
 			/// wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
@@ -705,7 +710,7 @@ function(
 			fp.searchText = "1";
 
 			// Create and apply where clause to filter result featureset:
-			var theWhere = earthquakeWhereClause(areaType);
+			theWhere = earthquakeWhereClause(areaType);
 			$.each(lIDs, function(idx, val) {
 				fp.layerDefinitions[val] = theWhere;
 			} );
@@ -714,15 +719,31 @@ function(
 			applyDefExp(lIDs, theWhere);
 		}
 		ft.execute(fp).then(function(result) {
-			// var query = new Query();
-			// var queryTask = new QueryTask( {
-			// 	url: tremorGeneralServiceURL + lyrID
-			// } );
-			// query.returnGeometry = true;
-			// query.where = theWhere;
+			var j = 0;
+			var li;
+			var query = new Query();
+			query.returnGeometry = true;
+			query.where = theWhere;
+			console.log("F: " + query.where);
 
-			createWellsList(result, returnType, count);
-		} );
+			for (var i = 0; i < fp.layerIds.length; i++) {
+				li = "/" + fp.layerIds[i];
+
+				var queryTask = new QueryTask( {
+					url: tremorGeneralServiceURL + li
+				} );
+
+				queryTask.executeForCount(query).then(function(count) {
+					j += count;
+				} );
+			}
+
+			setTimeout(function() {
+				createWellsList(result, returnType, j);
+			}, 2000);
+		 } );
+
+
 
 		// Highlight county if needed:
 		if (areaType === "co") {
@@ -1279,8 +1300,8 @@ function(
 
 
 	function createWellsList(fSet, returnType, count) {
-		console.log("hey");
-		console.log(fset);
+		console.log("c: " + count);
+		//console.log(fset);
 		if (sec) {
 			var locationString = "S" + sec + " - T" + twn + "S - R" + rng + dir;
 		} else if (twn) {
