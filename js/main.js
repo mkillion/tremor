@@ -417,7 +417,8 @@ function(
 
 	checkOgState = function() {
 		if ( $("[name=area-type]").filter("[value='state']").prop("checked") && $("[name=return-type]").filter("[value='Oil and Gas']").prop("checked") ) {
-			alert("Oil wells cannot be selected statewide. Please select a smaller area.")
+			alert("Oil wells cannot be selected statewide. Please select a smaller area.");
+			$("[name=area-type]").filter("[value='state']").prop("checked", false);
 		}
 	}
 
@@ -432,13 +433,21 @@ function(
 
 
 	clearFilter = function() {
+		// Reset inputs:
 		$("[name=area-type]").prop("checked", false);
-		$("[name=area-type]").filter("[value='state']").prop("checked", true);
 		$("[name=return-type]").prop("checked", false);
 		$("[name=evt-lay]").prop("checked", false);
 		$(".eqf").val("");
 		$("#buff-dist").val("");
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
+
+		// Clear layer definitionExpressions:
+		wellsLayer.sublayers[0].definitionExpression = "";
+		kgsCatalogedLayer.sublayers[14].definitionExpression = "";
+		kgsPrelimLayer.sublayers[15].definitionExpression = "";
+		neicLayer.sublayers[16].definitionExpression = "";
+		ogsLayer.sublayers[17].definitionExpression = "";
+		class1Layer.sublayers[18].definitionExpression = "";
 	}
 
 
@@ -638,6 +647,10 @@ function(
 			alert("Please select an area.");
 			return;
 		}
+		if ( !$('input[name=return-type]:checked').val() ) {
+			alert("Please select a feature type.");
+			return;
+		}
 
 		switch ( $('input[name=area-type]:checked').val() ) {
 			case "state":
@@ -673,9 +686,7 @@ function(
 				fp.searchFields = ["COUNTY"];
 				fp.searchText = dom.byId("lstCounty2").value;
 				theWhere += "county = '" + fp.searchText + "'";
-				// TODO: not using defExp as of 7/23/2016 because of maxrecordcount limitations. Don't want to display viewer
-				// records in an area-type than there actually are. Someday look into using feature layer as a workaround.
-				/// class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
 			class1Layer.visible = true;
 			$("#Class-I-Injection-Wells input").prop("checked", true);
@@ -686,7 +697,7 @@ function(
 			fp.searchFields = ["COUNTY"];
 			fp.searchText = dom.byId("lstCounty2").value;
 			theWhere += "county = '" + fp.searchText + "'";
-			/// wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
 		}
@@ -719,31 +730,29 @@ function(
 			applyDefExp(lIDs, theWhere);
 		}
 		ft.execute(fp).then(function(result) {
-			var j = 0;
-			var li;
-			var query = new Query();
-			query.returnGeometry = true;
-			query.where = theWhere;
-			console.log("F: " + query.where);
-
-			for (var i = 0; i < fp.layerIds.length; i++) {
-				li = "/" + fp.layerIds[i];
-
-				var queryTask = new QueryTask( {
-					url: tremorGeneralServiceURL + li
-				} );
-
-				queryTask.executeForCount(query).then(function(count) {
-					j += count;
-				} );
-			}
-
-			setTimeout(function() {
-				createWellsList(result, returnType, j);
-			}, 2000);
-		 } );
-
-
+			console.log(result);
+		// 	var j = 0;
+		// 	var li;
+		// 	var query = new Query();
+		// 	query.returnGeometry = true;
+		// 	query.where = theWhere;
+		 //
+		// 	for (var i = 0; i < fp.layerIds.length; i++) {
+		// 		li = "/" + fp.layerIds[i];
+		 //
+		// 		var queryTask = new QueryTask( {
+		// 			url: tremorGeneralServiceURL + li
+		// 		} );
+		 //
+		// 		queryTask.executeForCount(query).then(function(count) {
+		// 			j += count;
+		// 		} );
+		// 	}
+		 //
+		// 	setTimeout(function() {
+		// 		createWellsList(result, returnType, j);
+		// 	}, 2000);
+		} );
 
 		// Highlight county if needed:
 		if (areaType === "co") {
@@ -948,26 +957,26 @@ function(
 		ogsLayer.visible = false;
 		$("#OGS-Cataloged-Events input").prop("checked", false);
 
-		// Apply definitionExpression to filter which features are visible and turn layer on:
+		// Apply definitionExpression to filter which features are visible; turn layer on:
 		for (var i = 0; i < lIDs.length; i++) {
 			switch (lIDs[i]) {
 				case 14:
-					/// kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
 					kgsCatalogedLayer.visible = true;
 					$("#KGS-Cataloged-Events input").prop("checked", true);
 					break;
 				case 15:
-					/// kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
 					kgsPrelimLayer.visible = true;
 					$("#KGS-Preliminary-Events input").prop("checked", true);
 					break;
 				case 16:
-					/// neicLayer.sublayers[16].definitionExpression = theWhere;
+					neicLayer.sublayers[16].definitionExpression = theWhere;
 					neicLayer.visible = true;
 					$("#NEIC-Cataloged-Events input").prop("checked", true);
 					break;
 				case 17:
-					/// ogsLayer.sublayers[17].definitionExpression = theWhere;
+					ogsLayer.sublayers[17].definitionExpression = theWhere;
 					ogsLayer.visible = true;
 					$("#OGS-Cataloged-Events input").prop("checked", true);
 					break;
@@ -1300,7 +1309,7 @@ function(
 
 
 	function createWellsList(fSet, returnType, count) {
-		console.log("c: " + count);
+		console.log("count: " + count);
 		//console.log(fset);
 		if (sec) {
 			var locationString = "S" + sec + " - T" + twn + "S - R" + rng + dir;
