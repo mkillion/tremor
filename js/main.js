@@ -448,6 +448,9 @@ function(
 		neicLayer.sublayers[16].definitionExpression = "";
 		ogsLayer.sublayers[17].definitionExpression = "";
 		class1Layer.sublayers[18].definitionExpression = "";
+
+		// Clear ID layer definition:
+		idDef[0, 14, 15, 16, 17, 18] = "";
 	}
 
 
@@ -695,6 +698,8 @@ function(
 				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
 			class1Layer.visible = true;
+			idDef[18] = theWhere;
+			//idDef[0] = theWhere;	// prevents the well underneath the class1 layer point from being ID'd.
 			$("#Class-I-Injection-Wells input").prop("checked", true);
 		}
 
@@ -705,6 +710,8 @@ function(
 			theWhere += "county = '" + fp.searchText + "'";
 			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
+			idDef[0] = theWhere;
+			//idDef[18] = theWhere;	// prevents the class1 well on top of the og layer from being ID'd.
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
 		}
 
@@ -886,9 +893,13 @@ function(
 					switch (returnType) {
 						case "Class I Injection":
 							class1Layer.sublayers[18].definitionExpression = "kid in (select kid from " + tempTable + ")";
+							idDef[18] = "kid in (select kid from " + tempTable + ")";
+							//idDef[0]  = "kid in (select kid from " + tempTable + ")";
 							break;
 						case "Oil and Gas":
 							wellsLayer.sublayers[0].definitionExpression = "kid in (select kid from " + tempTable + ")";
+							idDef[0] = "kid in (select kid from " + tempTable + ")";
+							//idDef[18] = "kid in (select kid from " + tempTable + ")";
 							break;
 						case "Earthquakes":
 							if (theWhere === "") {
@@ -968,9 +979,6 @@ function(
 			$.each(lIDs, function(idx, val) {
 				ip.layerDefinitions[val] = theWhere;
 			} );
-
-			/// Turn on selected layers and filter features w/ a definitionExpression:
-			///applyDefExp(lIDs, theWhere);
 		}
 
 		if ( returnType === "Class I Injection" ) {
@@ -1026,9 +1034,13 @@ function(
 				switch (returnType) {
 					case "Class I Injection":
 						class1Layer.sublayers[18].definitionExpression = "kid in (select kid from " + tempTable + ")";
+						idDef[18] = "kid in (select kid from " + tempTable + ")";
+						//idDef[0] = "kid in (select kid from " + tempTable + ")";
 						break;
 					case "Oil and Gas":
 						wellsLayer.sublayers[0].definitionExpression = "kid in (select kid from " + tempTable + ")";
+						//idDef[18] = "kid in (select kid from " + tempTable + ")";
+						idDef[0] = "kid in (select kid from " + tempTable + ")";
 						break;
 					case "Earthquakes":
 						if (theWhere === "") {
@@ -1064,21 +1076,25 @@ function(
 				case 14:
 					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
 					kgsCatalogedLayer.visible = true;
+					idDef[14] = theWhere;
 					$("#KGS-Cataloged-Events input").prop("checked", true);
 					break;
 				case 15:
 					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
 					kgsPrelimLayer.visible = true;
+					idDef[15] = theWhere;
 					$("#KGS-Preliminary-Events input").prop("checked", true);
 					break;
 				case 16:
 					neicLayer.sublayers[16].definitionExpression = theWhere;
 					neicLayer.visible = true;
+					idDef[16] = theWhere;
 					$("#NEIC-Cataloged-Events input").prop("checked", true);
 					break;
 				case 17:
 					ogsLayer.sublayers[17].definitionExpression = theWhere;
 					ogsLayer.visible = true;
+					idDef[17] = theWhere;
 					$("#OGS-Cataloged-Events input").prop("checked", true);
 					break;
 			}
