@@ -651,6 +651,12 @@ function(
 			alert("Please select a feature type.");
 			return;
 		}
+		if ( $('input[name=return-type]:checked').val() === "Oil and Gas" && ( $('input[name=area-type]:checked').val() === "sca" || $('input[name=area-type]:checked').val() === "buff" ) ) {
+			if (view.zoom < 10) {
+				alert("To select oil wells within this area you must zoom in until the wells are visible.");
+				return;
+			}
+		}
 
 		switch ( $('input[name=area-type]:checked').val() ) {
 			case "state":
