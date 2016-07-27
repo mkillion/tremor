@@ -743,16 +743,47 @@ function(
 			applyDefExp(lIDs, theWhere);
 		}
 		ft.execute(fp).then(function(result) {
-			console.log(result);
 			if (returnType !== "Earthquakes") {
-				var count = result.results.length;
-				createWellsList(result, returnType, count);
+				var queryTask = new QueryTask( {
+					url: tremorGeneralServiceURL + "/" + fp.layerIds
+				} );
+				var query = new Query();
+				query.where = theWhere;
+				queryTask.executeForCount(query).then(function(count) {
+					createWellsList(result, returnType, count);
+				} );
 			} else {
 				var j = 0;
 				var li;
 				var query = new Query();
-				query.returnGeometry = true;
-				query.where = theWhere;
+				if (areaType === "co") {
+					query.where = theWhere;
+				}
+				if (areaType === "state") {
+					var w = "";
+					var l = [];
+					for (var i = 0; i < fp.layerIds.length; i++) {
+						switch (fp.layerIds[i]) {
+							case 14:
+								l.push("'KGS'");
+								break;
+							case 15:
+								l.push("'EWA'");
+								break;
+							case 16:
+								l.push("'NEIC'");
+								break;
+							case 17:
+								l.push("'OGS'");
+								break;
+						}
+					}
+					ls = l.join(",");
+					query.where = "layer in (" + ls + ")";
+					if (theWhere !== "") {
+						query.where += " and " + theWhere;
+					}
+				}
 
 				for (var i = 0; i < fp.layerIds.length; i++) {
 					li = "/" + fp.layerIds[i];
@@ -911,8 +942,37 @@ function(
 							break;
 					}
 				} );
+				if (returnType !== "Earthquakes") {
+					var queryTask = new QueryTask( {
+						url: tremorGeneralServiceURL + "/" + ip.layerIds
+					} );
+					var query = new Query();
+					query.geometry = ip.geometry;
+					query.spatialRelationship = "intersects";
+					queryTask.executeForCount(query).then(function(count) {
+						createWellsList(r, returnType, count);
+					} );
+				} else {
+					var j = 0;
+					for (var i = 0; i < ip.layerIds.length; i++) {
+						li = "/" + ip.layerIds[i];
+						var query = new Query();
+						query.geometry = ip.geometry;
+						query.spatialRelationship = "intersects";
+						query.where = theWhere;
+						var queryTask = new QueryTask( {
+							url: tremorGeneralServiceURL + li
+						} );
 
-				// createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
+						queryTask.executeForCount(query).then(function(count) {
+							console.log(count);
+							j += count;
+						} );
+					}
+					setTimeout(function() {
+						createWellsList(r, returnType, j);
+					}, 2000);
+				}
 			} );
 		} );
 		$("#filter-buff-dia").dialog("close");
@@ -1053,7 +1113,37 @@ function(
 				}
 			} );
 
-			// createWellsList(fSet, wellType, twn, rng, dir, sec, count, what);
+			if (returnType !== "Earthquakes") {
+				var queryTask = new QueryTask( {
+					url: tremorGeneralServiceURL + "/" + ip.layerIds
+				} );
+				var query = new Query();
+				query.geometry = ip.geometry;
+				query.spatialRelationship = "intersects";
+				queryTask.executeForCount(query).then(function(count) {
+					createWellsList(r, returnType, count);
+				} );
+			} else {
+				var j = 0;
+				for (var i = 0; i < ip.layerIds.length; i++) {
+					li = "/" + ip.layerIds[i];
+					var query = new Query();
+					query.geometry = ip.geometry;
+					query.spatialRelationship = "intersects";
+					query.where = theWhere;
+					var queryTask = new QueryTask( {
+						url: tremorGeneralServiceURL + li
+					} );
+
+					queryTask.executeForCount(query).then(function(count) {
+						console.log(count);
+						j += count;
+					} );
+				}
+				setTimeout(function() {
+					createWellsList(r, returnType, j);
+				}, 2000);
+			}
 		} );
 		$("#filter-buff-dia").dialog("close");
 	}
