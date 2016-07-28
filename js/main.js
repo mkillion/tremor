@@ -450,7 +450,12 @@ function(
 		class1Layer.sublayers[18].definitionExpression = "";
 
 		// Clear ID layer definition:
-		idDef[0, 14, 15, 16, 17, 18] = "";
+		idDef[0] = "";
+		idDef[14] = "";
+		idDef[15] = "";
+		idDef[16] = "";
+		idDef[17] = "";
+		idDef[18] = "";
 	}
 
 
@@ -793,14 +798,13 @@ function(
 					} );
 
 					queryTask.executeForCount(query).then(function(count) {
-						console.log(count);
 						j += count;
 					} );
 				}
 
 				setTimeout(function() {
 					createWellsList(result, returnType, j);
-				}, 2000);
+				}, 1500);
 			}
 		} );
 
@@ -965,13 +969,12 @@ function(
 						} );
 
 						queryTask.executeForCount(query).then(function(count) {
-							console.log(count);
 							j += count;
 						} );
 					}
 					setTimeout(function() {
 						createWellsList(r, returnType, j);
-					}, 2000);
+					}, 1500);
 				}
 			} );
 		} );
@@ -1136,13 +1139,12 @@ function(
 					} );
 
 					queryTask.executeForCount(query).then(function(count) {
-						console.log(count);
 						j += count;
 					} );
 				}
 				setTimeout(function() {
 					createWellsList(r, returnType, j);
-				}, 2000);
+				}, 1500);
 			}
 		} );
 		$("#filter-buff-dia").dialog("close");
@@ -1472,9 +1474,9 @@ function(
 				listCount = count;
 			} );
 
-			queryTask.execute(query).then(function(results) {
-				createWellsList(results, selectWellType, dom.byId('twn').value, dom.byId('rng').value, dir, dom.byId('sec').value, listCount, what);
-			} );
+			// queryTask.execute(query).then(function(results) {
+			// 	createWellsList(results, selectWellType, dom.byId('twn').value, dom.byId('rng').value, dir, dom.byId('sec').value, listCount, what);
+			// } );
 
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
@@ -1517,7 +1519,7 @@ function(
 
 	function createWellsList(fSet, returnType, count) {
 		console.log("count: " + count);
-		//console.log(fset);
+		console.log(fSet);
 		if (sec) {
 			var locationString = "S" + sec + " - T" + twn + "S - R" + rng + dir;
 		} else if (twn) {
