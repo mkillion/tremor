@@ -690,6 +690,9 @@ function(
 		fp.returnGeometry = true;
 		fp.layerDefinitions = [];
 
+		var qt = new QueryTask();
+		var qry = new Query();
+
 		if ( returnType === "Class I Injection" ) {
 			fp.layerIds = [18];
 			if (areaType === "state") {
@@ -709,10 +712,14 @@ function(
 		}
 
 		if ( returnType === "Oil and Gas" && areaType === "co") {
-			fp.layerIds = [0];
-			fp.searchFields = ["COUNTY"];
-			fp.searchText = dom.byId("lstCounty2").value;
-			theWhere += "county = '" + fp.searchText + "'";
+			// fp.layerIds = [0];
+			// fp.searchFields = ["COUNTY"];
+			// fp.searchText = dom.byId("lstCounty2").value;
+			theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
+
+			qt.url = tremorGeneralServiceURL + "/0";
+			qry.where = theWhere;
+
 			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
 			idDef[0] = theWhere;
@@ -747,72 +754,75 @@ function(
 			// Turn on selected layers and filter features w/ a definitionExpression:
 			applyDefExp(lIDs, theWhere);
 		}
-		ft.execute(fp).then(function(result) {
-			if (returnType !== "Earthquakes") {
-				var queryTask = new QueryTask( {
-					url: tremorGeneralServiceURL + "/" + fp.layerIds
-				} );
-				var query = new Query();
-				query.where = theWhere;
-				queryTask.executeForCount(query).then(function(count) {
-					createWellsList(result, returnType, areaType, count);
-				} );
-			} else {
-				var j = 0;
-				var li;
-				var oids = [];
-				var query = new Query();
-				if (areaType === "co") {
-					query.where = theWhere;
-				}
-				if (areaType === "state") {
-					var w = "";
-					var l = [];
-					for (var i = 0; i < fp.layerIds.length; i++) {
-						switch (fp.layerIds[i]) {
-							case 14:
-								l.push("'KGS'");
-								break;
-							case 15:
-								l.push("'EWA'");
-								break;
-							case 16:
-								l.push("'NEIC'");
-								break;
-							case 17:
-								l.push("'OGS'");
-								break;
-						}
-					}
-					ls = l.join(",");
-					query.where = "layer in (" + ls + ")";
-					if (theWhere !== "") {
-						query.where += " and " + theWhere;
-					}
-				}
-
-				for (var i = 0; i < fp.layerIds.length; i++) {
-					li = "/" + fp.layerIds[i];
-
-					var queryTask = new QueryTask( {
-						url: tremorGeneralServiceURL + li
-					} );
-
-					queryTask.executeForCount(query).then(function(count) {
-						j += count;
-					} );
-
-					queryTask.executeForIds(query).then(function(r) {
-						oids = oids.concat(r);
-
-					} );
-				}
-
-				setTimeout(function() {
-					createWellsList(result, returnType, areaType, j);
-				}, 1500);
-			}
+		qt.executeForIds(qry).then(function(ids) {
+			createWellsList(ids, returnType, areaType);
 		} );
+		// ft.execute(fp).then(function(result) {
+		// 	if (returnType !== "Earthquakes") {
+		// 		var queryTask = new QueryTask( {
+		// 			url: tremorGeneralServiceURL + "/" + fp.layerIds
+		// 		} );
+		// 		var query = new Query();
+		// 		query.where = theWhere;
+		// 		queryTask.executeForCount(query).then(function(count) {
+		// 			createWellsList(result, returnType, areaType, count);
+		// 		} );
+		// 	} else {
+		// 		var j = 0;
+		// 		var li;
+		// 		var oids = [];
+		// 		var query = new Query();
+		// 		if (areaType === "co") {
+		// 			query.where = theWhere;
+		// 		}
+		// 		if (areaType === "state") {
+		// 			var w = "";
+		// 			var l = [];
+		// 			for (var i = 0; i < fp.layerIds.length; i++) {
+		// 				switch (fp.layerIds[i]) {
+		// 					case 14:
+		// 						l.push("'KGS'");
+		// 						break;
+		// 					case 15:
+		// 						l.push("'EWA'");
+		// 						break;
+		// 					case 16:
+		// 						l.push("'NEIC'");
+		// 						break;
+		// 					case 17:
+		// 						l.push("'OGS'");
+		// 						break;
+		// 				}
+		// 			}
+		// 			ls = l.join(",");
+		// 			query.where = "layer in (" + ls + ")";
+		// 			if (theWhere !== "") {
+		// 				query.where += " and " + theWhere;
+		// 			}
+		// 		}
+		//
+		// 		for (var i = 0; i < fp.layerIds.length; i++) {
+		// 			li = "/" + fp.layerIds[i];
+		//
+		// 			var queryTask = new QueryTask( {
+		// 				url: tremorGeneralServiceURL + li
+		// 			} );
+		//
+		// 			queryTask.executeForCount(query).then(function(count) {
+		// 				j += count;
+		// 			} );
+		//
+		// 			queryTask.executeForIds(query).then(function(r) {
+		// 				oids = oids.concat(r);
+		//
+		// 			} );
+		// 		}
+		//
+		// 		setTimeout(function() {
+		// 			createWellsList(result, returnType, areaType, j);
+		// 		}, 1500);
+		// 	}
+		// } );
 
 		// Highlight county if needed:
 		if (areaType === "co") {
@@ -1523,7 +1533,7 @@ function(
     }
 
 
-	function createWellsList(fSet, returnType, areaType, count) {
+	function createWellsList(arrIds, returnType, areaType) {
 		var eqType = "";
 
 		switch (areaType) {
@@ -1559,13 +1569,34 @@ function(
 		if (returnType === "Oil and Gas") {
 			var typeString = "oil and gas wells ";
 		}
-		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
+		var wellsLst = "<img id='loader' class='hide' src='images/ajax-loader.gif'><div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + arrIds.length + " " + typeString + eqType + areaString + "</div>";
 		$("#wells-tbl").html(wellsLst);
+
+		if (arrIds.length > 0) {
+			// Call ColdFusion, which returns an html table:
+			var lstIds = arrIds.join(",");
+			data = { lstIds };
+
+			$("#loader").show();
+			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
+				$("#wells-tbl").append(response);
+				$("#loader").hide();
+			} );
+
+			// Open tools drawer-menu:
+			$(".item").removeClass("item-selected");
+			$(".panel").removeClass("panel-selected");
+			$(".icon-wrench").closest(".item").addClass("item-selected");
+			$("#tools-panel").closest(".panel").addClass("panel-selected");
+		}
+
+
+
 
 		// if (count > 1000) {
 		// 	$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 1000 of " + count + " records)");
 		// }
-
+		///// ***** rework below here for using qtask
 		var apiNums = [];
 		var seqNums = [];
 		var evtIdNums = [];
