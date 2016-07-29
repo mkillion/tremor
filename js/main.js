@@ -707,10 +707,15 @@ function(
 			}
 			qt.url = tremorGeneralServiceURL + "/18";
 			qry.where = theWhere;
+
 			class1Layer.visible = true;
 			idDef[18] = theWhere;
 			// idDef[0] = theWhere;	// prevents the well underneath the class1 layer point from being ID'd.
 			$("#Class-I-Injection-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				createWellsList(ids, returnType, areaType);
+			} );
 		}
 
 		if ( returnType === "Oil and Gas" && areaType === "co") {
@@ -727,11 +732,16 @@ function(
 			idDef[0] = theWhere;
 			// idDef[18] = theWhere;	// prevents the class1 well on top of the og layer from being ID'd.
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				createWellsList(ids, returnType, areaType);
+			} );
 		}
 
 		if ( returnType === "Earthquakes" ) {
 			// Get checked earthquake layers:
 			var lIDs = [];
+			var oids = [];
 			var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
 				return $(this).val();
 			} ).get();
@@ -742,24 +752,42 @@ function(
 				alert("Please select at least one earthquake category.");
 				return;
 			}
-			fp.layerIds = lIDs;
-			// Next property is a dummy. SearchText is required by findTask. All EVENT_IDs contain a 1, so this finds
-			// all records. They are then pared down by the layerDefinition containing the where clause.
-			fp.searchText = "1";
+			// fp.layerIds = lIDs;
+			// // Next property is a dummy. SearchText is required by findTask. All EVENT_IDs contain a 1, so this finds
+			// // all records. They are then pared down by the layerDefinition containing the where clause.
+			// fp.searchText = "1";
+
+			// Create where clause and get objectids:
+			theWhere = earthquakeWhereClause(areaType);
+			if (theWhere !== "") {
+				qry.where = theWhere;
+			} else {
+				// Dummy clause to select all:
+				qry.where = "event_id > 0";
+			}
+
+			$.each(lIDs, function(idx, val) {
+				qt.url = tremorGeneralServiceURL + "/" + [val];
+				qt.executeForIds(qry).then(function(ids) {
+					oids = oids.concat(ids);
+				} );
+			} );
+			setTimeout(function() {
+				createWellsList(oids, returnType, areaType);
+			}, 1500);
+
+
+
 
 			// Create and apply where clause to filter result featureset:
-			theWhere = earthquakeWhereClause(areaType);
-			$.each(lIDs, function(idx, val) {
-				fp.layerDefinitions[val] = theWhere;
-			} );
+			// theWhere = earthquakeWhereClause(areaType);
+			// $.each(lIDs, function(idx, val) {
+			// 	fp.layerDefinitions[val] = theWhere;
+			// } );
 
 			// Turn on selected layers and filter features w/ a definitionExpression:
 			applyDefExp(lIDs, theWhere);
 		}
-
-		qt.executeForIds(qry).then(function(ids) {
-			createWellsList(ids, returnType, areaType);
-		} );
 
 
 
@@ -830,7 +858,7 @@ function(
 		// 	}
 		// } );
 
-		// Highlight county if needed:
+		// Highlight county:
 		if (areaType === "co") {
 			var ft2 = new FindTask(tremorGeneralServiceURL);
 			var fp2 = new FindParameters();
