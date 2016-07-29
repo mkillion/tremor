@@ -760,6 +760,7 @@ function(
 			} else {
 				var j = 0;
 				var li;
+				var oids = [];
 				var query = new Query();
 				if (areaType === "co") {
 					query.where = theWhere;
@@ -799,6 +800,11 @@ function(
 
 					queryTask.executeForCount(query).then(function(count) {
 						j += count;
+					} );
+
+					queryTask.executeForIds(query).then(function(r) {
+						oids = oids.concat(r);
+
 					} );
 				}
 
