@@ -24,7 +24,7 @@
 		</cfloop>
 
         <!--- GET RECORDS: --->
-		<cfquery name="qFeatureData" datasource="plss">
+		<cfquery name="qFeatureData" maxRows="500" datasource="plss">
 			select kid, api_number, lease_name, well_name
             <cfif #Type# eq "Oil and Gas">
 			    from oilgas_wells
@@ -65,18 +65,18 @@
         </cfloop>
 
         <!--- GET RECORDS: --->
-        <cfquery name="qFeatureData" datasource="gis_webinfo">
+        <cfquery name="qFeatureData" maxRows="500" datasource="gis_webinfo">
             select
                 decode(layer, 'KGS', 'KGS Cataloged',
                     'EWA', 'KGS Preliminary',
                     'NEIC', 'NEIC Cataloged',
                     'OGS', 'OGS Cataloged') as eq_type,
-                origin_time as the_date,
-                mc,
+                to_char(origin_time,'mm/dd/yyyy') as the_date,
+                round(mc, 1) as mag,
                 event_id
             from tremor_events
             where objectid in (select oid from #tempTable#)
-            order by eq_type, the_date
+            order by eq_type, origin_time
         </cfquery>
 
         <!--- CLEANUP: --->
@@ -88,7 +88,7 @@
         <cfoutput>
             <table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>
             <cfloop query="qFeatureData">
-                <tr><td>#eq_type#</td><td>#the_date#</td><td>#mc#</td><td class='hide'>#event_id#</td></tr>
+                <tr><td>#eq_type#</td><td>#the_date#</td><td>#mag#</td><td class='hide'>#event_id#</td></tr>
             </cfloop>
             </table>
         </cfoutput>

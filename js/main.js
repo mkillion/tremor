@@ -685,23 +685,14 @@ function(
 		var theWhere = "";
 		var returnType = $('input[name=return-type]:checked').val();
 		var areaType = $('input[name=area-type]:checked').val();
-		// var ft = new FindTask(tremorGeneralServiceURL);
-		// var fp = new FindParameters();
-		// fp.returnGeometry = true;
-		// fp.layerDefinitions = [];
 
 		var qt = new QueryTask();
 		var qry = new Query();
 
 		if ( returnType === "Class I Injection" ) {
-			// fp.layerIds = [18];
 			if (areaType === "state") {
-				// fp.searchFields = ["WELL_TYPE"];
-				// fp.searchText = "CLASS1";
 				theWhere += "well_type = 'CLASS1'";
 			} else {
-				// fp.searchFields = ["COUNTY"];
-				// fp.searchText = dom.byId("lstCounty2").value;
 				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
 				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
@@ -719,9 +710,6 @@ function(
 		}
 
 		if ( returnType === "Oil and Gas" && areaType === "co") {
-			// fp.layerIds = [0];
-			// fp.searchFields = ["COUNTY"];
-			// fp.searchText = dom.byId("lstCounty2").value;
 			theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
 
 			qt.url = tremorGeneralServiceURL + "/0";
@@ -752,10 +740,6 @@ function(
 				alert("Please select at least one earthquake category.");
 				return;
 			}
-			// fp.layerIds = lIDs;
-			// // Next property is a dummy. SearchText is required by findTask. All EVENT_IDs contain a 1, so this finds
-			// // all records. They are then pared down by the layerDefinition containing the where clause.
-			// fp.searchText = "1";
 
 			// Create where clause and get objectids:
 			theWhere = earthquakeWhereClause(areaType);
@@ -769,94 +753,18 @@ function(
 			$.each(lIDs, function(idx, val) {
 				qt.url = tremorGeneralServiceURL + "/" + [val];
 				qt.executeForIds(qry).then(function(ids) {
-					oids = oids.concat(ids);
+					if (ids) {
+						oids = oids.concat(ids);
+					}
 				} );
 			} );
 			setTimeout(function() {
 				createWellsList(oids, returnType, areaType);
 			}, 1500);
 
-
-
-
-			// Create and apply where clause to filter result featureset:
-			// theWhere = earthquakeWhereClause(areaType);
-			// $.each(lIDs, function(idx, val) {
-			// 	fp.layerDefinitions[val] = theWhere;
-			// } );
-
 			// Turn on selected layers and filter features w/ a definitionExpression:
 			applyDefExp(lIDs, theWhere);
 		}
-
-
-
-		// ft.execute(fp).then(function(result) {
-		// 	if (returnType !== "Earthquakes") {
-		// 		var queryTask = new QueryTask( {
-		// 			url: tremorGeneralServiceURL + "/" + fp.layerIds
-		// 		} );
-		// 		var query = new Query();
-		// 		query.where = theWhere;
-		// 		queryTask.executeForCount(query).then(function(count) {
-		// 			createWellsList(result, returnType, areaType, count);
-		// 		} );
-		// 	} else {
-		// 		var j = 0;
-		// 		var li;
-		// 		var oids = [];
-		// 		var query = new Query();
-		// 		if (areaType === "co") {
-		// 			query.where = theWhere;
-		// 		}
-		// 		if (areaType === "state") {
-		// 			var w = "";
-		// 			var l = [];
-		// 			for (var i = 0; i < fp.layerIds.length; i++) {
-		// 				switch (fp.layerIds[i]) {
-		// 					case 14:
-		// 						l.push("'KGS'");
-		// 						break;
-		// 					case 15:
-		// 						l.push("'EWA'");
-		// 						break;
-		// 					case 16:
-		// 						l.push("'NEIC'");
-		// 						break;
-		// 					case 17:
-		// 						l.push("'OGS'");
-		// 						break;
-		// 				}
-		// 			}
-		// 			ls = l.join(",");
-		// 			query.where = "layer in (" + ls + ")";
-		// 			if (theWhere !== "") {
-		// 				query.where += " and " + theWhere;
-		// 			}
-		// 		}
-		//
-		// 		for (var i = 0; i < fp.layerIds.length; i++) {
-		// 			li = "/" + fp.layerIds[i];
-		//
-		// 			var queryTask = new QueryTask( {
-		// 				url: tremorGeneralServiceURL + li
-		// 			} );
-		//
-		// 			queryTask.executeForCount(query).then(function(count) {
-		// 				j += count;
-		// 			} );
-		//
-		// 			queryTask.executeForIds(query).then(function(r) {
-		// 				oids = oids.concat(r);
-		//
-		// 			} );
-		// 		}
-		//
-		// 		setTimeout(function() {
-		// 			createWellsList(result, returnType, areaType, j);
-		// 		}, 1500);
-		// 	}
-		// } );
 
 		// Highlight county:
 		if (areaType === "co") {
@@ -1569,6 +1477,7 @@ function(
 
 	function createWellsList(arrIds, returnType, areaType) {
 		var eqType = "";
+		var count = arrIds.length;
 
 		switch (areaType) {
 			case "state":
@@ -1603,10 +1512,14 @@ function(
 		if (returnType === "Oil and Gas") {
 			var typeString = "oil and gas wells ";
 		}
-		var wellsLst = "<img id='loader' class='hide' src='images/ajax-loader.gif'><div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + arrIds.length + " " + typeString + eqType + areaString + "</div>";
-		$("#wells-tbl").html(wellsLst);
 
-		if (arrIds.length > 0) {
+		var wellsLst = "<img id='loader' class='hide' src='images/ajax-loader.gif'><div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
+		$("#wells-tbl").html(wellsLst);
+		if (count > 500) {
+			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
+		}
+
+		if (count > 0) {
 			// Call ColdFusion, which returns an html table:
 			var lstIds = arrIds.join(",");
 			data = { lstIds };
@@ -1615,16 +1528,51 @@ function(
 			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
 				$("#wells-tbl").append(response);
 				$("#loader").hide();
-			} );
+			} ).then(function() {
+				$('.striped-tbl').find('tr').click(function() {
+					$(this).closest("tr").siblings().removeClass("highlighted");
+		    		$(this).toggleClass("highlighted");
 
-			// Open tools drawer-menu:
-			$(".item").removeClass("item-selected");
-			$(".panel").removeClass("panel-selected");
-			$(".icon-wrench").closest(".item").addClass("item-selected");
-			$("#tools-panel").closest(".panel").addClass("panel-selected");
+					// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
+					var kgsID =  $(this).find('td:eq(2)').text();
+					var evtID =  $(this).find('td:eq(3)').text();
+
+					if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
+						findParams.layerIds = [0];
+						findParams.searchFields = ["KID"];
+				        findParams.searchText = kgsID;
+					} else if (returnType === "Earthquakes") {
+						findParams.layerIds = [14,15,16,17];
+						findParams.searchFields = ["EVENT_ID"];
+				        findParams.searchText = evtID;
+					} else {
+						findParams.layerIds = [8];
+						findParams.searchFields = ["INPUT_SEQ_NUMBER"];
+				        findParams.searchText = kgsID;
+					}
+
+					findTask.execute(findParams).then(function(response) {
+						return addPopupTemplate(response.results);
+			        } ).then(function(feature) {
+						if (feature.length > 0) {
+							view.goTo( {
+								target: feature[0].geometry,
+								zoom: 16
+							}, {duration: 750} ).then(function() {
+								highlightFeature(feature[0]);
+					            openPopup(feature);
+							} );
+						}
+			        } );
+				} );
+			} );
 		}
 
-
+		// Open tools drawer-menu:
+		$(".item").removeClass("item-selected");
+		$(".panel").removeClass("panel-selected");
+		$(".icon-wrench").closest(".item").addClass("item-selected");
+		$("#tools-panel").closest(".panel").addClass("panel-selected");
 
 
 		// if (count > 1000) {
@@ -1732,48 +1680,46 @@ function(
 		// $("#tools-panel").closest(".panel").addClass("panel-selected");
 
 		// Select a well/event by clicking on table row:
-		setTimeout(function() {
-			$('.striped-tbl').find('tr').click(function() {
-				console.log("clicked");
-				$(this).closest("tr").siblings().removeClass("highlighted");
-	    		$(this).toggleClass("highlighted");
-
-				// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
-				var kgsID =  $(this).find('td:eq(2)').text();
-				var evtID =  $(this).find('td:eq(3)').text();
-
-				if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
-					findParams.layerIds = [0];
-					findParams.searchFields = ["KID"];
-			        findParams.searchText = kgsID;
-				} else if (returnType === "Earthquakes") {
-					findParams.layerIds = [14,15,16,17];
-					findParams.searchFields = ["EVENT_ID"];
-			        findParams.searchText = evtID;
-				} else {
-					findParams.layerIds = [8];
-					findParams.searchFields = ["INPUT_SEQ_NUMBER"];
-			        findParams.searchText = kgsID;
-				}
-
-				findTask.execute(findParams).then(function(response) {
-					return addPopupTemplate(response.results);
-		        } ).then(function(feature) {
-					if (feature.length > 0) {
-						view.goTo( {
-							target: feature[0].geometry,
-							zoom: 16
-						}, {duration: 750} ).then(function() {
-							highlightFeature(feature[0]);
-				            openPopup(feature);
-						} );
-					}
-		        } );
-			} );
-		}, 2000);
+		// setTimeout(function() {
+		// 	$('.striped-tbl').find('tr').click(function() {
+		// 		$(this).closest("tr").siblings().removeClass("highlighted");
+	    // 		$(this).toggleClass("highlighted");
+		//
+		// 		// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
+		// 		var kgsID =  $(this).find('td:eq(2)').text();
+		// 		var evtID =  $(this).find('td:eq(3)').text();
+		//
+		// 		if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
+		// 			findParams.layerIds = [0];
+		// 			findParams.searchFields = ["KID"];
+		// 	        findParams.searchText = kgsID;
+		// 		} else if (returnType === "Earthquakes") {
+		// 			findParams.layerIds = [14,15,16,17];
+		// 			findParams.searchFields = ["EVENT_ID"];
+		// 	        findParams.searchText = evtID;
+		// 		} else {
+		// 			findParams.layerIds = [8];
+		// 			findParams.searchFields = ["INPUT_SEQ_NUMBER"];
+		// 	        findParams.searchText = kgsID;
+		// 		}
+		//
+		// 		findTask.execute(findParams).then(function(response) {
+		// 			return addPopupTemplate(response.results);
+		//         } ).then(function(feature) {
+		// 			if (feature.length > 0) {
+		// 				view.goTo( {
+		// 					target: feature[0].geometry,
+		// 					zoom: 16
+		// 				}, {duration: 750} ).then(function() {
+		// 					highlightFeature(feature[0]);
+		// 		            openPopup(feature);
+		// 				} );
+		// 			}
+		//         } );
+		// 	} );
+		// }, 2000);
 
 		// $('.striped-tbl').find('tr').click(function() {
-		// 	console.log("click");
 		// 	$(this).closest("tr").siblings().removeClass("highlighted");
     	// 	$(this).toggleClass("highlighted");
 		//
