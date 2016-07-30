@@ -862,11 +862,7 @@ function(
 
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
 						var tempTable = response;
-						// wellsLayer.sublayers[0].definitionExpression = "objectid in (select oid from " + tempTable + ")";
-						// idDef[0] = "kid in (select kid from " + tempTable + ")";
-
 						createWellsList(oids, returnType, areaType);
-
 						applyDefExp(lIDs, theWhere, tempTable);
 					} );
 				}, 1500 );
@@ -1067,6 +1063,11 @@ function(
 	function filterBuff() {
 		var returnType = $('input[name=return-type]:checked').val();
 		var areaType = $('input[name=area-type]:checked').val();
+		var qt = new QueryTask();
+		var qry = new Query();
+		var oids = [];
+		var objIds;
+		var cfData;
 
 		// Create buffer and display graphic:
 		graphicsLayer.remove(bufferGraphic);
@@ -1100,9 +1101,9 @@ function(
 		graphicsLayer.add(bufferGraphic);
 
 		// Find features w/in buffer:
-		var it = new IdentifyTask(tremorGeneralServiceURL);
-        var ip = new IdentifyParameters();
-		ip.layerDefinitions = [];
+		// var it = new IdentifyTask(tremorGeneralServiceURL);
+        // var ip = new IdentifyParameters();
+		// ip.layerDefinitions = [];
 
 		if ( returnType === "Earthquakes" ) {
 			// Get checked earthquake layers:
@@ -1117,118 +1118,181 @@ function(
 				alert("Please select at least one earthquake category.");
 				return;
 			}
-			ip.layerIds = lIDs;
+			// ip.layerIds = lIDs;
 
-			// Create and apply where clause to filter result featureset:
-			var theWhere = earthquakeWhereClause(areaType);
+			// Create where clause and get objectids:
+			theWhere = earthquakeWhereClause(areaType);
+			if (theWhere !== "") {
+				qry.where = theWhere;
+			} else {
+				// Dummy clause to select all:
+				qry.where = "event_id > 0";
+			}
+
+			qry.geometry = buffPoly;
+
 			$.each(lIDs, function(idx, val) {
-				ip.layerDefinitions[val] = theWhere;
+				qt.url = tremorGeneralServiceURL + "/" + [val];
+				qt.executeForIds(qry).then(function(ids) {
+					if (ids) {
+						oids = oids.concat(ids);
+					}
+				} );
 			} );
+			setTimeout(function() {
+				objIds = oids.join(",");
+				cfData = { "type": returnType, "objIds": objIds };
+
+				$.post( "createDefExpTable.cfm", cfData, function(response) {
+					var tempTable = response;
+					createWellsList(oids, returnType, areaType);
+					applyDefExp(lIDs, theWhere, tempTable);
+				} );
+			}, 1500 );
+
+			// // Create and apply where clause to filter result featureset:
+			// var theWhere = earthquakeWhereClause(areaType);
+			// $.each(lIDs, function(idx, val) {
+			// 	ip.layerDefinitions[val] = theWhere;
+			// } );
 		}
 
 		if ( returnType === "Class I Injection" ) {
-			ip.layerIds = [18];
+			// ip.layerIds = [18];
+			qt.url = tremorGeneralServiceURL + "/18";
+			qry.geometry = buffPoly;
 			class1Layer.visible = true;
 			$("#Class-I-Injection-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				if (ids) {
+					oids = oids.concat(ids);
+				}
+
+				createWellsList(oids, returnType, areaType);
+
+				var oidList = oids.join(",");
+				class1Layer.sublayers[18].definitionExpression = "objectid in (" + oidList + ")";
+				idDef[18] = "objectid in (" + oidList + ")";
+			} );
 		}
 
 		if ( returnType === "Oil and Gas" ) {
-			ip.layerIds = [0];
+			// ip.layerIds = [0];
+			qt.url = tremorGeneralServiceURL + "/0";
+			qry.geometry = buffPoly;
 			wellsLayer.visible = true;
 			$("#Oil-and-Gas-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				if (ids) {
+					oids = oids.concat(ids);
+				}
+
+				createWellsList(oids, returnType, areaType);
+
+				objIds = oids.join(",");
+				cfData = { "type": returnType, "objIds": objIds };
+
+				$.post( "createDefExpTable.cfm", cfData, function(response) {
+					var tempTable = response;
+					wellsLayer.sublayers[0].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+					idDef[0] = "kid in (select kid from " + tempTable + ")";
+				} );
+			} );
 		}
 
-		ip.geometry = buffPoly;
-		ip.layerOption = "visible";
-		ip.returnGeometry = true;
-		ip.tolerance = 0;
-		ip.mapExtent = view.extent;
-		ip.height = view.height;
-		ip.width = view.width;
-
-		it.execute(ip).then(function(result) {
-			return result;
-		} ).then(function(r) {
-			// Pass results to a cf page to create a temp table that can be used to create a defExp to only display features w/in the poly:
-			var kidNums = [];
-			var kids = "";
-			var evtNums = [];
-			var evts = "";
-
-			if ( returnType === "Oil and Gas" || returnType === "Class I Injection" ) {
-				for (var i=0; i<r.results.length; i++) {
-					kidNums.push(r.results[i].feature.attributes.KID);
-				}
-				if (kidNums.length > 0) {
-					kids = kidNums.join(",");
-				}
-			}
-			if (returnType === "Earthquakes") {
-				for (var i=0; i<r.results.length; i++) {
-					evtNums.push(r.results[i].feature.attributes.EVENT_ID);
-				}
-				if (evtNums.length > 0) {
-					evts = evtNums.join(",");
-				}
-			}
-
-			var cfData = { "type": returnType, "kids": kids, "events": evts };
-
-			$.post( "createDefExpTable.cfm", cfData, function(response) {
-				var tempTable = response;
-				switch (returnType) {
-					case "Class I Injection":
-						class1Layer.sublayers[18].definitionExpression = "kid in (select kid from " + tempTable + ")";
-						idDef[18] = "kid in (select kid from " + tempTable + ")";
-						//idDef[0] = "kid in (select kid from " + tempTable + ")";
-						break;
-					case "Oil and Gas":
-						wellsLayer.sublayers[0].definitionExpression = "kid in (select kid from " + tempTable + ")";
-						//idDef[18] = "kid in (select kid from " + tempTable + ")";
-						idDef[0] = "kid in (select kid from " + tempTable + ")";
-						break;
-					case "Earthquakes":
-						if (theWhere === "") {
-							theWhere = "event_id in (select event_id from " + tempTable + ")";
-						} else {
-							theWhere += " and event_id in (select event_id from " + tempTable + ")";
-						}
-						applyDefExp(lIDs, theWhere);
-						break;
-				}
-			} );
-
-			if (returnType !== "Earthquakes") {
-				var queryTask = new QueryTask( {
-					url: tremorGeneralServiceURL + "/" + ip.layerIds
-				} );
-				var query = new Query();
-				query.geometry = ip.geometry;
-				query.spatialRelationship = "intersects";
-				queryTask.executeForCount(query).then(function(count) {
-					createWellsList(r, returnType, areaType, count);
-				} );
-			} else {
-				var j = 0;
-				for (var i = 0; i < ip.layerIds.length; i++) {
-					li = "/" + ip.layerIds[i];
-					var query = new Query();
-					query.geometry = ip.geometry;
-					query.spatialRelationship = "intersects";
-					query.where = theWhere;
-					var queryTask = new QueryTask( {
-						url: tremorGeneralServiceURL + li
-					} );
-
-					queryTask.executeForCount(query).then(function(count) {
-						j += count;
-					} );
-				}
-				setTimeout(function() {
-					createWellsList(r, returnType, areaType, j);
-				}, 1500);
-			}
-		} );
+		// ip.geometry = buffPoly;
+		// ip.layerOption = "visible";
+		// ip.returnGeometry = true;
+		// ip.tolerance = 0;
+		// ip.mapExtent = view.extent;
+		// ip.height = view.height;
+		// ip.width = view.width;
+		//
+		// it.execute(ip).then(function(result) {
+		// 	return result;
+		// } ).then(function(r) {
+		// 	// Pass results to a cf page to create a temp table that can be used to create a defExp to only display features w/in the poly:
+		// 	var kidNums = [];
+		// 	var kids = "";
+		// 	var evtNums = [];
+		// 	var evts = "";
+		//
+		// 	if ( returnType === "Oil and Gas" || returnType === "Class I Injection" ) {
+		// 		for (var i=0; i<r.results.length; i++) {
+		// 			kidNums.push(r.results[i].feature.attributes.KID);
+		// 		}
+		// 		if (kidNums.length > 0) {
+		// 			kids = kidNums.join(",");
+		// 		}
+		// 	}
+		// 	if (returnType === "Earthquakes") {
+		// 		for (var i=0; i<r.results.length; i++) {
+		// 			evtNums.push(r.results[i].feature.attributes.EVENT_ID);
+		// 		}
+		// 		if (evtNums.length > 0) {
+		// 			evts = evtNums.join(",");
+		// 		}
+		// 	}
+		//
+		// 	var cfData = { "type": returnType, "kids": kids, "events": evts };
+		//
+		// 	$.post( "createDefExpTable.cfm", cfData, function(response) {
+		// 		var tempTable = response;
+		// 		switch (returnType) {
+		// 			case "Class I Injection":
+		// 				class1Layer.sublayers[18].definitionExpression = "kid in (select kid from " + tempTable + ")";
+		// 				idDef[18] = "kid in (select kid from " + tempTable + ")";
+		// 				//idDef[0] = "kid in (select kid from " + tempTable + ")";
+		// 				break;
+		// 			case "Oil and Gas":
+		// 				wellsLayer.sublayers[0].definitionExpression = "kid in (select kid from " + tempTable + ")";
+		// 				//idDef[18] = "kid in (select kid from " + tempTable + ")";
+		// 				idDef[0] = "kid in (select kid from " + tempTable + ")";
+		// 				break;
+		// 			case "Earthquakes":
+		// 				if (theWhere === "") {
+		// 					theWhere = "event_id in (select event_id from " + tempTable + ")";
+		// 				} else {
+		// 					theWhere += " and event_id in (select event_id from " + tempTable + ")";
+		// 				}
+		// 				applyDefExp(lIDs, theWhere);
+		// 				break;
+		// 		}
+		// 	} );
+		//
+		// 	if (returnType !== "Earthquakes") {
+		// 		var queryTask = new QueryTask( {
+		// 			url: tremorGeneralServiceURL + "/" + ip.layerIds
+		// 		} );
+		// 		var query = new Query();
+		// 		query.geometry = ip.geometry;
+		// 		query.spatialRelationship = "intersects";
+		// 		queryTask.executeForCount(query).then(function(count) {
+		// 			createWellsList(r, returnType, areaType, count);
+		// 		} );
+		// 	} else {
+		// 		var j = 0;
+		// 		for (var i = 0; i < ip.layerIds.length; i++) {
+		// 			li = "/" + ip.layerIds[i];
+		// 			var query = new Query();
+		// 			query.geometry = ip.geometry;
+		// 			query.spatialRelationship = "intersects";
+		// 			query.where = theWhere;
+		// 			var queryTask = new QueryTask( {
+		// 				url: tremorGeneralServiceURL + li
+		// 			} );
+		//
+		// 			queryTask.executeForCount(query).then(function(count) {
+		// 				j += count;
+		// 			} );
+		// 		}
+		// 		setTimeout(function() {
+		// 			createWellsList(r, returnType, areaType, j);
+		// 		}, 1500);
+		// 	}
+		// } );
 		$("#filter-buff-dia").dialog("close");
 	}
 
