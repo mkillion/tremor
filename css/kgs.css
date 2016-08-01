@@ -23,7 +23,13 @@ th, td {
 }
 
 #reset-finds {
-	left: 75px;
+	left: 115px;
+	position: relative;
+	top: 10px;
+}
+
+#clear-filter {
+	left: 60px;
 	position: relative;
 	top: -3px;
 }

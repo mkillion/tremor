@@ -275,6 +275,7 @@ function(
 
     $(".esri-icon-erase").click(function() {
 		graphicsLayer.removeAll();
+		clearFilter();
     } );
 
 	$(".esri-icon-filter").click(function() {
@@ -1627,7 +1628,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Find <span id="reset-finds"><button onclick="resetFinds()">Reset</button></span><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Find <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div class="panel-padding">';
         // address:
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="address"><span class="find-hdr-txt"> Address or Place<span></div>';
@@ -1693,12 +1694,13 @@ function(
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="county"><span class="find-hdr-txt"> County</span></div>';
         content += '<div class="find-body hide" id="find-county">';
         content += '<table><tr><td class="find-label">County:</td><td><select id="lstCounty"></select></td><td><button class=find-button onclick=findIt("county")>Find</button></td></tr></table>';
-        content += '</div>';
+        content += '<hr></div>';
 		// bookmarks
 		// content += '<div class="panel-sub-txt">Bookmarks <span class="esri-icon-plus-circled" id="add-bookmark" title="Add Bookmark" onclick="addBookmark()"></span></div>';
 		// content += '<div class="bookmark-link"><span onclick="originalLocation()">Original Location</div>';
         // content += '</div>';
         // content += '</div>';
+		content += '<span id="reset-finds"><button onclick="resetFinds()">Reset</button></span>';
 
         menuObj = {
             label: '<div class="icon-zoom-in"></div><div class="icon-text">Find</div>',
@@ -1709,7 +1711,7 @@ function(
         // Layers panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1722,7 +1724,7 @@ function(
         // Tools panel:
         content = '';
         content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">List <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">List <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div class="panel-padding">';
 		content += '</div>';
 		content += '<div id="wells-tbl"></div>';
@@ -1737,7 +1739,7 @@ function(
 		// Legend panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Legend <span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Legend <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
 		// content += '<div class="panel-header">Links</div>';
