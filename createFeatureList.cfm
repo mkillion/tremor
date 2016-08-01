@@ -74,7 +74,7 @@
                 to_char(origin_time,'mm/dd/yyyy') as the_date,
                 round(mc, 1) as mag,
                 event_id
-            from tremor_events
+            from tremor_events_dev_only
             where objectid in (select oid from #tempTable#)
             order by eq_type, origin_time
         </cfquery>
