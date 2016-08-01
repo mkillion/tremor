@@ -800,6 +800,7 @@ function(
 
 
 	function filterSca() {
+		graphicsLayer.removeAll();
 		openToolsPanel();
 
 		var returnType = $('input[name=return-type]:checked').val();
@@ -926,6 +927,7 @@ function(
 
 
 	function filterBuff() {
+		graphicsLayer.removeAll();
 		openToolsPanel();
 
 		var returnType = $('input[name=return-type]:checked').val();
@@ -1471,16 +1473,18 @@ function(
 
 		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
 		$("#wells-tbl").html(wellsLst);
+		$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a>");
+
+		var lstIds = arrIds.join(",");
+		data = { "type": returnType, "lstIds": lstIds };
+
+		$(".esri-icon-download").click( data, downloadList);
+
 		if (count > 500) {
 			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
 		}
 
 		if (count > 0) {
-			// Call ColdFusion, which returns an html table:
-			var lstIds = arrIds.join(",");
-			data = { lstIds };
-
-			// $("#loader").show();
 			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
 				$("#wells-tbl").append(response);
 				$("#loader").hide();
@@ -1522,214 +1526,16 @@ function(
 			        } );
 				} );
 			} );
+		} else {
+			$("#loader").hide();
 		}
-
-		// // Open tools drawer-menu:
-		// $(".item").removeClass("item-selected");
-		// $(".panel").removeClass("panel-selected");
-		// $(".icon-wrench").closest(".item").addClass("item-selected");
-		// $("#tools-panel").closest(".panel").addClass("panel-selected");
-
-
-		// if (count > 1000) {
-		// 	$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 1000 of " + count + " records)");
-		// }
-		///// ***** rework below here for using qtask
-		// var apiNums = [];
-		// var seqNums = [];
-		// var evtIdNums = [];
-		// var kidNums = [];
-		// var apis, seqs, evts, kids;
-
-		// if (fSet.results.length > 0) {
-		// 	fSet.results.sort(sortList);
-		//
-		// 	var downloadIcon = "<img id='loader' class='hide' src='images/ajax-loader.gif'><a class='esri-icon-download' title='Download List to CSV File'></a>";
-		// 	$("#list-txt").append(downloadIcon);
-		//
-		// 	if (returnType === "Oil and Gas") {
-		// 		var wellsTbl = "<table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Name</th><th>API</th></tr>";
-		// 		for (var i=0; i<fSet.results.length; i++) {
-		// 			wellsTbl += "<tr><td style='width:48%'>" + fSet.results[i].feature.attributes.LEASE_NAME + " " + fSet.results[i].feature.attributes.WELL_NAME + "</td><td style='width:52%'>" + fSet.results[i].feature.attributes.API_NUMBER + "</td><td class='hide'>" + fSet.results[i].feature.attributes.KID + "</td></tr>";
-		// 			kidNums.push(fSet.results[i].feature.attributes.KID);
-		// 		}
-		// 		wellsLayer.visible = true;
-		// 		$("#Oil-and-Gas-Wells input").prop("checked", true);
-		// 	} else if (returnType === "Water") {
-		// 		var wellsTbl = "<table class='striped-tbl well-list-tbl' id='wwc5-tbl'><tr><th>Owner</th><th>Use</th></tr>";
-		// 		for (var i=0; i<fSet.features.length; i++) {
-		// 			wellsTbl += "<tr><td>" + fSet.features[i].attributes.OWNER_NAME + "</td><td>" + fSet.features[i].attributes.USE_DESC + "</td><td class='hide'>" + fSet.features[i].attributes.INPUT_SEQ_NUMBER + "</td></tr>";
-		// 			seqNums.push(fSet.features[i].attributes.INPUT_SEQ_NUMBER);
-		// 		}
-		// 		wwc5Layer.visible = true;
-		// 		$("#WWC5-Water-Wells input").prop("checked", true);
-		// 	} else if (returnType === "Class I Injection") {
-		// 		var wellsTbl = "<table class='striped-tbl well-list-tbl' id='class1-tbl'><tr><th>Name</th><th>API</th></tr>";
-		// 		for (var i=0; i<fSet.results.length; i++) {
-		// 			wellsTbl += "<tr><td style='width:60%'>" + fSet.results[i].feature.attributes.LEASE_NAME + " " + fSet.results[i].feature.attributes.WELL_NAME + "</td><td style='width:40%'>" + fSet.results[i].feature.attributes.API_NUMBER + "</td><td class='hide'>" + fSet.results[i].feature.attributes.KID + "</td></tr>";
-		// 			kidNums.push(fSet.results[i].feature.attributes.KID);
-		// 		}
-		// 		class1Layer.visible = true;
-		// 		$("#Class-I-Injection-Wells input").prop("checked", true);
-		// 	} else if (returnType === "Earthquakes") {
-		// 		var wellsTbl = "<table class='striped-tbl well-list-tbl' id='eq-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>";
-		// 		var source, formatted;
-		// 		for (var i=0; i<fSet.results.length; i++) {
-		// 			switch (fSet.results[i].feature.attributes.LAYER) {
-		// 				case "KGS":
-		// 					source = "KGS Cataloged";
-		// 					kgsCatalogedLayer.visible = true;
-		// 					$("#KGS-Cataloged-Events input").prop("checked", true);
-		// 					break;
-		// 				case "EWA":
-		// 					source = "KGS Preliminary";
-		// 					kgsPrelimLayer.visible = true;
-		// 					$("#KGS-Preliminary-Events input").prop("checked", true);
-		// 					break;
-		// 				case "NEIC":
-		// 					source = "NEIC Cataloged";
-		// 					neicLayer.visible = true;
-		// 					$("#NEIC-Cataloged-Events input").prop("checked", true);
-		// 					break;
-		// 				case "OGS":
-		// 					source = "OGS Cataloged";
-		// 					ogsLayer.visible = true;
-		// 					$("#OGS-Cataloged-Events input").prop("checked", true);
-		// 					break;
-		// 				default:
-		// 					source = "";
-		// 			}
-		// 			formatted = $.datepicker.formatDate("m/d/yy", new Date(fSet.results[i].feature.attributes.ORIGIN_TIME) );
-		// 			wellsTbl += "<tr><td>" + source + "</td><td>" + formatted + "</td><td>" + fSet.results[i].feature.attributes.MC + "</td><td class='hide'>" + fSet.results[i].feature.attributes.EVENT_ID + "</td></tr>";
-		// 			evtIdNums.push(fSet.results[i].feature.attributes.EVENT_ID);
-		// 		}
-		// 	}
-		// 	wellsTbl += "</table>";
-		// } else {
-		// 	if (returnType === "Oil and Gas") {
-		// 		var wellsTbl = "<div class='toc-note'>Oil wells must be visible to be selected</div>";
-		// 	}
-		// }
-		//
-		// $("#wells-tbl").append(wellsTbl);
-
-		// if (apiNums.length > 0) {
-		// 	apis = apiNums.join(",");
-		// }
-		// if (seqNums.length > 0) {
-		// 	seqs = seqNums.join(",");
-		// }
-		// if (evtIdNums.length > 0) {
-		// 	evts = evtIdNums.join(",");
-		// }
-		// if (kidNums.length > 0) {
-		// 	kids = kidNums.join(",");
-		// }
-		//
-		// var cfParams = { "type": returnType, "apis": apis, "seqs": seqs, "evts": evts, "kids": kids };
-		// $(".esri-icon-download").click( {cf:cfParams}, downloadList);
-
-		// Open tools drawer-menu:
-		// $(".item").removeClass("item-selected");
-		// $(".panel").removeClass("panel-selected");
-		// $(".icon-wrench").closest(".item").addClass("item-selected");
-		// $("#tools-panel").closest(".panel").addClass("panel-selected");
-
-		// Select a well/event by clicking on table row:
-		// setTimeout(function() {
-		// 	$('.striped-tbl').find('tr').click(function() {
-		// 		$(this).closest("tr").siblings().removeClass("highlighted");
-	    // 		$(this).toggleClass("highlighted");
-		//
-		// 		// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
-		// 		var kgsID =  $(this).find('td:eq(2)').text();
-		// 		var evtID =  $(this).find('td:eq(3)').text();
-		//
-		// 		if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
-		// 			findParams.layerIds = [0];
-		// 			findParams.searchFields = ["KID"];
-		// 	        findParams.searchText = kgsID;
-		// 		} else if (returnType === "Earthquakes") {
-		// 			findParams.layerIds = [14,15,16,17];
-		// 			findParams.searchFields = ["EVENT_ID"];
-		// 	        findParams.searchText = evtID;
-		// 		} else {
-		// 			findParams.layerIds = [8];
-		// 			findParams.searchFields = ["INPUT_SEQ_NUMBER"];
-		// 	        findParams.searchText = kgsID;
-		// 		}
-		//
-		// 		findTask.execute(findParams).then(function(response) {
-		// 			return addPopupTemplate(response.results);
-		//         } ).then(function(feature) {
-		// 			if (feature.length > 0) {
-		// 				view.goTo( {
-		// 					target: feature[0].geometry,
-		// 					zoom: 16
-		// 				}, {duration: 750} ).then(function() {
-		// 					highlightFeature(feature[0]);
-		// 		            openPopup(feature);
-		// 				} );
-		// 			}
-		//         } );
-		// 	} );
-		// }, 2000);
-
-		// $('.striped-tbl').find('tr').click(function() {
-		// 	$(this).closest("tr").siblings().removeClass("highlighted");
-    	// 	$(this).toggleClass("highlighted");
-		//
-		// 	// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
-		// 	var kgsID =  $(this).find('td:eq(2)').text();
-		// 	var evtID =  $(this).find('td:eq(3)').text();
-		//
-		// 	if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
-		// 		findParams.layerIds = [0];
-		// 		findParams.searchFields = ["KID"];
-		//         findParams.searchText = kgsID;
-		// 	} else if (returnType === "Earthquakes") {
-		// 		findParams.layerIds = [14,15,16,17];
-		// 		findParams.searchFields = ["EVENT_ID"];
-		//         findParams.searchText = evtID;
-		// 	} else {
-		// 		findParams.layerIds = [8];
-		// 		findParams.searchFields = ["INPUT_SEQ_NUMBER"];
-		//         findParams.searchText = kgsID;
-		// 	}
-		//
-		// 	findTask.execute(findParams).then(function(response) {
-		// 		return addPopupTemplate(response.results);
-	    //     } ).then(function(feature) {
-		// 		if (feature.length > 0) {
-		// 			view.goTo( {
-		// 				target: feature[0].geometry,
-		// 				zoom: 16
-		// 			}, {duration: 750} ).then(function() {
-		// 				highlightFeature(feature[0]);
-		// 	            openPopup(feature);
-		// 			} );
-		// 		}
-	    //     } );
-		// } );
 	}
 
 
 	downloadList = function(evt) {
 		$("#loader").show();
 
-		var plssStr = "";
-		var data = {};
-
-		if (evt.data.cf.sec) {
-			plssStr += "twn=" + evt.data.cf.twn + "&rng=" + evt.data.cf.rng + "&dir=" + evt.data.cf.dir + "&sec=" + evt.data.cf.sec + "&type=" + evt.data.cf.type;
-		} else if (evt.data.cf.twn) {
-			plssStr += "twn=" + evt.data.cf.twn + "&rng=" + evt.data.cf.rng + "&dir=" + evt.data.cf.dir + "&type=" + evt.data.cf.type;
-		} else {
-			// Download from buffer.
-			data = { "type": evt.data.cf.type, "apis": evt.data.cf.apis, "seqs": evt.data.cf.seqs, "evts": evt.data.cf.evts, "kids": evt.data.cf.kids };
-		}
-
-		$.post( "downloadPointsInPoly.cfm?" + plssStr, data, function(response) {
+		$.post( "downloadPointsInPoly.cfm", data, function(response) {
 			$(".download-link").html(response);
 			$("#loader").hide();
 		} );
@@ -1916,7 +1722,7 @@ function(
         // Tools panel:
         content = '';
         content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">List <img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">List <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Graphics & Highlights"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div class="panel-padding">';
 		content += '</div>';
 		content += '<div id="wells-tbl"></div>';
