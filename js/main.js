@@ -784,7 +784,8 @@ function(
 			fp2.searchFields = ["COUNTY"];
 			fp2.searchText = dom.byId("lstCounty2").value;
 			ft2.execute(fp2).then(function(result) {
-				highlightFeature(result.results[0].feature);
+				// highlightFeature(result.results[0].feature);
+				zoomToFeature(result.results[0].feature);
 			} );
 		}
 		$("#filter-buff-dia").dialog("close");
@@ -832,7 +833,8 @@ function(
 			$("#Areas-of-Seismic-Concern input").prop("checked", true);
 		}
 		ft.execute(fp).then(function(result) {
-			highlightFeature(result.results[0].feature);
+			// highlightFeature(result.results[0].feature);
+			zoomToFeature(result.results[0].feature);
 
 			// Query task to get feature objectids within sca geometry:
 			if ( returnType === "Earthquakes" ) {
@@ -969,6 +971,10 @@ function(
 			symbol: fillSymbol
 		} );
 		graphicsLayer.add(bufferGraphic);
+		//view.extent = buffPoly.extent;
+		view.goTo( {
+			target: buffPoly.extent
+		}, {duration: 500} );
 
 		if ( returnType === "Earthquakes" ) {
 			// Get checked earthquake layers:
