@@ -1480,12 +1480,13 @@ function(
 
 		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
 		$("#wells-tbl").html(wellsLst);
-		$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a>");
+		$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a><a class='esri-icon-line-chart'></a>");
 
 		var lstIds = arrIds.join(",");
 		data = { "type": returnType, "lstIds": lstIds };
 
-		$(".esri-icon-download").click( data, downloadList);
+		$(".esri-icon-download").click( data, downloadList) ;
+		$(".esri-icon-line-chart").click( makeChart );
 
 		if (count > 500) {
 			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
@@ -1536,6 +1537,33 @@ function(
 		} else {
 			$("#loader").hide();
 		}
+	}
+
+
+	function makeChart() {
+		$('#chart').highcharts( {
+	        chart: {
+	            type: 'bar'
+	        },
+	        title: {
+	            text: 'Fruit Consumption'
+	        },
+	        xAxis: {
+	            categories: ['Apples', 'Bananas', 'Oranges']
+	        },
+	        yAxis: {
+	            title: {
+	                text: 'Fruit eaten'
+	            }
+	        },
+	        series: [{
+	            name: 'Jane',
+	            data: [1, 0, 4]
+	        }, {
+	            name: 'John',
+	            data: [5, 7, 3]
+	        }]
+	    } );
 	}
 
 
