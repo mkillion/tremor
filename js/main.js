@@ -1524,8 +1524,8 @@ function(
 						if (feature.length > 0) {
 							view.goTo( {
 								target: feature[0].geometry,
-								zoom: 16
-							}, {duration: 750} ).then(function() {
+								zoom: 14
+							}, {duration: 500} ).then(function() {
 								highlightFeature(feature[0]);
 					            openPopup(feature);
 							} );
