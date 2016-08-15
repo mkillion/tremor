@@ -1548,6 +1548,13 @@ function(
 		        chart: {
 		            type: 'scatter'
 		        },
+				xAxis: {
+		            type: 'datetime',
+		            dateTimeLabelFormats: {
+		                day: '%e of %b'
+		            },
+					endOnTick: true
+		        },
 				series: [ {
 					data: data
 				} ]
