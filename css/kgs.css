@@ -29,6 +29,15 @@ th, td {
 	z-index: 5;
 }
 
+#chart-x {
+	/*color: red;
+	font-size: 20px;*/
+	left: 130px;
+	position: absolute;
+	top: 110px;
+	z-index: 6;
+}
+
 #reset-finds {
 	left: 115px;
 	position: relative;

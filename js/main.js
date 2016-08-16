@@ -286,6 +286,11 @@ function(
 		$("#buff-opts").toggleClass("show");
 	} );
 
+	$("#chart-x").click(function() {
+		$("#chart").highcharts().destroy();
+		$("#chart-x").toggleClass("show");
+	} );
+
 	// $("#meas-tool").click(function() {
     //     $("#meas-dia").dialog("open");
     // } );
@@ -1560,6 +1565,7 @@ function(
 				} ]
 		    } );
 		} );
+		$("#chart-x").toggleClass("show");
 	}
 
 
