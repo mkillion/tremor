@@ -1548,7 +1548,7 @@ function(
 	function makeChart() {
 		$.get('chartData.cfm', function(response) {
 			var data = JSON.parse(response);
-
+			
 		    $('#chart').highcharts( {
 		        chart: {
 		            type: 'scatter'
@@ -1560,9 +1560,7 @@ function(
 		            },
 					endOnTick: true
 		        },
-				series: [ {
-					data: data
-				} ]
+				series: data
 		    } );
 		} );
 		$("#chart-x").toggleClass("show");
