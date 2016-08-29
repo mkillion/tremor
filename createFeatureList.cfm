@@ -12,7 +12,8 @@
 <cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection">
 	<cfif isdefined("form.lstIds")>
 		<!--- CREATE TEMP TABLE: --->
-		<cfset Uid = right(CreateUUID(),16)>
+		<cfset Uid = right(CreateUUID(),26)>
+		<cfset Uid = replace(#Uid#, "-", "_", "all")>
         <cfset tempTable = "tmp_#Uid#">
 		<cfquery name="qCreate" datasource="plss">
 			create table #tempTable#(oid varchar2(20))
@@ -36,9 +37,9 @@
 		</cfquery>
 
         <!--- CLEANUP: --->
-		<cfquery name="qDrop" datasource="plss">
+		<!---<cfquery name="qDrop" datasource="plss">
 			drop table #tempTable#
-		</cfquery>
+		</cfquery>--->
 
         <!--- CREATE HTML TABLE FOR RESPONSE: --->
         <cfoutput>
@@ -53,7 +54,8 @@
 <cfelseif #Type# eq "Earthquakes">
     <cfif isdefined("form.lstIds")>
         <!--- CREATE TEMP TABLE: --->
-        <cfset Uid = right(CreateUUID(),16)>
+        <cfset Uid = right(CreateUUID(),26)>
+		<cfset Uid = replace(#Uid#, "-", "_", "all")>
         <cfset tempTable = "tmp_#Uid#">
         <cfquery name="qCreate" datasource="gis_webinfo">
             create table #tempTable#(oid varchar2(20))
@@ -80,12 +82,13 @@
         </cfquery>
 
         <!--- CLEANUP: --->
-        <cfquery name="qDrop" datasource="gis_webinfo">
+        <!---<cfquery name="qDrop" datasource="gis_webinfo">
             drop table #tempTable#
-        </cfquery>
+        </cfquery>--->
 
         <!--- CREATE HTML TABLE FOR RESPONSE: --->
         <cfoutput>
+			#tempTable#
             <table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>
             <cfloop query="qFeatureData">
                 <tr><td>#eq_type#</td><td>#the_date#</td><td>#mag#</td><td class='hide'>#event_id#</td></tr>

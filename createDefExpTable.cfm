@@ -8,7 +8,8 @@
 	<cfset Type = #form.type#>
 </cfif>
 
-<cfset Uid = right(CreateUUID(),16)>
+<cfset Uid = right(CreateUUID(),26)>
+<cfset Uid = replace(#Uid#, "-", "_", "all")>
 <cfset tempTable = "tmp_#Uid#">
 
 <cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection">

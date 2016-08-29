@@ -84,6 +84,7 @@ function(
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
 	var listCount = 0;
+	var tempCfTable;
 
 
     // Set up basic frame:
@@ -1499,7 +1500,9 @@ function(
 
 		if (count > 0) {
 			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
-				$("#wells-tbl").append(response);
+				var tempCfTable = response.substr(0,31);
+				
+				$("#wells-tbl").append(response.replace(tempCfTable,''));
 				$("#loader").hide();
 			} ).then(function() {
 				$('.striped-tbl').find('tr').click(function() {
@@ -1548,7 +1551,7 @@ function(
 	function makeChart() {
 		$.get('chartData.cfm', function(response) {
 			var data = JSON.parse(response);
-			
+
 		    $('#chart').highcharts( {
 		        chart: {
 		            type: 'scatter'
