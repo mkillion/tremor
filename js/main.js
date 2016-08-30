@@ -1550,7 +1550,7 @@ function(
 			$("#chart-x").hide();
 		}
 
-		$.get('chartData.cfm?tbl=' + sharedCfTable, function(response) {
+		$.get('createChartData.cfm?tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
