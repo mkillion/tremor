@@ -289,12 +289,8 @@ function(
 
 	$("#chart-x").click(function() {
 		$("#chart").highcharts().destroy();
-		$("#chart-x").toggleClass("show");
+		$("#chart-x").hide();
 	} );
-
-	// $("#meas-tool").click(function() {
-    //     $("#meas-dia").dialog("open");
-    // } );
 
 
     function popCountyDropdown() {
@@ -1549,25 +1545,37 @@ function(
 
 
 	function makeChart() {
-		console.log(sharedCfTable);
-		$.get('chartData.cfm', function(response) {
+		if ( $('#chart').highcharts() ) {
+			$('#chart').highcharts().destroy();
+			$("#chart-x").hide();
+		}
+
+		$.post('chartData.cfm?tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
 		        chart: {
 		            type: 'scatter'
 		        },
+				title: {
+					text: ""
+				},
 				xAxis: {
 		            type: 'datetime',
 		            dateTimeLabelFormats: {
-		                day: '%e of %b'
+		                day: '%e %b %Y'
 		            },
 					endOnTick: true
 		        },
+				yAxis: {
+					title: {
+						text: "Magnitude (MC)"
+					}
+				},
 				series: data
 		    } );
 		} );
-		$("#chart-x").toggleClass("show");
+		$("#chart-x").show();
 	}
 
 

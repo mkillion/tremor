@@ -30,9 +30,7 @@ th, td {
 }
 
 #chart-x {
-	/*color: red;
-	font-size: 20px;*/
-	left: 130px;
+	left: 105px;
 	position: absolute;
 	top: 110px;
 	z-index: 6;
