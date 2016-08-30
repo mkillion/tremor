@@ -1550,7 +1550,7 @@ function(
 			$("#chart-x").hide();
 		}
 
-		$.post('chartData.cfm?tbl=' + sharedCfTable, function(response) {
+		$.get('chartData.cfm?tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
@@ -1558,7 +1558,8 @@ function(
 		            type: 'scatter',
 					borderColor: '#A9A9A9',
             		borderWidth: 3,
-					borderRadius: 8
+					borderRadius: 8,
+					zoomType: 'xy'
 		        },
 				title: {
 					text: ""
