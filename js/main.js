@@ -1555,7 +1555,10 @@ function(
 
 		    $('#chart').highcharts( {
 		        chart: {
-		            type: 'scatter'
+		            type: 'scatter',
+					borderColor: '#A9A9A9',
+            		borderWidth: 3,
+					borderRadius: 8
 		        },
 				title: {
 					text: ""
@@ -1565,7 +1568,8 @@ function(
 		            dateTimeLabelFormats: {
 		                day: '%e %b %Y'
 		            },
-					endOnTick: true
+					endOnTick: true,
+					startOnTick: true
 		        },
 				yAxis: {
 					title: {
