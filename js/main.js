@@ -1564,11 +1564,15 @@ function(
 				title: {
 					text: ""
 				},
+				tooltip: {
+		        	// enabled: false
+					// crosshairs: true,
+					headerFormat: '<b>{point.key}</b><br/>',
+					pointFormat: 'Magnitude: <b>{point.y}</b>',
+					xDateFormat: '%b %e, %Y'
+		        },
 				xAxis: {
 		            type: 'datetime',
-		            dateTimeLabelFormats: {
-		                day: '%e %b %Y'
-		            },
 					endOnTick: true,
 					startOnTick: true
 		        },
