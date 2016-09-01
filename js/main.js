@@ -681,6 +681,14 @@ function(
 				filterBuff();
 				break;
 		}
+		// Clear list, close chart if open, remove download and chart icons until the list loads:
+		$("#wells-tbl").html("");
+		if ( $("#chart").highcharts() ) {
+			$("#chart").highcharts().destroy();
+			$("#chart-x, #chart").hide();
+		}
+		$(".esri-icon-line-chart").hide();
+		$(".esri-icon-download").hide();
 	}
 
 
@@ -1482,13 +1490,11 @@ function(
 
 		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
 		$("#wells-tbl").html(wellsLst);
-		$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a><a class='esri-icon-line-chart'></a>");
 
 		var lstIds = arrIds.join(",");
 		data = { "type": returnType, "lstIds": lstIds };
 
 		$(".esri-icon-download").click( data, downloadList) ;
-		$(".esri-icon-line-chart").click( makeChart );
 
 		if (count > 500) {
 			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
@@ -1500,6 +1506,8 @@ function(
 
 				$("#wells-tbl").append(response.replace(sharedCfTable,''));
 				$("#loader").hide();
+				$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a><a class='esri-icon-line-chart'></a>");
+				$(".esri-icon-line-chart").click( makeChart );
 			} ).then(function() {
 				$('.striped-tbl').find('tr').click(function() {
 					$(this).closest("tr").siblings().removeClass("highlighted");
@@ -1547,7 +1555,7 @@ function(
 	function makeChart() {
 		if ( $("#chart").highcharts() ) {
 			$("#chart").highcharts().destroy();
-			$("#chart-x").hide();
+			$("#chart-x, #chart").hide();
 		}
 
 		$("#chart").show();
@@ -1568,7 +1576,6 @@ function(
 				},
 				tooltip: {
 		        	// enabled: false
-					// crosshairs: true,
 					headerFormat: '<b>{point.key}</b><br/>',
 					pointFormat: 'Magnitude: <b>{point.y}</b>',
 					xDateFormat: '%b %e, %Y'
