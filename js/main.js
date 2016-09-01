@@ -289,7 +289,7 @@ function(
 
 	$("#chart-x").click(function() {
 		$("#chart").highcharts().destroy();
-		$("#chart-x").hide();
+		$("#chart-x, #chart").hide();
 	} );
 
 
@@ -1545,10 +1545,12 @@ function(
 
 
 	function makeChart() {
-		if ( $('#chart').highcharts() ) {
-			$('#chart').highcharts().destroy();
+		if ( $("#chart").highcharts() ) {
+			$("#chart").highcharts().destroy();
 			$("#chart-x").hide();
 		}
+
+		$("#chart").show();
 
 		$.get('createChartData.cfm?tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
