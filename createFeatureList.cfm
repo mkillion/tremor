@@ -43,6 +43,7 @@
 
         <!--- CREATE HTML TABLE FOR RESPONSE: --->
         <cfoutput>
+			#tempTable#
             <table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Name</th><th>API</th></tr>
             <cfloop query="qFeatureData">
                 <tr><td style='width:50%'>#LEASE_NAME# &nbsp; #WELL_NAME#</td><td style='width:50%'>#API_NUMBER#</td><td class='hide'>#KID#</td></tr>

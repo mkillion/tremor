@@ -1494,8 +1494,6 @@ function(
 		var lstIds = arrIds.join(",");
 		data = { "type": returnType, "lstIds": lstIds };
 
-		$(".esri-icon-download").click( data, downloadList) ;
-
 		if (count > 500) {
 			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
 		}
@@ -1504,10 +1502,17 @@ function(
 			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
 				sharedCfTable = response.substr(0,31);
 
+				if (returnType === "Earthquakes") {
+					graphIcon = "<a class='esri-icon-line-chart' title='Graph earthquakes'></a>";
+				} else {
+					graphIcon = "";
+				}
+
 				$("#wells-tbl").append(response.replace(sharedCfTable,''));
 				$("#loader").hide();
-				$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a><a class='esri-icon-line-chart'></a>");
+				$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a>" + graphIcon);
 				$(".esri-icon-line-chart").click( makeChart );
+				$(".esri-icon-download").click( data, downloadList);
 			} ).then(function() {
 				$('.striped-tbl').find('tr').click(function() {
 					$(this).closest("tr").siblings().removeClass("highlighted");
@@ -1599,7 +1604,6 @@ function(
 
 	downloadList = function(evt) {
 		$("#loader").show();
-
 		$.post( "downloadPointsInPoly.cfm", data, function(response) {
 			$(".download-link").html(response);
 			$("#loader").hide();

@@ -61,7 +61,7 @@
 
 <cfelseif #Type# eq "Earthquakes">
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "EVENT_ID,QUAKE_ID,AGENCY,AGENCY_ID,ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,DATUM,ORIGIN_TIME_ERR,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,NST,RMS,GAP,MC,ML,MB,MS,MW,MB_LG,FAULT_SOLUTION,MODEL,UPDATED_TIMESTAMP,WAVEFORM_URL,WAVEFORM_FILE,PLACE,SECONDS,FEET,LAYER,SAS,COUNTY,CATALOG">
+	<cfset Headers = "EVENT_ID,QUAKE_ID,AGENCY,AGENCY_ID,ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,DATUM,ORIGIN_TIME_ERR,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,NST,RMS,GAP,MC,ML,MB,MS,MW,MB_LG,FAULT_SOLUTION,MODEL,UPDATED_TIMESTAMP,WAVEFORM_URL,WAVEFORM_FILE,PLACE,SECONDS,FEET,LAYER,SAS,COUNTY">
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- CREATE TEMP TABLE: --->
@@ -78,7 +78,7 @@
 
 	<!--- GET FEATURES: --->
 	<cfquery name="qEventData" datasource="gis_webinfo">
-		select event_id, quake_id, agency, agency_id, to_char(origin_time, 'MM/DD/YYYY HH24:MI:SS') as otm, latitude, longitude, depth, datum, origin_time_err, latitude_err, longitude_err, depth_err, nst, rms, gap, mc, ml, mb, ms, mw, mb_lg, fault_solution, model, to_char(updated_timestamp, 'MM/DD/YYYY HH24:MI:SS') as uts, waveform_url, waveform_file, place, seconds, feet, layer, sas, county, catalog
+		select event_id, quake_id, agency, agency_id, to_char(origin_time, 'MM/DD/YYYY HH24:MI:SS') as otm, latitude, longitude, depth, datum, origin_time_err, latitude_err, longitude_err, depth_err, nst, rms, gap, mc, ml, mb, ms, mw, mb_lg, fault_solution, model, to_char(updated_timestamp, 'MM/DD/YYYY HH24:MI:SS') as uts, waveform_url, waveform_file, place, seconds, feet, layer, sas, county
 		from tremor_events_dev_only
 		where objectid in (select oid from #tempTable#)
 	</cfquery>
@@ -90,7 +90,7 @@
 
 	<!--- WRITE OUTPUT: --->
 	<cfloop query="qEventData">
-		<cfset Data = '"#event_id#","#quake_id#","#agency#","#agency_id#","#otm#","#latitude#","#longitude#","#depth#","#datum#","#origin_time_err#","#latitude_err#","#longitude_err#","#depth_err#","#nst#","#rms#","#gap#","#mc#","#ml#","#mb#","#ms#","#mw#","#mb_lg#","#fault_solution#","#model#","#uts#","#waveform_url#","#waveform_file#","#place#","#seconds#","#feet#","#layer#","#sas#","#county#","#catalog#"'>
+		<cfset Data = '"#event_id#","#quake_id#","#agency#","#agency_id#","#otm#","#latitude#","#longitude#","#depth#","#datum#","#origin_time_err#","#latitude_err#","#longitude_err#","#depth_err#","#nst#","#rms#","#gap#","#mc#","#ml#","#mb#","#ms#","#mw#","#mb_lg#","#fault_solution#","#model#","#uts#","#waveform_url#","#waveform_file#","#place#","#seconds#","#feet#","#layer#","#sas#","#county#"'>
 		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
 	</cfloop>
 </cfif>
