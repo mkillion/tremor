@@ -1132,6 +1132,7 @@ function(
 		var dateWhere = "";
 		var magWhere = "";
 		var countyWhere = "";
+		var stateWhere = "";
 		var fromDate = dom.byId('eq-from-date').value;
 		var toDate = dom.byId('eq-to-date').value;
 		var lMag = dom.byId('low-mag').value;
@@ -1158,6 +1159,10 @@ function(
 			countyWhere = "county = '" + dom.byId("lstCounty2").value + "'";
 		}
 
+		if (areaType === "state") {
+			stateWhere = "latitude >= 37 and latitude <= 40 and longitude >= -102.05 and longitude <= -94.58";
+		}
+
 		if (dateWhere !== "") {
 			theWhere += dateWhere + " and ";
 		}
@@ -1166,6 +1171,9 @@ function(
 		}
 		if (countyWhere !== "") {
 			theWhere += countyWhere + " and ";
+		}
+		if (stateWhere !== "") {
+			theWhere += stateWhere + " and ";
 		}
 
 		if (theWhere.substr(theWhere.length - 5) === " and ") {
@@ -1407,13 +1415,9 @@ function(
 				listCount = count;
 			} );
 
-			// queryTask.execute(query).then(function(results) {
-			// 	createWellsList(results, selectWellType, dom.byId('twn').value, dom.byId('rng').value, dir, dom.byId('sec').value, listCount, what);
-			// } );
-
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
-			if (what === "api" || what === "field") {
+			if (what === "api" || what === "field" || what === "event") {
 				openPopup(feature);
 			}
 		} );
