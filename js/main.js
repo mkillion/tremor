@@ -195,7 +195,7 @@ function(
         identifyTask = new IdentifyTask(tremorGeneralServiceURL);
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
-        identifyParams.tolerance = (isMobile) ? 9 : 3;
+        identifyParams.tolerance = (isMobile) ? 9 : 4;
         identifyParams.layerIds = [14, 15, 16, 17, 18, 19];
         identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
@@ -355,6 +355,7 @@ function(
 
 
 		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
+		buffDia += '<tr><td><input type="radio" name="return-type" value="Salt Water Disposal" onchange="resetEvtChk();"> Salt Water Disposal Wells</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
 		// buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
@@ -446,7 +447,8 @@ function(
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
 
 		// Clear layer definitionExpressions:
-		wellsLayer.sublayers[0].definitionExpression = "";
+		// wellsLayer.sublayers[0].definitionExpression = "";
+		swdLayer.sublayers[19].definitionExpression = "";
 		kgsCatalogedLayer.sublayers[14].definitionExpression = "";
 		kgsPrelimLayer.sublayers[15].definitionExpression = "";
 		neicLayer.sublayers[16].definitionExpression = "";
@@ -454,7 +456,8 @@ function(
 		class1Layer.sublayers[18].definitionExpression = "";
 
 		// Clear ID layer definition:
-		idDef[0] = "";
+		// idDef[0] = "";
+		idDef[19] = "";
 		idDef[14] = "";
 		idDef[15] = "";
 		idDef[16] = "";
@@ -718,6 +721,28 @@ function(
 			idDef[18] = theWhere;
 			// idDef[0] = theWhere;	// prevents the well underneath the class1 layer point from being ID'd.
 			$("#Class-I-Injection-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				if (ids) {
+					oids = oids.concat(ids);
+				}
+				createWellsList(oids, returnType, areaType);
+			} );
+		}
+
+		if ( returnType === "Salt Water Disposal" ) {
+			if (areaType === "state") {
+				theWhere += "well_type = 'SWD'";
+			} else {
+				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
+				swdLayer.sublayers[19].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			}
+			qt.url = tremorGeneralServiceURL + "/19";
+			qry.where = theWhere;
+
+			swdLayer.visible = true;
+			idDef[19] = theWhere;
+			$("#Salt-Water-Disposal-Wells input").prop("checked", true);
 
 			qt.executeForIds(qry).then(function(ids) {
 				if (ids) {
@@ -1320,11 +1345,12 @@ function(
                 if (dom.byId('api_extension').value != "") {
                     apiText = apiText + "-" + dom.byId('api_extension').value;
                 }
-                findParams.layerIds = [0];
+                findParams.layerIds = [19];
                 findParams.searchFields = ["api_number"];
                 findParams.searchText = apiText;
 				findParams.contains = false;
-				wellsLayer.visible = true;
+				// wellsLayer.visible = true;
+				swdLayer.visible = true;
                 $("#Oil-and-Gas-Wells input").prop("checked", true);
                 break;
             case "county":
@@ -1492,6 +1518,9 @@ function(
 		if (returnType === "Oil and Gas") {
 			var typeString = "oil and gas wells ";
 		}
+		if (returnType === "Salt Water Disposal") {
+			var typeString = "salt water disposal wells ";
+		}
 
 		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
 		$("#wells-tbl").html(wellsLst);
@@ -1529,6 +1558,10 @@ function(
 
 					if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
 						findParams.layerIds = [0];
+						findParams.searchFields = ["KID"];
+				        findParams.searchText = kgsID;
+					} else if (returnType === "Salt Water Disposal") {
+						findParams.layerIds = [19];
 						findParams.searchFields = ["KID"];
 				        findParams.searchText = kgsID;
 					} else if (returnType === "Earthquakes") {

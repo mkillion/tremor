@@ -9,7 +9,7 @@
 </cfif>
 
 
-<cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection">
+<cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection" OR #Type# eq "Salt Water Disposal">
 	<cfif isdefined("form.lstIds")>
 		<!--- CREATE TEMP TABLE: --->
 		<cfset Uid = right(CreateUUID(),26)>
@@ -27,7 +27,7 @@
         <!--- GET RECORDS: --->
 		<cfquery name="qFeatureData" maxRows="500" datasource="plss">
 			select kid, api_number, lease_name, well_name
-            <cfif #Type# eq "Oil and Gas">
+            <cfif #Type# eq "Oil and Gas" OR #Type# eq "Salt Water Disposal">
 			    from oilgas_wells
             <cfelse>
                 from class1_wells
