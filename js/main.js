@@ -151,7 +151,7 @@ function(
 
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map"} );
     // var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
-    var wellsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
+    // var wellsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range"} );
     // var wwc5Layer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/wwc5/wwc5_general/MapServer", sublayers:[{id:8}], id:"WWC5 Water Wells", visible:false} );
     // var usgsEventsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
@@ -167,9 +167,10 @@ function(
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
 	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
+	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, naip2014Layer, plssLayer, wellsLayer, class1Layer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, naip2014Layer, plssLayer, class1Layer, swdLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -195,7 +196,7 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 3;
-        identifyParams.layerIds = [0, 14, 15, 16, 17, 18];
+        identifyParams.layerIds = [14, 15, 16, 17, 18, 19];
         identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
@@ -355,7 +356,7 @@ function(
 
 		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
+		// buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
@@ -1929,7 +1930,7 @@ function(
 			var feature = result.feature;
 			var layerName = result.layerName;
 
-			if (layerName === 'OG_WELLS' || layerName === 'CLASS1 WELLS') {
+			if (layerName === 'OG_WELLS' || layerName === 'CLASS1 WELLS' || layerName === 'SWD Wells') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
 					content: wellContent(feature)
