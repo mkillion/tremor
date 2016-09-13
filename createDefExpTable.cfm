@@ -12,7 +12,7 @@
 <cfset Uid = replace(#Uid#, "-", "_", "all")>
 <cfset tempTable = "tmp_#Uid#">
 
-<cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection">
+<cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection" OR #Type# eq "Salt Water Disposal">
 	<cfset DS = "plss">
 </cfif>
 

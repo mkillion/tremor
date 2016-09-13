@@ -463,6 +463,7 @@ function(
 		idDef[16] = "";
 		idDef[17] = "";
 		idDef[18] = "";
+		idDef[19] = "";
 	}
 
 
@@ -960,6 +961,30 @@ function(
 					} );
 				} );
 			}
+
+			if ( returnType === "Salt Water Disposal" ) {
+				qt.url = tremorGeneralServiceURL + "/19";
+				qry.geometry = result.results[0].feature.geometry;
+				swdLayer.visible = true;
+				$("#Salt-Water-Disposal-Wells input").prop("checked", true);
+
+				qt.executeForIds(qry).then(function(ids) {
+					if (ids) {
+						oids = oids.concat(ids);
+					}
+
+					createWellsList(oids, returnType, areaType);
+
+					objIds = oids.join(",");
+					cfData = { "type": returnType, "objIds": objIds };
+
+					$.post( "createDefExpTable.cfm", cfData, function(response) {
+						var tempTable = response;
+						swdLayer.sublayers[19].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+						idDef[19] = "kid in (select kid from " + tempTable + ")";
+					} );
+				} );
+			}
 		} );
 		$("#filter-buff-dia").dialog("close");
 	}
@@ -1096,6 +1121,30 @@ function(
 					var tempTable = response;
 					wellsLayer.sublayers[0].definitionExpression = "objectid in (select oid from " + tempTable + ")";
 					idDef[0] = "kid in (select kid from " + tempTable + ")";
+				} );
+			} );
+		}
+
+		if ( returnType === "Salt Water Disposal" ) {
+			qt.url = tremorGeneralServiceURL + "/19";
+			qry.geometry = buffPoly;
+			swdLayer.visible = true;
+			$("#Salt-Water-Disposal-Wells input").prop("checked", true);
+
+			qt.executeForIds(qry).then(function(ids) {
+				if (ids) {
+					oids = oids.concat(ids);
+				}
+
+				createWellsList(oids, returnType, areaType);
+
+				objIds = oids.join(",");
+				cfData = { "type": returnType, "objIds": objIds };
+
+				$.post( "createDefExpTable.cfm", cfData, function(response) {
+					var tempTable = response;
+					swdLayer.sublayers[19].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+					idDef[19] = "kid in (select kid from " + tempTable + ")";
 				} );
 			} );
 		}
