@@ -37,6 +37,7 @@ require([
 	"esri/geometry/Polygon",
 	"esri/tasks/QueryTask",
 	"esri/tasks/support/Query",
+	"esri/widgets/Legend",
     "dojo/domReady!"
 ],
 function(
@@ -77,7 +78,8 @@ function(
 	SimpleFillSymbol,
 	Polygon,
 	QueryTask,
-	Query
+	Query,
+	Legend
 ) {
     var isMobile = WURFL.is_mobile;
 	var idDef = [];
@@ -260,6 +262,13 @@ function(
     	position: "top-left",
         index: 2
      } );
+
+	var legend = new Legend( {
+	 	view: view,
+	  	layerInfos: [ {
+	    	layer: kgsCatalogedLayer
+	  	} ]
+	}, "legend-content" );
 
     // End map and map widgets.
 
@@ -1021,7 +1030,7 @@ function(
 
 		var buffPoly = geometryEngine.geodesicBuffer(buffFeature, dom.byId('buff-dist').value, dom.byId('buff-units').value);
 		var fillSymbol = new SimpleFillSymbol( {
-			color: [102, 205, 170, 0.4],
+			color: [102, 205, 170, 0.25],
 			outline: new SimpleLineSymbol( {
 				color: [0, 0, 0],
 			  	width: 1

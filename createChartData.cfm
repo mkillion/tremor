@@ -25,16 +25,16 @@
             {
             <cfif #layer# eq "KGS">
                 "name": "KGS",
-                "color": "rgba(223,83,83,0.7)",
+                "color": "rgba(255,85,0,0.85)",
             <cfelseif #layer# eq "EWA">
                 "name": "KGS Prelim",
-                "color": "rgba(0,255,0,0.7)",
+                "color": "rgba(223,115,255,0.85)",
             <cfelseif #layer# eq "NEIC">
                 "name": "NEIC",
-                "color": "rgba(0,0,255,0.7)",
+                "color": "rgba(0,197,255,0.85)",
             <cfelseif #layer# eq "OGS">
                 "name": "OGS",
-                "color": "rgba(255,255,0,0.7)",
+                "color": "rgba(114,137,68,0.85)",
             </cfif>
 
             "data": [
