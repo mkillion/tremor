@@ -266,8 +266,13 @@ function(
 	var legend = new Legend( {
 	 	view: view,
 	  	layerInfos: [ {
-	    	layer: kgsCatalogedLayer
-	  	} ]
+	    	layer: kgsCatalogedLayer,
+			title: "Foo"
+	  	},
+	 	{
+			layer: kgsPrelimLayer,
+			title: "Bar"
+		} ]
 	}, "legend-content" );
 
     // End map and map widgets.
@@ -456,13 +461,13 @@ function(
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
 
 		// Clear layer definitionExpressions:
-		// wellsLayer.sublayers[0].definitionExpression = "";
-		swdLayer.sublayers[19].definitionExpression = "";
-		kgsCatalogedLayer.sublayers[14].definitionExpression = "";
-		kgsPrelimLayer.sublayers[15].definitionExpression = "";
-		neicLayer.sublayers[16].definitionExpression = "";
-		ogsLayer.sublayers[17].definitionExpression = "";
-		class1Layer.sublayers[18].definitionExpression = "";
+		// wellsLayer.findSublayerById(0).definitionExpression = "";
+		swdLayer.findSublayerById(19).definitionExpression = "";
+		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
+		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
+		neicLayer.findSublayerById(16).definitionExpression = "";
+		ogsLayer.findSublayerById(17).definitionExpression = "";
+		class1Layer.findSublayerById(18).definitionExpression = "";
 
 		// Clear ID layer definition:
 		// idDef[0] = "";
@@ -652,7 +657,7 @@ function(
 
 		def[0] = theWhere;
 		idDef[0] = def[0];
-		wellsLayer.sublayers[0].definitionExpression = def[0];
+		wellsLayer.findSublayerById(0).definitionExpression = def[0];
 	}
 
 
@@ -662,7 +667,7 @@ function(
 		$('input[name="og-has"]').removeAttr("checked");
 		$('select.og-select option').removeAttr("selected");
 		dom.byId("hrz").checked = false;
-		wellsLayer.sublayers[0].definitionExpression = null;
+		wellsLayer.findSublayerById(0).definitionExpression = null;
 		idDef[0] = "";
 	}
 
@@ -722,7 +727,7 @@ function(
 				theWhere += "well_type = 'CLASS1'";
 			} else {
 				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
-				class1Layer.sublayers[18].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+				class1Layer.findSublayerById(18).definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
 			qt.url = tremorGeneralServiceURL + "/18";
 			qry.where = theWhere;
@@ -745,7 +750,7 @@ function(
 				theWhere += "well_type = 'SWD'";
 			} else {
 				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
-				swdLayer.sublayers[19].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+				swdLayer.findSublayerById(19).definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			}
 			qt.url = tremorGeneralServiceURL + "/19";
 			qry.where = theWhere;
@@ -768,7 +773,7 @@ function(
 			qt.url = tremorGeneralServiceURL + "/0";
 			qry.where = theWhere;
 
-			wellsLayer.sublayers[0].definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
+			wellsLayer.findSublayerById(0).definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
 			wellsLayer.visible = true;
 			idDef[0] = theWhere;
 			// idDef[18] = theWhere;	// prevents the class1 well on top of the og layer from being ID'd.
@@ -942,7 +947,7 @@ function(
 					createWellsList(oids, returnType, areaType);
 
 					var oidList = oids.join(",");
-					class1Layer.sublayers[18].definitionExpression = "objectid in (" + oidList + ")";
+					class1Layer.findSublayerById(18).definitionExpression = "objectid in (" + oidList + ")";
 					idDef[18] = "objectid in (" + oidList + ")";
 				} );
 			}
@@ -965,7 +970,7 @@ function(
 
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
 						var tempTable = response;
-						wellsLayer.sublayers[0].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+						wellsLayer.findSublayerById(0).definitionExpression = "objectid in (select oid from " + tempTable + ")";
 						idDef[0] = "kid in (select kid from " + tempTable + ")";
 					} );
 				} );
@@ -989,7 +994,7 @@ function(
 
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
 						var tempTable = response;
-						swdLayer.sublayers[19].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+						swdLayer.findSublayerById(19).definitionExpression = "objectid in (select oid from " + tempTable + ")";
 						idDef[19] = "kid in (select kid from " + tempTable + ")";
 					} );
 				} );
@@ -1105,7 +1110,7 @@ function(
 				createWellsList(oids, returnType, areaType);
 
 				var oidList = oids.join(",");
-				class1Layer.sublayers[18].definitionExpression = "objectid in (" + oidList + ")";
+				class1Layer.findSublayerById(18).definitionExpression = "objectid in (" + oidList + ")";
 				idDef[18] = "objectid in (" + oidList + ")";
 			} );
 		}
@@ -1128,7 +1133,7 @@ function(
 
 				$.post( "createDefExpTable.cfm", cfData, function(response) {
 					var tempTable = response;
-					wellsLayer.sublayers[0].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+					wellsLayer.findSublayerById(0).definitionExpression = "objectid in (select oid from " + tempTable + ")";
 					idDef[0] = "kid in (select kid from " + tempTable + ")";
 				} );
 			} );
@@ -1152,7 +1157,7 @@ function(
 
 				$.post( "createDefExpTable.cfm", cfData, function(response) {
 					var tempTable = response;
-					swdLayer.sublayers[19].definitionExpression = "objectid in (select oid from " + tempTable + ")";
+					swdLayer.findSublayerById(19).definitionExpression = "objectid in (select oid from " + tempTable + ")";
 					idDef[19] = "kid in (select kid from " + tempTable + ")";
 				} );
 			} );
@@ -1183,25 +1188,25 @@ function(
 		for (var i = 0; i < lIDs.length; i++) {
 			switch (lIDs[i]) {
 				case 14:
-					kgsCatalogedLayer.sublayers[14].definitionExpression = theWhere;
+					kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
 					kgsCatalogedLayer.visible = true;
 					idDef[14] = theWhere;
 					$("#KGS-Cataloged-Events input").prop("checked", true);
 					break;
 				case 15:
-					kgsPrelimLayer.sublayers[15].definitionExpression = theWhere;
+					kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
 					kgsPrelimLayer.visible = true;
 					idDef[15] = theWhere;
 					$("#KGS-Preliminary-Events input").prop("checked", true);
 					break;
 				case 16:
-					neicLayer.sublayers[16].definitionExpression = theWhere;
+					neicLayer.findSublayerById(16).definitionExpression = theWhere;
 					neicLayer.visible = true;
 					idDef[16] = theWhere;
 					$("#NEIC-Cataloged-Events input").prop("checked", true);
 					break;
 				case 17:
-					ogsLayer.sublayers[17].definitionExpression = theWhere;
+					ogsLayer.findSublayerById(17).definitionExpression = theWhere;
 					ogsLayer.visible = true;
 					idDef[17] = theWhere;
 					$("#OGS-Cataloged-Events input").prop("checked", true);
