@@ -22,6 +22,10 @@ th, td {
 	margin-left: 35px;
 }
 
+#legend-content {
+	margin-left: 10px;
+}
+
 #chart {
 	left: 100px;
 	position: absolute;

@@ -265,13 +265,34 @@ function(
 
 	var legend = new Legend( {
 	 	view: view,
-	  	layerInfos: [ {
+	  	layerInfos: [
+		{
+			layer: seismicConcernLayer,
+			title: " "
+		},
+		{
+			layer: seismicConcernExpandedLayer,
+			title: " "
+		},
+		{
 	    	layer: kgsCatalogedLayer,
-			title: "Foo"
+			title: " "
 	  	},
 	 	{
 			layer: kgsPrelimLayer,
-			title: "Bar"
+			title: " "
+		},
+		{
+			layer: neicLayer,
+			title: " "
+		},
+		{
+			layer: swdLayer,
+			title: " "
+		},
+		{
+			layer: class1Layer,
+			title: " "
 		} ]
 	}, "legend-content" );
 
