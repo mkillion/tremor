@@ -165,14 +165,14 @@ function(
 	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:false} );
 	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:false} );
 	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Cataloged Events", visible:false} );
-	var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
+	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
 	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, naip2014Layer, plssLayer, class1Layer, swdLayer, ogsLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, naip2014Layer, plssLayer, class1Layer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -376,7 +376,7 @@ function(
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
+		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
 		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
 		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
 		buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
@@ -466,7 +466,7 @@ function(
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
-		ogsLayer.findSublayerById(17).definitionExpression = "";
+		// ogsLayer.findSublayerById(17).definitionExpression = "";
 		class1Layer.findSublayerById(18).definitionExpression = "";
 
 		// Clear ID layer definition:
@@ -1174,8 +1174,8 @@ function(
 		$("#KGS-Preliminary-Events input").prop("checked", false);
 		neicLayer.visible = false;
 		$("#NEIC-Cataloged-Events input").prop("checked", false);
-		ogsLayer.visible = false;
-		$("#OGS-Cataloged-Events input").prop("checked", false);
+		// ogsLayer.visible = false;
+		// $("#OGS-Cataloged-Events input").prop("checked", false);
 
 		if ( tempTable && theWhere ) {
 			theWhere += " and objectid in (select oid from " + tempTable +" )";
@@ -1205,12 +1205,12 @@ function(
 					idDef[16] = theWhere;
 					$("#NEIC-Cataloged-Events input").prop("checked", true);
 					break;
-				case 17:
-					ogsLayer.findSublayerById(17).definitionExpression = theWhere;
-					ogsLayer.visible = true;
-					idDef[17] = theWhere;
-					$("#OGS-Cataloged-Events input").prop("checked", true);
-					break;
+				// case 17:
+				// 	ogsLayer.findSublayerById(17).definitionExpression = theWhere;
+				// 	ogsLayer.visible = true;
+				// 	idDef[17] = theWhere;
+				// 	$("#OGS-Cataloged-Events input").prop("checked", true);
+				// 	break;
 			}
 		}
 	}
@@ -1452,10 +1452,10 @@ function(
 						neicLayer.visible = true;
 						$("#NEIC-Cataloged-Events input").prop("checked", true);
 						break;
-					case "OGS Cataloged":
-						ogsLayer.visible = true;
-						$("#OGS-Cataloged-Events input").prop("checked", true);
-						break;
+					// case "OGS Cataloged":
+					// 	ogsLayer.visible = true;
+					// 	$("#OGS-Cataloged-Events input").prop("checked", true);
+					// 	break;
 				}
 			}
 
@@ -1571,7 +1571,7 @@ function(
 			eqType = eqType.replace(14, "KGS");
 			eqType = eqType.replace(15, "KGS Prelim");
 			eqType = eqType.replace(16, "NEIC");
-			eqType = eqType.replace(17, "OGS");
+			// eqType = eqType.replace(17, "OGS");
 			eqType = " (" + eqType + ") ";
 			var typeString = "earthquakes ";
 		}

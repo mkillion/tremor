@@ -2,7 +2,7 @@
 
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer
-    from tremor_events_dev_only
+    from tremor_events
     where objectid in (select oid from #url.tbl#)
 </cfquery>
 
@@ -11,7 +11,7 @@
         select layer,
         mc,
         (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
-        from tremor_events_dev_only
+        from tremor_events
         where objectid in (select oid from #url.tbl#)
         and mc is not null
         and layer = '#layer#'
