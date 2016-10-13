@@ -1691,6 +1691,16 @@ function(
 		// var chartType = "magVsDate";
 		var chartType = "countVsDate";
 
+		if (chartType === "magVsDate") {
+			var yAxisText = "Magnitude (MC)";
+			var pointFormatText = "Magnitude: <b>{point.y}</b>";
+			var showDecimals = true;
+		} else if (chartType === "countVsDate") {
+			var yAxisText = "Count";
+			var pointFormatText = "Count: <b>{point.y}</b>";
+			var showDecimals = false;
+		}
+
 		$.get('createChartData.cfm?type=' + chartType + '&tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
@@ -1708,7 +1718,7 @@ function(
 				tooltip: {
 		        	// enabled: false
 					headerFormat: '<b>{point.key}</b><br/>',
-					pointFormat: 'Magnitude: <b>{point.y}</b>',
+					pointFormat: pointFormatText,
 					xDateFormat: '%b %e, %Y'
 		        },
 				xAxis: {
@@ -1717,8 +1727,9 @@ function(
 					startOnTick: true
 		        },
 				yAxis: {
+					allowDecimals: showDecimals,
 					title: {
-						text: "Magnitude (MC)"
+						text: yAxisText
 					}
 				},
 				series: data
