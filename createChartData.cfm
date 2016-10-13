@@ -7,15 +7,40 @@
 </cfquery>
 
 <cfloop query="qLayers">
-    <cfquery name="q#layer#" datasource="gis_webinfo">
-        select layer,
-        mc,
-        (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
-        from tremor_events
-        where objectid in (select oid from #url.tbl#)
-        and mc is not null
-        and layer = '#layer#'
-    </cfquery>
+    <cfif #url.type# eq "magVsDate">
+        <cfquery name="q#layer#" datasource="gis_webinfo">
+            select
+                layer,
+                mc,
+                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+            from
+                tremor_events
+            where
+                objectid in (select oid from #url.tbl#)
+                and
+                    mc is not null
+                and
+                    layer = '#layer#'
+        </cfquery>
+    <cfelseif #url.type# eq "countVsDate">
+        <cfquery name="q#layer#" datasource="gis_webinfo">
+            select
+                layer,
+                count(*) as cnt,
+                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+            from
+                tremor_events
+            where
+                objectid in (select oid from #url.tbl#)
+                and
+                    mc is not null
+                and
+                    layer = '#layer#'
+            group by
+                layer,
+                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000
+        </cfquery>
+    </cfif>
 </cfloop>
 
 <cfoutput>
@@ -40,7 +65,11 @@
             "data": [
                 <cfset i = 1>
                 <cfloop query="q#layer#">
-                    [#ms#,#mc#]
+                    <cfif #url.type# eq "magVsDate">
+                        [#ms#,#mc#]
+                    <cfelseif #url.type# eq "countVsDate">
+                        [#ms#,#cnt#]
+                    </cfif>
                     <cfif i neq Evaluate("q#layer#.recordcount")>
                         ,
                     </cfif>

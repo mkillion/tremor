@@ -1687,7 +1687,11 @@ function(
 
 		$("#chart").show();
 
-		$.get('createChartData.cfm?tbl=' + sharedCfTable, function(response) {
+		// TODO: chartType below is hardcoded for testing only. Set this dynamically from UI:
+		// var chartType = "magVsDate";
+		var chartType = "countVsDate";
+
+		$.get('createChartData.cfm?type=' + chartType + '&tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
