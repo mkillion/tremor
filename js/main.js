@@ -1716,6 +1716,10 @@ function(
 					text: ""
 				},
 				tooltip: {
+					crosshairs: {
+				        color: 'green',
+				        dashStyle: 'solid'
+				    },
 		        	// enabled: false
 					headerFormat: '<b>{point.key}</b><br/>',
 					pointFormat: pointFormatText,
