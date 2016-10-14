@@ -1461,22 +1461,22 @@ function(
         findTask.execute(findParams).then(function(response) {
 			if (what === "event" && response.results.length > 0) {
 				switch (response.results[0].layerName) {
-					case "KGS Cataloged":
+					case "KGS Cataloged Events":
 						kgsCatalogedLayer.visible = true;
 						$("#KGS-Cataloged-Events input").prop("checked", true);
 						break;
-					case "KGS Preliminary":
+					case "KGS Preliminary Events":
 						kgsPrelimLayer.visible = true;
 						$("#KGS-Preliminary-Events input").prop("checked", true);
 						break;
-					case "NEIC Cataloged":
+					case "NEIC Cataloged Events":
 						neicLayer.visible = true;
 						$("#NEIC-Cataloged-Events input").prop("checked", true);
 						break;
-					// case "OGS Cataloged":
-					// 	ogsLayer.visible = true;
-					// 	$("#OGS-Cataloged-Events input").prop("checked", true);
-					// 	break;
+					case "OGS Cataloged Events":
+						ogsLayer.visible = true;
+						$("#OGS-Cataloged-Events input").prop("checked", true);
+						break;
 				}
 			}
 
@@ -2066,7 +2066,7 @@ function(
 			var feature = result.feature;
 			var layerName = result.layerName;
 
-			if (layerName === 'OG_WELLS' || layerName === 'CLASS1 WELLS' || layerName === 'SWD Wells') {
+			if (layerName === 'OG_WELLS' || layerName === 'Class I Wells' || layerName === 'Salt Water Disposal Wells') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
 					content: wellContent(feature)
@@ -2087,7 +2087,7 @@ function(
 				} );
 				feature.popupTemplate = wwc5Template;
 			}
-			else if (layerName === 'KGS Cataloged' || layerName === 'KGS Preliminary' || layerName === 'NEIC Cataloged' || layerName === 'OGS Cataloged') {
+			else if (layerName === 'KGS Cataloged Events' || layerName === 'KGS Preliminary Events' || layerName === 'NEIC Cataloged Events' || layerName === 'OGS Cataloged Events') {
 				var earthquakeTemplate = new PopupTemplate( {
 					title: layerName + " Event: ",
 					content: earthquakeContent(feature)
