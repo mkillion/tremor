@@ -1250,11 +1250,11 @@ function(
 		var county = dom.byId("lstCounty2").value;
 
 		if (fromDate && toDate) {
-			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy') and origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		} else if (fromDate && !toDate) {
-			dateWhere = "origin_time >= to_date('" + fromDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 		} else if (!fromDate && toDate) {
-			dateWhere = "origin_time <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		}
 
 		if (lMag && uMag) {
