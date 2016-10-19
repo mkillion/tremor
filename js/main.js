@@ -159,7 +159,7 @@ function(
     // var usgsEventsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
     // var lepcLayer = new MapImageLayer( {url:"http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer", id:"LEPC Crucial Habitat", visible: false} );
     // var topoLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/USGS_Topo/USGStopo_DRG/ImageServer", id:"Topography", visible:false} );
-	var naip2014Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2014_Color/ImageServer", id:"2014 Aerials", visible:false} );
+	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"2015 Aerials", visible:false} );
     // var doqq2002Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_2002/ImageServer", id:"2002 Aerials", visible:false} );
     // var doqq1991Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_1991/ImageServer", id:"1991 Aerials", visible:false} );
 	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:false} );
@@ -172,7 +172,7 @@ function(
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, naip2014Layer, plssLayer, class1Layer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, class1Layer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -1986,7 +1986,7 @@ function(
     function createTOC() {
         var lyrs = map.layers;
         var chkd, tocContent = "";
-        var transparentLayers = ["Oil and Gas Fields","Topography","2014 Aerials","2002 Aerials","1991 Aerials"];
+        var transparentLayers = ["Oil and Gas Fields","Topography","2015 Aerials","2002 Aerials","1991 Aerials"];
 
         for (var j=lyrs.length - 1; j>-1; j--) {
             var layerID = lyrs._items[j].id;
