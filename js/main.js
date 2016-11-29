@@ -168,11 +168,11 @@ function(
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
-	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
+	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, class1Layer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -290,10 +290,11 @@ function(
 			layer: swdLayer,
 			title: " "
 		},
-		{
-			layer: class1Layer,
-			title: " "
-		} ]
+		// {
+		// 	layer: class1Layer,
+		// 	title: " "
+		// }
+		]
 	}, "legend-content" );
 
     // End map and map widgets.
@@ -391,7 +392,7 @@ function(
 
 		var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Salt Water Disposal" onchange="resetEvtChk();"> Salt Water Disposal Wells</td></tr>';
-		buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
+		// buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
 		// buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
 		buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
 		buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
@@ -746,6 +747,7 @@ function(
 		if ( returnType === "Class I Injection" ) {
 			if (areaType === "state") {
 				theWhere += "well_type = 'CLASS1'";
+				zoomToState();
 			} else {
 				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
 				class1Layer.findSublayerById(18).definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
@@ -769,6 +771,7 @@ function(
 		if ( returnType === "Salt Water Disposal" ) {
 			if (areaType === "state") {
 				theWhere += "well_type = 'SWD'";
+				zoomToState();
 			} else {
 				theWhere += "county = '" + dom.byId("lstCounty2").value + "'";
 				swdLayer.findSublayerById(19).definitionExpression = "county = '" + dom.byId("lstCounty2").value + "'";
@@ -777,7 +780,7 @@ function(
 			qry.where = theWhere;
 
 			swdLayer.visible = true;
-			idDef[19] = theWhere;
+			idDef[19] = theWhere;  // TODO: does this work anymore in 4.1?
 			$("#Salt-Water-Disposal-Wells input").prop("checked", true);
 
 			qt.executeForIds(qry).then(function(ids) {
@@ -841,10 +844,14 @@ function(
 			} );
 			setTimeout(function() {
 				createWellsList(oids, returnType, areaType);
-			}, 1500);
+			}, 3000);
 
 			// Turn on selected layers and filter features w/ a definitionExpression:
 			applyDefExp(lIDs, theWhere);
+
+			if (areaType === "state") {
+				zoomToState();
+			}
 		}
 
 		// Highlight county:
@@ -861,6 +868,12 @@ function(
 			} );
 		}
 		$("#filter-buff-dia").dialog("close");
+	}
+
+
+	function zoomToState() {
+		view.center = [-98, 38];
+		view.zoom = 7;
 	}
 
 
@@ -951,7 +964,7 @@ function(
 						createWellsList(oids, returnType, areaType);
 						applyDefExp(lIDs, theWhere, tempTable);
 					} );
-				}, 1500 );
+				}, 3000 );
 			}
 
 			if ( returnType === "Class I Injection" ) {
@@ -1114,7 +1127,7 @@ function(
 					createWellsList(oids, returnType, areaType);
 					applyDefExp(lIDs, theWhere, tempTable);
 				} );
-			}, 1500 );
+			}, 3000 );
 		}
 
 		if ( returnType === "Class I Injection" ) {
@@ -1433,9 +1446,8 @@ function(
                 findParams.searchFields = ["api_number"];
                 findParams.searchText = apiText;
 				findParams.contains = false;
-				// wellsLayer.visible = true;
 				swdLayer.visible = true;
-                $("#Oil-and-Gas-Wells input").prop("checked", true);
+                $("#Salt-Water-Disposal-Wells input").prop("checked", true);
                 break;
             case "county":
                 findParams.layerIds = [2];
@@ -2032,6 +2044,7 @@ function(
     function executeIdTask(event) {
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
+		// TODO: don't think layerDefinitions is supported for IdentifyParameters in 4.1 - check further.
 		identifyParams.layerDefinitions = idDef;
         dom.byId("mapDiv").style.cursor = "wait";
 
