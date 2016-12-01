@@ -74,7 +74,7 @@
                     'EWA', 'KGS Preliminary',
                     'OGS', 'OGS Cataloged') as eq_type,
                 to_char(origin_time,'mm/dd/yyyy') as the_date,
-                round(mc, 1) || ' ' as mag,
+                round(mc, 1) || '&nbsp;&nbsp;mc' as mag,
                 event_id
             from
 				tremor_events
@@ -88,7 +88,7 @@
 			select
                 decode(layer, 'USGS', 'NEIC Cataloged') as eq_type,
                 to_char(origin_time,'mm/dd/yyyy') as the_date,
-                round(ml, 1) || ' (ml)' as mag,
+                round(ml, 1) || '&nbsp;&nbsp;ml' as mag,
                 event_id
             from
 				tremor_events
@@ -109,7 +109,7 @@
         <!--- CREATE HTML TABLE FOR RESPONSE: --->
         <cfoutput>
 			#tempTable#
-            <table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude (mc)</th></tr>
+            <table class='striped-tbl well-list-tbl' id='og-tbl'><tr><th>Type</th><th>Date</th><th>Magnitude</th></tr>
             <cfloop query="qFeatureData">
                 <tr><td>#eq_type#</td><td>#the_date#</td><td>#mag#</td><td class='hide'>#event_id#</td></tr>
             </cfloop>

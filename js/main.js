@@ -809,16 +809,16 @@ function(
 				return;
 			}
 
-			// Create where clause and get objectids:
-			theWhere = earthquakeWhereClause(areaType);
-			if (theWhere !== "") {
-				qry.where = theWhere;
-			} else {
-				// Dummy clause to select all:
-				qry.where = "event_id > 0";
-			}
-
 			$.each(lIDs, function(idx, val) {
+				theWhere = earthquakeWhereClause(areaType, [val]);
+
+				if (theWhere !== "") {
+					qry.where = theWhere;
+				} else {
+					// Dummy clause to select all:
+					qry.where = "event_id > 0";
+				}
+
 				qt.url = tremorGeneralServiceURL + "/" + [val];
 				qt.executeForIds(qry).then(function(ids) {
 					if (ids) {
@@ -920,18 +920,18 @@ function(
 					return;
 				}
 
-				// Create where clause and get objectids:
-				theWhere = earthquakeWhereClause(areaType);
-				if (theWhere !== "") {
-					qry.where = theWhere;
-				} else {
-					// Dummy clause to select all:
-					qry.where = "event_id > 0";
-				}
-
 				qry.geometry = result.results[0].feature.geometry;
 
 				$.each(lIDs, function(idx, val) {
+					theWhere = earthquakeWhereClause(areaType, [val]);
+
+					if (theWhere !== "") {
+						qry.where = theWhere;
+					} else {
+						// Dummy clause to select all:
+						qry.where = "event_id > 0";
+					}
+
 					qt.url = tremorGeneralServiceURL + "/" + [val];
 					qt.executeForIds(qry).then(function(ids) {
 						if (ids) {
@@ -1083,18 +1083,18 @@ function(
 				return;
 			}
 
-			// Create where clause and get objectids:
-			theWhere = earthquakeWhereClause(areaType);
-			if (theWhere !== "") {
-				qry.where = theWhere;
-			} else {
-				// Dummy clause to select all:
-				qry.where = "event_id > 0";
-			}
-
 			qry.geometry = buffPoly;
 
 			$.each(lIDs, function(idx, val) {
+				theWhere = earthquakeWhereClause(areaType, [val]);
+
+				if (theWhere !== "") {
+					qry.where = theWhere;
+				} else {
+					// Dummy clause to select all:
+					qry.where = "event_id > 0";
+				}
+
 				qt.url = tremorGeneralServiceURL + "/" + [val];
 				qt.executeForIds(qry).then(function(ids) {
 					if (ids) {
@@ -1234,7 +1234,7 @@ function(
 	}
 
 
-	function earthquakeWhereClause(areaType) {
+	function earthquakeWhereClause(areaType, lyrID) {
 		var theWhere = "";
 		var dateWhere = "";
 		var magWhere = "";
@@ -1245,6 +1245,11 @@ function(
 		var lMag = dom.byId('low-mag').value;
 		var uMag = dom.byId('high-mag').value;
 		var county = dom.byId("lstCounty2").value;
+		var magtype = "mc";
+
+		if (lyrID[0] == 16) {
+			magtype = "ml";
+		}
 
 		if (fromDate && toDate) {
 			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
@@ -1255,11 +1260,11 @@ function(
 		}
 
 		if (lMag && uMag) {
-			magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+			magWhere = magtype + " >= " + lMag + " and " + magtype + " <= " + uMag;
 		} else if (lMag && !uMag) {
-			magWhere = "mc >= " + lMag;
+			magWhere = magtype + " >= " + lMag;
 		} else if (!lMag && uMag) {
-			magWhere = "mc <= " + uMag;
+			magWhere = magtype + " <= " + uMag;
 		}
 
 		if (areaType === "co") {
