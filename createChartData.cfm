@@ -7,22 +7,28 @@
 </cfquery>
 
 <cfloop query="qLayers">
-    <cfif #url.type# eq "magVsDate">
+    <cfif #layer# eq "USGS">
+        <cfset MagType = "ml">
+    <cfelse>
+        <cfset MagType = "mc">
+    </cfif>
+
+    <cfif #url.type# eq "mag">
         <cfquery name="q#layer#" datasource="gis_webinfo">
             select
                 layer,
-                mc,
+                #MagType# as magnitude,
                 (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
             from
                 tremor_events
             where
                 objectid in (select oid from #url.tbl#)
                 and
-                    mc is not null
+                    #MagType# is not null
                 and
                     layer = '#layer#'
         </cfquery>
-    <cfelseif #url.type# eq "countVsDate">
+    <cfelseif #url.type# eq "count">
         <cfquery name="q#layer#" datasource="gis_webinfo">
             select
                 layer,
@@ -33,7 +39,7 @@
             where
                 objectid in (select oid from #url.tbl#)
                 and
-                    mc is not null
+                    #MagType# is not null
                 and
                     layer = '#layer#'
             group by
@@ -54,8 +60,8 @@
             <cfelseif #layer# eq "EWA">
                 "name": "KGS Prelim",
                 "color": "rgba(223,115,255,0.85)",
-            <cfelseif #layer# eq "NEIC">
-                "name": "NEIC",
+            <cfelseif #layer# eq "USGS">
+                "name": "USGS",
                 "color": "rgba(0,197,255,0.85)",
             <cfelseif #layer# eq "OGS">
                 "name": "OGS",
@@ -65,9 +71,9 @@
             "data": [
                 <cfset i = 1>
                 <cfloop query="q#layer#">
-                    <cfif #url.type# eq "magVsDate">
-                        [#ms#,#mc#]
-                    <cfelseif #url.type# eq "countVsDate">
+                    <cfif #url.type# eq "mag">
+                        [#ms#,#magnitude#]
+                    <cfelseif #url.type# eq "count">
                         [#ms#,#cnt#]
                     </cfif>
                     <cfif i neq Evaluate("q#layer#.recordcount")>
@@ -87,7 +93,7 @@
 
 
 
-<!--- This is what it should look like:
+<!--- Should look like this:
 
 [{
 "name": "KGS",
@@ -95,7 +101,7 @@
 "data": [[1412208000000,2],[1412208000000,3],[1412208000000,2],[1410134400000,2.3],[1410134400000,2.8]]
 },
 {
-"name": "NEIC",
+"name": "USGS",
 "color": "rgba(0,0,255,.5)",
 "data": [[1471361251000,3]]
 }]

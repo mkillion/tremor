@@ -423,6 +423,20 @@ function(
 			title: "Report a location or data error",
 			width: 375
         } );
+
+		// Select graph type dialog:
+		var graphDia = '<table><tr><td><input type="radio" name="graph-type" value="count" checked> Count / Date</td></tr>';
+		graphDia += '<tr><td><input type="radio" name="graph-type" value="mag"> Magnitude / Date</td></tr>';
+		graphDia += '<tr><td><button class="find-button" onclick="makeGraph()">Create Graph</button></td></tr></table>';
+
+		var graphTypeN = domConstruct.create("div", { id: "graph-type-dia", class: "filter-dialog", innerHTML: graphDia } );
+        $("body").append(graphTypeN);
+
+        $("#graph-type-dia").dialog( {
+            autoOpen: false,
+            dialogClass: "dialog",
+			title: "Select a Graph Type"
+        } );
     }
 
 
@@ -1611,7 +1625,7 @@ function(
 				$("#wells-tbl").append(response.replace(sharedCfTable,''));
 				$("#loader").hide();
 				$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a>" + graphIcon);
-				$(".esri-icon-line-chart").click( makeChart );
+				$(".esri-icon-line-chart").click(opengraphDia);
 				$(".esri-icon-download").click( data, downloadList);
 			} ).then(function() {
 				$('.striped-tbl').find('tr').click(function() {
@@ -1661,7 +1675,30 @@ function(
 	}
 
 
-	function makeChart() {
+	function opengraphDia() {
+		$("#graph-type-dia").dialog("open");
+	}
+
+
+	makeGraph = function() {
+		$("#graph-type-dia").dialog("close");
+
+		var graphType = $('input[name=graph-type]:checked').val();
+		switch (graphType) {
+			case "count":
+				var graphTitle = "Count / Date";
+				var yAxisText = "Count";
+				var pointFormatText = "Count: <b>{point.y}</b>";
+				var showDecimals = false;
+				break;
+			case "mag":
+				var graphTitle = "Magnitude / Date";
+				var yAxisText = "Magnitude (MC)";
+				var pointFormatText = "Magnitude: <b>{point.y}</b>";
+				var showDecimals = true;
+				break;
+		}
+
 		if ( $("#chart").highcharts() ) {
 			$("#chart").highcharts().destroy();
 			$("#chart-x, #chart").hide();
@@ -1669,21 +1706,7 @@ function(
 
 		$("#chart").show();
 
-		// TODO: chartType below is hardcoded for testing only. Set this dynamically from UI:
-		// var chartType = "magVsDate";
-		var chartType = "countVsDate";
-
-		if (chartType === "magVsDate") {
-			var yAxisText = "Magnitude (MC)";
-			var pointFormatText = "Magnitude: <b>{point.y}</b>";
-			var showDecimals = true;
-		} else if (chartType === "countVsDate") {
-			var yAxisText = "Count";
-			var pointFormatText = "Count: <b>{point.y}</b>";
-			var showDecimals = false;
-		}
-
-		$.get('createChartData.cfm?type=' + chartType + '&tbl=' + sharedCfTable, function(response) {
+		$.get('createChartData.cfm?type=' + graphType + '&tbl=' + sharedCfTable, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
@@ -1695,7 +1718,7 @@ function(
 					zoomType: 'xy'
 		        },
 				title: {
-					text: ""
+					text: graphTitle
 				},
 				tooltip: {
 					crosshairs: {
