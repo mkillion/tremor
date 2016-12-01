@@ -61,7 +61,7 @@
                 "name": "KGS Prelim",
                 "color": "rgba(223,115,255,0.85)",
             <cfelseif #layer# eq "USGS">
-                "name": "USGS",
+                "name": "NEIC",
                 "color": "rgba(0,197,255,0.85)",
             <cfelseif #layer# eq "OGS">
                 "name": "OGS",

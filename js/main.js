@@ -1693,7 +1693,7 @@ function(
 				break;
 			case "mag":
 				var graphTitle = "Magnitude / Date";
-				var yAxisText = "Magnitude (MC)";
+				var yAxisText = "Magnitude (MC, NEIC=ML)";
 				var pointFormatText = "Magnitude: <b>{point.y}</b>";
 				var showDecimals = true;
 				break;
