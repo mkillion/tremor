@@ -130,21 +130,7 @@ function(
         }, "field-select").startup();
     } );
 
-	// $.get("operators_json.txt", function(response) {
-	// 	// operators_json.txt is updated as part of the monthly maintenance tasks.
-    //     var ops = JSON.parse(response).items;
-    //     var opsStore = new Memory( {data: ops} );
-    //     var comboBox = new ComboBox( {
-    //         id: "operators",
-    //         store: opsStore,
-    //         searchAttr: "name",
-    //         autoComplete: autocomplete
-    //     }, "operators").startup();
-    // } );
-
-    // End framework.
-
-    // Create map and map widgets:
+    // Create map, layers, and widgets:
     var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general/MapServer";
     var identifyTask, identifyParams;
     var findTask = new FindTask(tremorGeneralServiceURL);
@@ -155,13 +141,8 @@ function(
     // var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
     // var wellsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range"} );
-    // var wwc5Layer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/wwc5/wwc5_general/MapServer", sublayers:[{id:8}], id:"WWC5 Water Wells", visible:false} );
     // var usgsEventsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
-    // var lepcLayer = new MapImageLayer( {url:"http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer", id:"LEPC Crucial Habitat", visible: false} );
-    // var topoLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/USGS_Topo/USGStopo_DRG/ImageServer", id:"Topography", visible:false} );
 	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"2015 Aerials", visible:false} );
-    // var doqq2002Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_2002/ImageServer", id:"2002 Aerials", visible:false} );
-    // var doqq1991Layer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/Kansas_DOQQ_1991/ImageServer", id:"1991 Aerials", visible:false} );
 	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:false} );
 	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:false} );
 	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Cataloged Events", visible:false} );
@@ -218,13 +199,6 @@ function(
         };
         view.popup.actions.push(bufferFeatureAction);
 
-        // var reportErrorAction = {
-        //     title: "Report a Location or Data Problem",
-        //     id: "report-error",
-        //     className: "esri-icon-contact pu-icon"
-        // };
-        // view.popup.actions.push(reportErrorAction);
-
         view.popup.on("trigger-action", function(evt) {
             if(evt.action.id === "full-report") {
                 showFullInfo();
@@ -240,10 +214,6 @@ function(
 		view: view,
 		popupEnabled: false
 	}, "srch" );
-
-    /*$("#mobileGeocoderIconContainer").click(function() {
-        $("#lb").toggleClass("small-search");
-    } );*/
 
 	var homeBtn = new Home({
         view: view
@@ -1832,14 +1802,9 @@ function(
 	}
 
 
-	originalLocation = function() {
-		urlZoom(urlParams);
-	}
-
-
-	addBookmark = function() {
-
-	}
+	// originalLocation = function() {
+	// 	urlZoom(urlParams);
+	// }
 
 
     function createMenus() {
