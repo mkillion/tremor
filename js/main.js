@@ -2090,7 +2090,7 @@ function(
 			}
 			else if (layerName === 'KGS Cataloged Events' || layerName === 'KGS Preliminary Events' || layerName === 'NEIC Cataloged Events' || layerName === 'OGS Cataloged Events') {
 				var earthquakeTemplate = new PopupTemplate( {
-					title: layerName + " Event: ",
+					title: layerName.replace("s", ""),
 					content: earthquakeContent(feature)
 				} );
 				feature.popupTemplate = earthquakeTemplate;
@@ -2110,9 +2110,13 @@ function(
 		var lonErr = f.LONGITUDE_ERR !== "Null" ? f.LONGITUDE_ERR : "";
 		var dep = f.DEPTH !== "Null" ? f.DEPTH : "";
 		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
-		var m = f.MC !== "Null" ? f.MC : "";
+		var m = f.MC !== "Null" ? f.MC + " mc" : "";
 		var sas = f.SAS !== "Null" ? f.SAS : "";
 		var co = f.COUNTY !== "Null" ? f.COUNTY : "";
+
+		if (f.LAYER === 'USGS') {
+			var m = f.ML !== "Null" ? parseFloat(f.ML).toFixed(1) + " ml" : "";
+		}
 
 		if (dep) { dep = parseFloat(dep).toFixed(1) + " km"; }
 		if (de) {
@@ -2137,7 +2141,7 @@ function(
 		content += "<tr><td>Horizontal Uncertainty: </td><td>" + hu + "</td></tr>";
 		content += "<tr><td>Depth: </td><td>" + dep + "</td></tr>";
 		content += "<tr><td>Vertical Uncertainty: </td><td>" + de + "</td></tr>";
-        content += "<tr><td>Magnitude (MC): </td><td>" + m + "</td></tr>";
+        content += "<tr><td>Magnitude: </td><td>" + m + "</td></tr>";
 		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
 		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
         content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";
