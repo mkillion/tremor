@@ -201,7 +201,8 @@ function(
 
         view.popup.on("trigger-action", function(evt) {
             if(evt.action.id === "full-report") {
-                showFullInfo();
+                // showFullInfo();
+				alert("Full Report tool not yet implemented.")
             } else if (evt.action.id === "filter-buffer-feature") {
 				$("#filter-buff-dia").dialog("open");
             } else if (evt.action.id === "report-error") {
@@ -1974,7 +1975,7 @@ function(
 
 
     function showFullInfo() {
-        var popupTitle = $(".esri-title").html();
+        var popupTitle = $(".esri-popup__header-title").html();
         if (popupTitle.indexOf("Field:") > -1) {
 			var url = "http://chasm.kgs.ku.edu/apex/oil.ogf4.IDProdQuery?FieldNumber=" + $("#field-kid").html();
         } else if (popupTitle.indexOf("Well:") > -1) {
