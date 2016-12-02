@@ -211,7 +211,7 @@ function(
         } );
     } );
 
-	var searchWidget = new Search({
+	var searchWidget = new Search( {
 		view: view,
 		popupEnabled: false
 	}, "srch" );
@@ -467,16 +467,16 @@ function(
 		$("#buff-dist").val("");
 		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
 
-		// Clear layer definitionExpressions:
+		// Clear layer definitionExpressions to make filtered features visible:
 		// wellsLayer.findSublayerById(0).definitionExpression = "";
 		swdLayer.findSublayerById(19).definitionExpression = "";
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
 		// ogsLayer.findSublayerById(17).definitionExpression = "";
-		class1Layer.findSublayerById(18).definitionExpression = "";
+		// class1Layer.findSublayerById(18).definitionExpression = "";
 
-		// Clear ID layer definition:
+		// Clear ID layer definitions:
 		// idDef[0] = "";
 		idDef[19] = "";
 		idDef[14] = "";
@@ -485,6 +485,7 @@ function(
 		idDef[17] = "";
 		idDef[18] = "";
 		idDef[19] = "";
+		identifyParams.layerDefinitions = idDef;
 	}
 
 
@@ -765,7 +766,7 @@ function(
 			qry.where = theWhere;
 
 			swdLayer.visible = true;
-			idDef[19] = theWhere;  // TODO: does this work anymore in 4.1?
+			idDef[19] = theWhere;
 			$("#Salt-Water-Disposal-Wells input").prop("checked", true);
 
 			qt.executeForIds(qry).then(function(ids) {
@@ -805,8 +806,9 @@ function(
 			$.each(chkdIDs, function(idx, val) {
 				lIDs.push(parseInt(val));
 			} );
+
 			if (lIDs.length === 0) {
-				alert("Please select at least one earthquake category.");
+				alert("Please select at least one earthquake type.");
 				return;
 			}
 
@@ -917,7 +919,7 @@ function(
 					lIDs.push(parseInt(val));
 				} );
 				if (lIDs.length === 0) {
-					alert("Please select at least one earthquake category.");
+					alert("Please select at least one earthquake type.");
 					return;
 				}
 
@@ -1012,9 +1014,9 @@ function(
 					cfData = { "type": returnType, "objIds": objIds };
 
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
-						var tempTable = response;
-						swdLayer.findSublayerById(19).definitionExpression = "objectid in (select oid from " + tempTable + ")";
-						idDef[19] = "kid in (select kid from " + tempTable + ")";
+						var whr = "objectid in (select oid from " + response + ")";
+						swdLayer.findSublayerById(19).definitionExpression = whr;
+						idDef[19] = whr;
 					} );
 				} );
 			}
@@ -1080,7 +1082,7 @@ function(
 				lIDs.push(parseInt(val));
 			} );
 			if (lIDs.length === 0) {
-				alert("Please select at least one earthquake category.");
+				alert("Please select at least one earthquake type.");
 				return;
 			}
 
@@ -1175,9 +1177,9 @@ function(
 				cfData = { "type": returnType, "objIds": objIds };
 
 				$.post( "createDefExpTable.cfm", cfData, function(response) {
-					var tempTable = response;
-					swdLayer.findSublayerById(19).definitionExpression = "objectid in (select oid from " + tempTable + ")";
-					idDef[19] = "kid in (select kid from " + tempTable + ")";
+					var whr = "objectid in (select oid from " + response + ")";
+					swdLayer.findSublayerById(19).definitionExpression = whr;
+					idDef[19] = whr;
 				} );
 			} );
 		}
@@ -2038,7 +2040,6 @@ function(
     function executeIdTask(event) {
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
-		// TODO: don't think layerDefinitions is supported for IdentifyParameters in 4.1 - check further.
 		identifyParams.layerDefinitions = idDef;
         dom.byId("mapDiv").style.cursor = "wait";
 
