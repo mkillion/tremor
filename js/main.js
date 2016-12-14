@@ -1701,7 +1701,8 @@ function(
 				break;
 			case "mag":
 				var graphTitle = "Magnitude / Date";
-				var yAxisText = "Magnitude (MC, NEIC=ML)";
+				var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
+				var yAxisText = "Magnitude";
 				var pointFormatText = "Magnitude: <b>{point.y}</b>";
 				var showDecimals = true;
 				break;
@@ -1727,6 +1728,9 @@ function(
 		        },
 				title: {
 					text: graphTitle
+				},
+				subtitle: {
+					text: graphSubTitle
 				},
 				tooltip: {
 					crosshairs: {
