@@ -190,19 +190,18 @@ function(
             id: "full-report",
             className: "esri-icon-documentation pu-icon"
         };
-        view.popup.actions.push(fullInfoAction);
+        // view.popup.actions.push(fullInfoAction);
 
         var bufferFeatureAction = {
             title: "Filter Features",
             id: "filter-buffer-feature",
             className: "esri-icon-filter pu-icon"
         };
-        view.popup.actions.push(bufferFeatureAction);
+        // view.popup.actions.push(bufferFeatureAction);
 
         view.popup.on("trigger-action", function(evt) {
             if(evt.action.id === "full-report") {
-                // showFullInfo();
-				alert("Full Report tool not yet implemented.")
+                showFullInfo();
             } else if (evt.action.id === "filter-buffer-feature") {
 				$("#filter-buff-dia").dialog("open");
             } else if (evt.action.id === "report-error") {
