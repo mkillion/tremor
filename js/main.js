@@ -153,7 +153,7 @@ function(
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, seismicConcernExpandedLayer, seismicConcernLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -2005,8 +2005,17 @@ function(
             chkd = map.findLayerById(layerID).visible ? "checked" : "";
             if (layerID.indexOf("-layer-") === -1) {
                 // ^ Excludes default graphics layer from the TOC.
+
                 var htmlID = layerID.replace(/ /g, "-");
-                tocContent += "<div class='toc-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+
+				if (htmlID === "NEIC-Cataloged-Events") {
+					tocContent += '<div class="find-header esri-icon-right-triangle-arrow" id="other-toc"><span class="find-hdr-txt"> Other Events</span></div>';
+					tocContent += '<div class="find-body hide" id="find-other-toc">';
+					tocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+					tocContent += '</div>';
+				} else {
+					tocContent += "<div class='toc-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+				}
 
                 if ($.inArray(layerID, transparentLayers) !== -1) {
                     // Add transparency control buttons to specified layers.
@@ -2018,14 +2027,15 @@ function(
         tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
 
-        // Add addtional layer-specific controls and content (reference by hyphenated layer id):
+		$("#other-toc").click(function() {
+			if ( $(this).hasClass("esri-icon-down-arrow") ) {
+				$("#find-other-toc").fadeOut("fast");
 
-        // var eventDesc = "Data for all events occurring between 1/9/2013 and 3/7/2014 was provided by the Oklahoma Geological Survey - all other data is from the USGS.</p>";
-        // eventDesc += "<p>Earthquake data for Oklahoma is incomplete and only extends back to 12/2/2014. Only events occurring in northern Oklahoma<br>(north of Medford) are included on the mapper.</p>";
-        // $("#Earthquakes").append("<span class='esri-icon-filter toc-icon' onclick='$( &quot;#eq-filter&quot; ).dialog( &quot;open&quot; );' title='Filter Earthquakes'></span><span class='esri-icon-description toc-icon' id='event-desc-icon'></span><span class='tooltip hide' id='event-desc'>" + eventDesc + "</span>");
-        // $("#event-desc-icon").click(function() {
-        //     $("#event-desc").toggleClass("show");
-        // } );
+			} else {
+				$("#find-other-toc").fadeIn("fast");
+			}
+			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
+		} );
     }
 
 

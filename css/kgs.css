@@ -91,14 +91,23 @@ th, td {
 	font-weight: bold;
 }
 
+.toc-sub-item {
+	padding-left: 17px;
+}
+
 .toc-item,
-.find-header {
+.find-header,
+#find-other-toc {
 	background-color: #e4e6e4;
     border-bottom-color: #777;
     border-bottom-style: solid;
     border-bottom-width: 1px;
     color: #000;
     padding: 12px 8px;
+}
+
+.no-border {
+	border-style: none;
 }
 
 .toc-item:first-of-type,
