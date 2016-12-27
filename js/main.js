@@ -138,23 +138,25 @@ function(
     var findParams = new FindParameters();
 	findParams.returnGeometry = true;
 
-    var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map"} );
+    var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Topo", visible:true} );
     // var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
     // var wellsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
-    var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range"} );
+    var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
     // var usgsEventsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
-	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"2015 Aerials", visible:false} );
-	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:false} );
-	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:false} );
+	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
+	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:true} );
+	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:true} );
 	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Cataloged Events", visible:false} );
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"Expanded Area of Seismic Concern", visible:false} );
 	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
+	// var countiesLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:2}], id:"Counties", visible:true} );
+	var countiesLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis5/rest/services/admin_boundaries/KS_County_Boundaries/MapServer", id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -1849,7 +1851,7 @@ function(
 		// Display (layers) panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Display* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Display <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1998,41 +2000,74 @@ function(
     function createTOC() {
         var lyrs = map.layers;
         var chkd, tocContent = "";
-        var transparentLayers = ["Oil and Gas Fields","Topography","2015 Aerials","2002 Aerials","1991 Aerials"];
+		var eqTocContent = "";
+		var wellsTocContent = "";
+		var boundariesTocContent = "";
+		var basemapTocContent = "";
+
+        // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
+		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events","NEIC-Cataloged-Events"];
+		var wellsGroup = ["Salt-Water-Disposal-Wells"];
+		var boundariesGroup = ["Areas-of-Seismic-Concern","2016-Expanded-Regulatory-Zone","Section-Township-Range","Counties"];
+		var basemapGroup = ["Topo","Aerial-Imagery"];
+
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</span></div>';
+		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
+
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="wells-group"><span class="find-hdr-txt"> Wells</span></div>';
+		tocContent += '<div class="find-body hide" id="wells-group-body"></div>';
+
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="boundaries-group"><span class="find-hdr-txt"> Boundaries</span></div>';
+		tocContent += '<div class="find-body hide" id="boundaries-group-body"></div>';
+
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="basemap-group"><span class="find-hdr-txt"> Base Map</span></div>';
+		tocContent += '<div class="find-body hide" id="basemap-group-body"></div>';
 
         for (var j=lyrs.length - 1; j>-1; j--) {
             var layerID = lyrs._items[j].id;
             chkd = map.findLayerById(layerID).visible ? "checked" : "";
-            if (layerID.indexOf("-layer-") === -1) {
-                // ^ Excludes default graphics layer from the TOC.
+			var htmlID = layerID.replace(/ /g, "-");
 
-                var htmlID = layerID.replace(/ /g, "-");
-
-				if (htmlID === "NEIC-Cataloged-Events") {
-					tocContent += '<div class="find-header esri-icon-right-triangle-arrow" id="other-toc"><span class="find-hdr-txt"> Other Events</span></div>';
-					tocContent += '<div class="find-body hide" id="find-other-toc">';
-					tocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
-					tocContent += '</div>';
+			if (earthquakeGroup.indexOf(htmlID) > -1) {
+				if (htmlID !== "NEIC-Cataloged-Events") {
+					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 				} else {
-					tocContent += "<div class='toc-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+					eqTocContent += '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
+					eqTocContent += '<div class="find-body hide" id="other-group-body">';
+					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+					eqTocContent += '</div>';
 				}
+			}
 
-                if ($.inArray(layerID, transparentLayers) !== -1) {
-                    // Add transparency control buttons to specified layers.
-                    tocContent += "</span><span class='esri-icon-forward toc-icon' title='Make Layer Opaque' onclick='changeOpacity(&quot;" + layerID + "&quot;,&quot;up&quot;);'></span><span class='esri-icon-reverse toc-icon' title='Make Layer Transparent' onclick='changeOpacity(&quot;" + layerID + "&quot;,&quot;down&quot;);'>";
-                }
-                tocContent += "</div>";
-            }
+			if (wellsGroup.indexOf(htmlID) > -1) {
+				wellsTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+			}
+
+			if (boundariesGroup.indexOf(htmlID) > -1) {
+				boundariesTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+			}
+
+			if (basemapGroup.indexOf(htmlID) > -1) {
+				basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='" + layerID + "' onclick='toggleBasemapLayer();'" + chkd + "> " + layerID + "</label></div>";
+			}
         }
-        tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
-        $("#lyrs-toc").html(tocContent);
 
-		$("#other-toc").click(function() {
+        // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
+        $("#lyrs-toc").html(tocContent);
+		$("#eq-group-body").html(eqTocContent);
+		$("#wells-group-body").html(wellsTocContent);
+		$("#boundaries-group-body").html(boundariesTocContent);
+		basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='none' onclick='toggleBasemapLayer();'> None</label></div>";
+		$("#basemap-group-body").html(basemapTocContent);
+
+		// Click handlers for TOC groups:
+		$(".group-hdr").click(function() {
+			var group = $(this).attr("id");
 			if ( $(this).hasClass("esri-icon-down-arrow") ) {
-				$("#find-other-toc").fadeOut("fast");
+				$("#" + group + "-body").fadeOut("fast");
 
 			} else {
-				$("#find-other-toc").fadeIn("fast");
+				$("#" + group + "-body").fadeIn("fast");
 			}
 			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
 		} );
@@ -2253,5 +2288,23 @@ function(
         var l = map.findLayerById(map.layers._items[j].id);
         l.visible = $("#tcb-" + j).is(":checked") ? true : false;
     }
+
+	toggleBasemapLayer = function() {
+		var chkdLyr = $("input[name=bm]:checked").val();
+		switch (chkdLyr) {
+			case "Topo":
+				basemapLayer.visible = true;
+				latestAerialsLayer.visible = false;
+				break;
+			case "Aerial Imagery":
+				basemapLayer.visible = false;
+				latestAerialsLayer.visible = true;
+				break;
+			case "none":
+				basemapLayer.visible = false;
+				latestAerialsLayer.visible = false;
+				break;
+		}
+	}
 
 } );
