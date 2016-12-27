@@ -251,6 +251,10 @@ input[type=checkbox] {
 	text-decoration: none;
 }
 
+.esri-icon-table {
+	margin-top: 5px;
+}
+
 .toc-icon {
 	color: #7d7d7d;
 	cursor: pointer;

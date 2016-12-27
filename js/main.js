@@ -1846,6 +1846,34 @@ function(
     	var drawerMenus = [];
         var content, menuObj;
 
+		// Display (layers) panel:
+        content = '';
+        content += '<div class="panel-container">';
+        content += '<div class="panel-header">Display* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div id="lyrs-toc"></div>';
+        content += '</div>';
+
+        menuObj = {
+            label: '<div class="icon-layers"></div><div class="icon-text">Display</div>',
+            content: content
+        };
+        drawerMenus.push(menuObj);
+
+        // Data (tools) panel:
+        content = '';
+        content += '<div class="panel-container" id="tools-panel">';
+        content += '<div class="panel-header">Data <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-padding">';
+		content += '</div>';
+		content += '<div id="wells-tbl"></div>';
+        content += '</div>';
+
+        menuObj = {
+            label: '<div class="esri-icon-table"></div><div class="icon-text">Data</div>',
+            content: content
+        };
+        drawerMenus.push(menuObj);
+
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
@@ -1925,34 +1953,6 @@ function(
 
         menuObj = {
             label: '<div class="icon-zoom-in"></div><div class="icon-text">Find</div>',
-            content: content
-        };
-        drawerMenus.push(menuObj);
-
-        // Layers panel:
-        content = '';
-        content += '<div class="panel-container">';
-        content += '<div class="panel-header">Layers* <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
-        content += '<div id="lyrs-toc"></div>';
-        content += '</div>';
-
-        menuObj = {
-            label: '<div class="icon-layers"></div><div class="icon-text">Layers</div>',
-            content: content
-        };
-        drawerMenus.push(menuObj);
-
-        // Tools panel:
-        content = '';
-        content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">List <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
-        content += '<div class="panel-padding">';
-		content += '</div>';
-		content += '<div id="wells-tbl"></div>';
-        content += '</div>';
-
-        menuObj = {
-            label: '<div class="icon-wrench"></div><div class="icon-text">Lists</div>',
             content: content
         };
         drawerMenus.push(menuObj);
