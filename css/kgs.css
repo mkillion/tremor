@@ -14,6 +14,17 @@
 	padding: 12px 20px 6px 10px;
 }
 
+div[id*='group-body'] {
+	background-color: #e4e6e4;
+	border-bottom-color: #777;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+}
+
+#other-group-body {
+	border-bottom-style: none;
+}
+
 th, td {
     padding: 3px;
 }
@@ -93,6 +104,10 @@ th, td {
 
 .toc-sub-item {
 	padding-left: 17px;
+}
+
+.toc-sub-item:first-of-type {
+	margin-top: -12px;
 }
 
 .toc-item,

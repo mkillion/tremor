@@ -227,14 +227,14 @@ function(
         index: 1
      } );
 
-	var locateBtn = new Locate( {
-        view: view
-	}, "LocateButton" );
-    locateBtn.startup();
-	view.ui.add(locateBtn, {
-    	position: "top-left",
-        index: 2
-     } );
+	// var locateBtn = new Locate( {
+    //     view: view
+	// }, "LocateButton" );
+    // locateBtn.startup();
+	// view.ui.add(locateBtn, {
+    // 	position: "top-left",
+    //     index: 2
+    //  } );
 
 	var legend = new Legend( {
 	 	view: view,
