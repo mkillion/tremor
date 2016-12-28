@@ -29,6 +29,20 @@ th, td {
     padding: 3px;
 }
 
+/*#lstCounty2 {
+	padding-left: 6px;
+}*/
+
+.db-table td {
+	font: normal normal normal 12px arial;
+	padding: 0;
+	vertical-align: top;
+}
+
+.db-sub-table {
+	margin: 2px 20px;
+}
+
 .evt-chk {
 	margin-left: 35px;
 }
@@ -49,6 +63,17 @@ th, td {
 	position: absolute;
 	top: 110px;
 	z-index: 6;
+}
+
+.dashboard {
+	background-color: #C1C3C4;
+	border-bottom-color: #000;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	left: 80px;
+	position: absolute;;
+	top: 40px;
+	z-index: 10;
 }
 
 #reset-finds {
@@ -281,6 +306,11 @@ input[type=checkbox] {
 	padding-right: 6px;
 }
 
+.sel-rad {
+	padding-right: 3px;
+	vertical-align: top;
+}
+
 .tooltip {
     position: absolute;
     background: #f5f5f5;
@@ -365,13 +395,7 @@ input[type=checkbox] {
 }
 
 .top-bar {
-	/*background-color: #4682b4;*/
-	/*background-color: #a6bddb;*/
-	/*background-color: #e4e6e4;*/
 	background-color: #000;
-	border-bottom-color: #777;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
 }
 
 #geocoderSearch {
