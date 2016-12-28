@@ -126,11 +126,14 @@ th, td {
 }
 
 .toc-item:first-of-type,
-#address,
 #buff-tool {
 	border-top-color: #777;
     border-top-style: solid;
     border-top-width: 1px;
+}
+
+#address {
+	border-top-style: none;
 }
 
 .tools-icon {
