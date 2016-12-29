@@ -2052,8 +2052,8 @@ function(
 
 
 	function createDashboard() {
-		var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Expanded Zone"];
+		// var units = ["miles","kilometers","meters","yards","feet"];
+		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
 		dbCon += "<table class='db-table'><tr><th>Location</th><th>Time</th><th>Magnitude/SAS</th><th>Wells</th></tr>";
@@ -2072,7 +2072,7 @@ function(
 
 		// Time:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week'> Past week</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked> Past week</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='month'> Past month</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='year'> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='date'> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
@@ -2081,16 +2081,16 @@ function(
 
 		// Mag/SAS:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt35'> M &ge; 3.5</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='sas17'>SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='sas17' checked>SAS &ge; 17</td></tr>";
 		dbCon += "</table></td>";
 
 		// Wells:
 		dbCon += "<td><table class='db-sub-table'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp'> Within <input type='text' id='buff-disp' size='2' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mile(s) of displayed earthquakes</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mile(s) of displayed earthquakes</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> <input type='text' id='buff-feat' size='2' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mile(s) around selected feature</td></tr>";
 		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></td>";

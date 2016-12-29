@@ -29,18 +29,21 @@ th, td {
     padding: 3px;
 }
 
-/*#lstCounty2 {
-	padding-left: 6px;
-}*/
-
 .db-table td {
 	font: normal normal normal 12px arial;
 	padding: 0;
 	vertical-align: top;
 }
 
+.db-table th {
+	text-align: left;
+}
+
 .db-sub-table {
 	margin: 2px 20px;
+	/*border-right-color: red;
+	border-right-style: dotted;
+	border-right-width: 1px;*/
 }
 
 .evt-chk {
