@@ -303,6 +303,11 @@ function(
 		$("#chart-x, #chart").hide();
 	} );
 
+	$("#dashboard-btn").click(function() {
+		$(".dashboard").show();
+		$("#dashboard-btn").hide();
+	} );
+
 
     function popCountyDropdown() {
         var cntyArr = new Array("Counties", "Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
@@ -2056,6 +2061,7 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
+		dbCon += "<span class='esri-icon-close-circled' id='close-db'></span>";
 		dbCon += "<table class='db-table'><tr><th>Location</th><th>Time</th><th>Magnitude/SAS</th><th>Wells</th></tr>";
 
 		// Location:
@@ -2102,6 +2108,11 @@ function(
 
 		$("#from-date").datepicker();
         $("#to-date").datepicker();
+
+		$("#close-db").click(function() {
+			$(".dashboard").hide();
+			$("#dashboard-btn").show();
+		} );
 	}
 
 
