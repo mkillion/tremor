@@ -460,7 +460,7 @@ function(
 	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
 		if (!view.popup.selectedFeature) {
-			alert("Please select a feature to buffer.")
+			alert("Please select a well to buffer.")
 		}
 		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
 	}
@@ -495,14 +495,18 @@ function(
 
 
 	clearFilter = function() {
-		// Reset inputs:
-		$("[name=area-type]").prop("checked", false);
-		$("[name=return-type]").prop("checked", false);
-		$("[name=evt-lay]").prop("checked", false);
-		$(".eqf").val("");
-		$("#buff-dist").val("");
-		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
+		// Reset dashboard inputs:
+		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
+		$("[name=time-type]").filter("[value='week']").prop("checked", true);
+		$("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
+		$("[name=well-type]").filter("[value='buff-disp']").prop("checked", true);
+		$("#lstCounty2, #sca").prop("selectedIndex", 0);
+		$("#from-date, #to-date, #low-mag, #high-mag").val("");
+		$("#loc-buff, #buff-disp, #buff-feat").val("6");
+		$("#chk-bbls").prop("checked", false);
+		$("#bbls").val("5000");
 
+		// TODO: rework for new dashboard/filter or comment out:
 		// Clear layer definitionExpressions to make filtered features visible:
 		// wellsLayer.findSublayerById(0).definitionExpression = "";
 		swdLayer.findSublayerById(19).definitionExpression = "";
@@ -2061,13 +2065,13 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<span class='esri-icon-close-circled' id='close-db'></span>";
+		dbCon += "<span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span>";
 		dbCon += "<table class='db-table'><tr><th>Location</th><th>Time</th><th>Magnitude/SAS</th><th>Wells</th></tr>";
 
 		// Location:
 		dbCon += "<tr><td><table class='db-sub-table'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked> Statewide</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> <input type='text' id='loc-buff' size='2' oninput='checkLocRadio()'> mile(s) around selected feature</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> Within <input type='text' id='loc-buff' size='2' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
 		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
 		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
@@ -2085,23 +2089,24 @@ function(
 
 		dbCon += "</table></td>";
 
-		// Mag/SAS:
+		// Mag-SAS:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt35'> M &ge; 3.5</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='sas17' checked>SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked> M &ge; 3.5 or SAS &ge; 17</td></tr>";
+
+		// dbCon += "<tr><td><input type='checkbox' id='sas17' checked>SAS &ge; 17</td></tr>";
 		dbCon += "</table></td>";
 
 		// Wells:
 		dbCon += "<td><table class='db-sub-table'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mile(s) of displayed earthquakes</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> <input type='text' id='buff-feat' size='2' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mile(s) around selected feature</td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
-		dbCon += "</table></td>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> Within <input type='text' id='buff-feat' size='2' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "</table></td></tr>";
 
-		dbCon += "</tr></table>";
+		dbCon += "<tr><td colspan='4' style='text-align:center'><button class='find-button update-btn' onclick=''>Update Map</button></td></tr></table>";
 		dbCon += "</div>";
 
 		$("#dashboard").html(dbCon);
@@ -2112,6 +2117,10 @@ function(
 		$("#close-db").click(function() {
 			$(".dashboard").hide();
 			$("#dashboard-btn").show();
+		} );
+
+		$("#reset-db").click(function() {
+			clearFilter();
 		} );
 	}
 

@@ -79,21 +79,27 @@ th, td {
 	border-bottom-width: 1px;
 	left: 80px;
 	position: absolute;;
-	top: 44px;
+	top: 50px;
 	z-index: 10;
 }
 
 #dashboard-btn {
 	display: none;
-	left: 60px;
+	left: 57px;
 	position: absolute;;
-	top: 55px;
+	top: 57px;
 	z-index: 10;
 }
 
 .esri-icon-close-circled {
-	float: left;
+	/*float: left;*/
 	font-size: 16px;
+	font-weight: bold;
+	padding: 8px;
+}
+
+.esri-icon-refresh {
+	font-size: 14px;
 	font-weight: bold;
 	padding: 8px;
 }
