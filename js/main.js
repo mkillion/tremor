@@ -317,44 +317,44 @@ function(
 
 
     function createDialogs() {
-        // OG wells filter:
-		var wellType = ["Coal Bed Methane","Coal Bed Methane, Plugged","Dry and Abandoned","Enhanced Oil Recovery","Enhanced Oil Recovery, Plugged","Gas","Gas, Plugged","Injection","Injection, Plugged","Intent","Location","Oil","Oil and Gas","Oil and Gas, Plugged","Oil, Plugged","Other","Other, Plugged","Salt Water Disposal","Salt Water Disposal, Plugged"];
-		var ogF = "<span class='filter-hdr'>Well Type:</span><br>";
-		ogF += "<table><tr><td><select id='og-well-type' class='og-select' multiple size='4'>";
-		if (!isMobile) {
-			ogF += "<option value='' class='opt-note'>select one or many (ctrl or cmd)</option>";
-		}
-		for (var j = 0; j < wellType.length; j++) {
-			ogF += "<option value='" + wellType[j] + "'>" + wellType[j] + "</option>";
-		}
-		ogF += "</select></td></tr></table>";
-		ogF += "<span class='filter-hdr'>Completion Date:</span><br>";
-		ogF += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='og-from-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr>";
-        ogF += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='og-to-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr></table>";
-		ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Operator:</td><td><input id='operators'></td></tr></table>";
-		ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Has:</td><td><input type='checkbox' name='og-has' value='paper-log'>Paper Logs</td></tr>";
-		ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='scan-log'>Scanned Logs</td></tr>";
-		ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='las'>LAS File</td></tr>";
-		ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='core'>Core</td></tr>";
-		ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='cuttings'>Cuttings</td></tr></table>";
-		ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Injection Wells:</td>";
-		ogF += "<td><select id='inj' class='og-select'><option value=''></option><option value='inj-1'>Class I</option><option value='inj-2'>Class II</option></select></td></tr>";
-		ogF += "<tr><td class='filter-hdr'style='padding-left:0'>Horizontal Wells:</td><td><input type='checkbox' id='hrz'></td></tr></table>";
-		ogF += "<span class='filter-hdr'>Total Depth (ft):</span><br>";
-		ogF += "<table><tr><td>Greater Than or Equal:</td><td><input type='text' size='4' id='og-gt-depth' class='og-input'></td></tr>";
-        ogF += "<tr><td>Less Than or Equal:</td><td><input type='text' size='4' id='og-lt-depth' class='og-input'></td></tr></table>";
-		ogF += "<hr><button class='find-button' id='wwc5-go-btn' onclick='filterOG();'>Apply Filter</button>&nbsp;&nbsp;&nbsp;";
-		ogF += "<button class='find-button' onclick='clearOgFilter();' autofocus>Clear Filter</button>";
-
-		var ogN = domConstruct.create("div", { id: "og-filter", class: "filter-dialog", innerHTML: ogF } );
-        $("body").append(ogN);
-
-        $("#og-filter").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Filter Oil and Gas Wells",
-            width: 320
-        } );
+        // // OG wells filter:
+		// var wellType = ["Coal Bed Methane","Coal Bed Methane, Plugged","Dry and Abandoned","Enhanced Oil Recovery","Enhanced Oil Recovery, Plugged","Gas","Gas, Plugged","Injection","Injection, Plugged","Intent","Location","Oil","Oil and Gas","Oil and Gas, Plugged","Oil, Plugged","Other","Other, Plugged","Salt Water Disposal","Salt Water Disposal, Plugged"];
+		// var ogF = "<span class='filter-hdr'>Well Type:</span><br>";
+		// ogF += "<table><tr><td><select id='og-well-type' class='og-select' multiple size='4'>";
+		// if (!isMobile) {
+		// 	ogF += "<option value='' class='opt-note'>select one or many (ctrl or cmd)</option>";
+		// }
+		// for (var j = 0; j < wellType.length; j++) {
+		// 	ogF += "<option value='" + wellType[j] + "'>" + wellType[j] + "</option>";
+		// }
+		// ogF += "</select></td></tr></table>";
+		// ogF += "<span class='filter-hdr'>Completion Date:</span><br>";
+		// ogF += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='og-from-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr>";
+        // ogF += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='og-to-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr></table>";
+		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Operator:</td><td><input id='operators'></td></tr></table>";
+		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Has:</td><td><input type='checkbox' name='og-has' value='paper-log'>Paper Logs</td></tr>";
+		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='scan-log'>Scanned Logs</td></tr>";
+		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='las'>LAS File</td></tr>";
+		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='core'>Core</td></tr>";
+		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='cuttings'>Cuttings</td></tr></table>";
+		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Injection Wells:</td>";
+		// ogF += "<td><select id='inj' class='og-select'><option value=''></option><option value='inj-1'>Class I</option><option value='inj-2'>Class II</option></select></td></tr>";
+		// ogF += "<tr><td class='filter-hdr'style='padding-left:0'>Horizontal Wells:</td><td><input type='checkbox' id='hrz'></td></tr></table>";
+		// ogF += "<span class='filter-hdr'>Total Depth (ft):</span><br>";
+		// ogF += "<table><tr><td>Greater Than or Equal:</td><td><input type='text' size='4' id='og-gt-depth' class='og-input'></td></tr>";
+        // ogF += "<tr><td>Less Than or Equal:</td><td><input type='text' size='4' id='og-lt-depth' class='og-input'></td></tr></table>";
+		// ogF += "<hr><button class='find-button' id='wwc5-go-btn' onclick='filterOG();'>Apply Filter</button>&nbsp;&nbsp;&nbsp;";
+		// ogF += "<button class='find-button' onclick='clearOgFilter();' autofocus>Clear Filter</button>";
+		//
+		// var ogN = domConstruct.create("div", { id: "og-filter", class: "filter-dialog", innerHTML: ogF } );
+        // $("body").append(ogN);
+		//
+        // $("#og-filter").dialog( {
+        //     autoOpen: false,
+        //     dialogClass: "dialog",
+		// 	title: "Filter Oil and Gas Wells",
+        //     width: 320
+        // } );
 
 		//$("#og-from-date").datepicker();
         //$("#og-to-date").datepicker();
@@ -452,19 +452,39 @@ function(
 	}
 
 
-	changeSelect = function(what) {
-		// Old:
-		// $("[name=area-type]").prop("checked", false);
-		// $("[name=area-type]").filter("[value='" + what + "']").prop("checked", true);
-		// if (what === "buff" && !view.popup.selectedFeature) {
-		// 	alert("Please select a feature to buffer.")
-		// }
-
-		// New (for SP's list):
+	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
-		$("[name=loc-type]").filter("[value='" + what + "']").prop("checked", true);
-		if (what === "buf" && !view.popup.selectedFeature) {
+		if (!view.popup.selectedFeature) {
 			alert("Please select a feature to buffer.")
+		}
+		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
+	}
+
+
+	checkTimeRadio = function() {
+		$("[name=time-type]").prop("checked", false);
+		$("[name=time-type]").filter("[value='date']").prop("checked", true);
+	}
+
+
+	checkMagRadio = function() {
+		$("[name=mag-type]").prop("checked", false);
+		$("[name=mag-type]").filter("[value='magrange']").prop("checked", true);
+	}
+
+	checkWellRadio = function(box) {
+		if (box === 'bbls') {
+			$("#chk-bbls").prop("checked", true);
+		} else {
+			$("[name=well-type]").prop("checked", false);
+			if (box === 'buff-disp') {
+				$("[name=well-type]").filter("[value='buff-disp']").prop("checked", true);
+			} else {
+				if (!view.popup.selectedFeature) {
+					alert("Please select a feature to buffer.")
+				}
+				$("[name=well-type]").filter("[value='buff-feat']").prop("checked", true);
+			}
 		}
 	}
 
@@ -2040,8 +2060,8 @@ function(
 
 		// Location:
 		dbCon += "<tr><td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked> statewide</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> <input type='text' id='loc-buff' size='2' onchange='changeSelect(&quot;buf&quot;)'> mile buffer around feature</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked> Statewide</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> <input type='text' id='loc-buff' size='2' oninput='checkLocRadio()'> mile(s) around selected feature</td></tr>";
 		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
 		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
@@ -2052,24 +2072,36 @@ function(
 
 		// Time:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week'> past week</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='month'> past month</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='year'> this year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='week'> Past week</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='month'> Past month</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='year'> This year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='date'> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
+
 		dbCon += "</table></td>";
+
 		// Mag/SAS:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'> all</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt35'> &ge; 3.5</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag'> to <input type='text' size='4' id='high-mag'></td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='sas17'> SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt35'> M &ge; 3.5</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='sas17'>SAS &ge; 17</td></tr>";
 		dbCon += "</table></td>";
-		// Wells:
 
+		// Wells:
+		dbCon += "<td><table class='db-sub-table'>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='all'> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp'> Within <input type='text' id='buff-disp' size='2' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mile(s) of displayed earthquakes</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> <input type='text' id='buff-feat' size='2' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mile(s) around selected feature</td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "</table></td>";
 
 		dbCon += "</tr></table>";
 		dbCon += "</div>";
 
 		$("#dashboard").html(dbCon);
+
+		$("#from-date").datepicker();
+        $("#to-date").datepicker();
 	}
 
 
