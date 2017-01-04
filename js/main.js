@@ -2070,10 +2070,10 @@ function(
 
 		// Location:
 		dbCon += "<tr><td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked> Statewide</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> Within <input type='text' id='loc-buff' size='2' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'></td><td> Within <input type='text' id='loc-buff' size='2' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
+		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
+		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
 		 	dbCon += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
@@ -2082,28 +2082,26 @@ function(
 
 		// Time:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked> Past week</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='month'> Past month</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='year'> This year</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='date'> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past week</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past month</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='date'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
 
 		dbCon += "</table></td>";
 
 		// Mag-SAS:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked> M &ge; 3.5 or SAS &ge; 17</td></tr>";
-
-		// dbCon += "<tr><td><input type='checkbox' id='sas17' checked>SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
 		dbCon += "</table></td>";
 
 		// Wells:
 		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='all'> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> Within <input type='text' id='buff-feat' size='2' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'></td><td> Within <input type='text' id='buff-feat' size='2' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></td></tr>";
 
 		dbCon += "<tr><td colspan='4' style='text-align:center'><button class='find-button update-btn' onclick=''>Update Map</button></td></tr></table>";
