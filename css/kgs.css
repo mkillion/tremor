@@ -40,10 +40,11 @@ th, td {
 }
 
 .db-sub-table {
-	margin: 2px 20px;
-	/*border-right-color: red;
+	/*margin: 2px 20px;
+	border-right-color: red;
 	border-right-style: dotted;
 	border-right-width: 1px;*/
+	/*table-layout: fixed;*/
 }
 
 .close-x {
@@ -74,12 +75,13 @@ th, td {
 
 .dashboard {
 	background-color: #C1C3C4;
-	border-bottom-color: #000;
-	border-bottom-style: solid;
-	border-bottom-width: 1px;
-	left: 80px;
+	border-color: #000;
+	border-style: solid;
+	border-width: 1.5px;
+	left: 58px;
 	position: absolute;;
-	top: 50px;
+	top: 44px;
+	width: 93.75%;
 	z-index: 10;
 }
 
@@ -358,6 +360,16 @@ input[type=checkbox] {
 #loader {
 	left: 30px;
 	position: relative;
+}
+
+.db-sub-div {
+	/*float: left;*/
+}
+
+@@media screen and max-width: 1280px; {
+	/*.db-sub-div {
+		float: none;
+	}*/
 }
 
 @media screen and (min-width: 1281px) {
