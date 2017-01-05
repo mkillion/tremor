@@ -165,7 +165,7 @@ function(
     var view = new MapView( {
         map: map,
         container: "mapDiv",
-        center: [-98, 38],
+        center: [-98, 39],
         zoom: 7,
         ui: { components: ["zoom"] },
 		constraints: { rotationEnabled: false }
@@ -2065,49 +2065,49 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span>";
-		// dbCon += "<table class='db-table'><tr><th>Location</th><th>Time</th><th>Magnitude/SAS</th><th>Wells</th></tr>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick=''>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><td></td><td>Location</td></tr>";
+		dbCon += "<tr><th colspan='2'>Location</th></tr>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'></td><td> Within <input type='text' id='loc-buff' size='2' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf'></td><td> Within <input type='text' id='loc-buff' size='2' value='6' oninput='checkLocRadio()'> mi of<br>selected well</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
 		 	dbCon += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		dbCon += "</select></td></tr>";
 		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
 		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><td></td><td>Time</td><td></td></tr>";
+		dbCon += "<tr><th colspan='2'>Time</th></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past week</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past month</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='date'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
 		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
 		// Mag-SAS:
 		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><td></td><td>Magnitude/SAS</td><td></td></tr>";
+		dbCon += "<tr><th colspan='2'>Magnitude/SAS</th></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'></td><td> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
 		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
 		// Wells:
 		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><td></td><td>Wells</td><td></td></tr>";
+		dbCon += "<tr><th colspan='2'>Wells</th></tr>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'></td><td> Within <input type='text' id='buff-feat' size='2' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat'></td><td> Within <input type='text' id='buff-feat' size='2' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
 		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
-
-		// dbCon += "<tr><td colspan='4' style='text-align:center'><button class='find-button update-btn' onclick=''>Update Map</button></td></tr></table>";
 
 		dbCon += "</div>";	// end main dashboard div.
 

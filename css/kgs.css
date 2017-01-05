@@ -25,26 +25,18 @@ div[id*='group-body'] {
 	border-bottom-style: none;
 }
 
-th, td {
-    padding: 3px;
-}
-
-.db-table td {
-	font: normal normal normal 12px arial;
-	padding: 0;
-	vertical-align: top;
-}
-
-.db-table th {
-	text-align: left;
-}
-
 .db-sub-table {
-	/*margin: 2px 20px;
-	border-right-color: red;
-	border-right-style: dotted;
-	border-right-width: 1px;*/
-	/*table-layout: fixed;*/
+	margin-right: 5px;
+}
+
+.db-sub-table td {
+	font-size: 14px;
+	padding: 2px;
+}
+
+.db-sub-table th {
+	padding-left: 4px;
+	text-align: left;
 }
 
 .close-x {
@@ -74,14 +66,14 @@ th, td {
 }
 
 .dashboard {
-	background-color: #C1C3C4;
-	border-color: #000;
+	background-color: #F5F5F5;
+	border-color: #A9A9A9;
 	border-style: solid;
 	border-width: 1.5px;
-	left: 58px;
+	left: 65px;
 	position: absolute;;
 	top: 44px;
-	width: 93.75%;
+	width: 950px;
 	z-index: 10;
 }
 
@@ -94,13 +86,14 @@ th, td {
 }
 
 .esri-icon-close-circled {
-	/*float: left;*/
+	cursor: pointer;
 	font-size: 16px;
 	font-weight: bold;
 	padding: 8px;
 }
 
 .esri-icon-refresh {
+	cursor: pointer;
 	font-size: 14px;
 	font-weight: bold;
 	padding: 8px;
@@ -213,10 +206,6 @@ th, td {
 .filter-dialog {
 	font-size: 16px;
 }
-
-/*.filter-div {
-	padding-bottom: 12px;
-}*/
 
 .find-body {
 	color: #000;
@@ -362,14 +351,28 @@ input[type=checkbox] {
 	position: relative;
 }
 
-.db-sub-div {
-	/*float: left;*/
+#db-ctrls {
+	border-bottom-color: gray;
+	border-bottom-style: dashed;
+	border-bottom-width: 1px;
+	margin: 4px;
+	margin-bottom: 5px;
+	padding-bottom: 7px;
 }
 
-@@media screen and max-width: 1280px; {
-	/*.db-sub-div {
-		float: none;
-	}*/
+.vertical-line {
+	background: #A9A9A9;
+	float: left;
+	height: 139px;
+	width: 1px;
+}
+
+.db-sub-div {
+	float: left;
+}
+
+@@media screen and min-width: 1280px; {
+
 }
 
 @media screen and (min-width: 1281px) {
@@ -417,6 +420,11 @@ input[type=checkbox] {
 
 .hamburger-button {
 	color: #FFF;
+}
+
+#update-btn {
+	color: green;
+	font-weight: bold;
 }
 
 #title {
