@@ -65,6 +65,10 @@ div[id*='group-body'] {
 	z-index: 6;
 }
 
+.txt-input {
+	width: 22px;
+}
+
 .dashboard {
 	background-color: #F5F5F5;
 	border-color: #A9A9A9;
@@ -371,8 +375,13 @@ input[type=checkbox] {
 	float: left;
 }
 
-@@media screen and min-width: 1280px; {
-
+@media screen and (max-width: 1280px) {
+	.dashboard {
+		width: 300px;
+	}
+	.db-sub-div {
+		float: none;
+	}
 }
 
 @media screen and (min-width: 1281px) {
