@@ -89,7 +89,6 @@ function(
 	var listCount = 0;
 	var sharedCfTable;
 
-
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
     $("#title").html("Kansas Earthquakes<a id='kgs-brand' href='http://www.kgs.ku.edu'>Kansas Geological Survey</a>");
@@ -2068,8 +2067,8 @@ function(
 		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick=''>Update Map</button></div>";
 
 		// Location:
-		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><th colspan='2'>Location</th></tr>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
+		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
@@ -2082,8 +2081,8 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><th colspan='2'>Time</th></tr>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
+		dbCon += "<table class='db-sub-table' id='time-body'>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past week</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past month</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
@@ -2092,8 +2091,8 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Mag-SAS:
-		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><th colspan='2'>Magnitude/SAS</th></tr>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='magsas'>Magnitude/SAS</span>";
+		dbCon += "<table class='db-sub-table' id='magsas-body'>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'></td><td> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text'  class='txt-input' id='low-mag' oninput='checkMagRadio()'> to <input type='text'  class='txt-input' id='high-mag' oninput='checkMagRadio()'></td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
@@ -2101,8 +2100,8 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Wells:
-		dbCon += "<div class='db-sub-div'><table class='db-sub-table'>";
-		dbCon += "<tr><th colspan='2'>Wells</th></tr>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
+		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";

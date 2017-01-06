@@ -375,12 +375,27 @@ input[type=checkbox] {
 	float: left;
 }
 
+.sub-div-hdr {
+	font: normal normal bold 16px arial;
+	margin-left: 8px;
+}
+
 @media screen and (max-width: 1280px) {
 	.dashboard {
+		display: none;
 		width: 300px;
 	}
+
+	#dashboard-btn {
+		display: block;
+	}
+
 	.db-sub-div {
 		float: none;
+	}
+
+	.vertical-line {
+		width: 0;
 	}
 }
 
