@@ -2165,16 +2165,6 @@ function(
             chkd = map.findLayerById(layerID).visible ? "checked" : "";
 			var htmlID = layerID.replace(/ /g, "-");
 
-			// if (earthquakeGroup.indexOf(htmlID) > -1) {
-			// 	if (htmlID !== "NEIC-Cataloged-Events") {
-			// 		eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
-			// 	} else {
-			// 		eqTocContent += '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
-			// 		eqTocContent += '<div class="find-body hide" id="other-group-body">';
-			// 		eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
-			// 		eqTocContent += '</div>';
-			// 	}
-			// }
 			if (earthquakeGroup.indexOf(htmlID) > -1) {
 				eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}

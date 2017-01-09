@@ -73,7 +73,7 @@ div[id*='group-body'] {
 	background-color: #F5F5F5;
 	border-color: #A9A9A9;
 	border-style: solid;
-	border-width: 1.5px;
+	border-width: 2.5px;
 	left: 65px;
 	position: absolute;;
 	top: 44px;
@@ -391,7 +391,15 @@ input[type=checkbox] {
 	}
 
 	.db-sub-div {
+		border-bottom-color: #A9A9A9;
+		border-bottom-style: dashed;
+		border-bottom-width: 1px;
 		float: none;
+		padding: 10px 3px;
+	}
+
+	.db-sub-div:last-of-type {
+		border-bottom-style: none;
 	}
 
 	.vertical-line {
