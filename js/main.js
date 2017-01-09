@@ -281,6 +281,7 @@ function(
     urlZoom(urlParams);
 
     // Miscellaneous click handlers:
+	// find section:
     $(".find-header").click(function() {
         $("[id^=find]").fadeOut("fast");
         $(".find-header").removeClass("esri-icon-down-arrow");
@@ -288,6 +289,21 @@ function(
         var findBody = $(this).attr("id");
         $("#find-"+findBody).fadeIn("fast");
     } );
+
+	// data section:
+	$(".data-header").click(function() {
+		var section = $(this).attr("id");
+		if ( $(this).hasClass("esri-icon-down-arrow") ) {
+			$("#data-" + section).fadeOut("fast");
+			$(this).removeClass("esri-icon-down-arrow");
+			$(this).addClass("esri-icon-right-triangle-arrow");
+		} else {
+			$("[id^=data]").fadeOut("fast");
+			$(".data-header").removeClass("esri-icon-down-arrow no-border");
+		    $(this).addClass("esri-icon-down-arrow no-border");
+			$("#data-" + section).fadeIn("fast");
+		}
+	} );
 
     $(".esri-icon-erase").click(function() {
 		graphicsLayer.removeAll();
@@ -438,9 +454,9 @@ function(
         } );
 
 		// Select graph type dialog:
-		var graphDia = '<table><tr><td><input type="radio" name="graph-type" value="count" checked> Count / Date</td></tr>';
-		graphDia += '<tr><td><input type="radio" name="graph-type" value="mag"> Magnitude / Date</td></tr>';
-		graphDia += '<tr><td><button class="find-button" onclick="makeGraph()">Create Graph</button></td></tr></table>';
+		// var graphDia = '<table><tr><td><input type="radio" name="graph-type" value="count" checked> Count / Date</td></tr>';
+		// graphDia += '<tr><td><input type="radio" name="graph-type" value="mag"> Magnitude / Date</td></tr>';
+		// graphDia += '<tr><td><button class="find-button" onclick="makeGraph()">Create Graph</button></td></tr></table>';
 
 		var graphTypeN = domConstruct.create("div", { id: "graph-type-dia", class: "filter-dialog", innerHTML: graphDia } );
         $("body").append(graphTypeN);
@@ -912,7 +928,7 @@ function(
 		$(".item").removeClass("item-selected");
 		$(".panel").removeClass("panel-selected");
 		$(".icon-wrench").closest(".item").addClass("item-selected");
-		$("#tools-panel").closest(".panel").addClass("panel-selected");
+		$("#data-panel").closest(".panel").addClass("panel-selected");
 		$("#loader").show();
 	}
 
@@ -1906,12 +1922,32 @@ function(
 
         // Data (tools) panel:
         content = '';
-        content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">Data <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"></div>';
-        content += '<div class="panel-padding">';
-		content += '</div>';
-		content += '<div id="wells-tbl"></div>';
-        content += '</div>';
+        content += '<div class="panel-container">';
+		content += '<div class="panel-header">Data<img id="loader" class="hide" src="images/ajax-loader.gif"></div>';
+
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
+		content += '<div class="data-body hide" id="data-dwnload">';
+		content += "<table><tr><td></td><td><input type='checkbox' value=''> Earthquakes</td></tr>";
+		content += "<tr><td></td><td><input type='checkbox' id='chk-wells'> Wells</td></tr>";
+		content += "<tr><td></td><td><button class='find-button' onclick=''> Download</button></td></tr></table>";
+		content += '</div>';	// end download div.
+
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Graph</span></div>';
+		content += '<div class="data-body hide" id="data-grph">';
+		content += "<table><tr><td></td><td><input type='radio' name='graph-type' value='mag'> Magnitude</td></tr>";
+		content += "<tr><td></td><td><input type='radio' name='graph-type' value='count'> Number / Day</td></tr>";
+		content += "<tr><td></td><td><input type='radio' name='graph-type' value='cum'> Cumulative</td></tr>";
+		content += "<tr><td></td><td><input type='radio' name='graph-type' value='injvol'> Injection Volume</td></tr>";
+		content += "<tr><td></td><td><input type='radio' name='graph-type' value='joint'> Joint Plot</td></tr>";
+		content += "<tr><td></td><td><button class='find-button' onclick='makeGraph()'>Create Graph</button></td></tr></table>";
+		content += '</div>';	// end graph div.
+
+		// content += '<div class="data-header esri-icon-right-triangle-arrow" id="list"><span class="find-hdr-txt"> List</span></div>';
+		// content += '<div class="data-body hide" id="data-list">';
+		// content += "FooBar";
+		// content += '</div>';	// end list div.
+
+        content += '</div>';	// end data panel div.
 
         menuObj = {
             label: '<div class="esri-icon-table"></div><div class="icon-text">Data</div>',
@@ -2064,13 +2100,18 @@ function(
 		}
 	}
 
+	junk = function() {
+		var it = $("#lstCounty2").val();
+		console.log(it);
+	}
+
 
 	function createDashboard() {
 		// var units = ["miles","kilometers","meters","yards","feet"];
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick=''>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='junk()'>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
@@ -2203,7 +2244,6 @@ function(
 			var group = $(this).attr("id");
 			if ( $(this).hasClass("esri-icon-down-arrow") ) {
 				$("#" + group + "-body").fadeOut("fast");
-
 			} else {
 				$("#" + group + "-body").fadeIn("fast");
 			}

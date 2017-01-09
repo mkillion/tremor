@@ -25,6 +25,11 @@ div[id*='group-body'] {
 	border-bottom-style: none;
 }
 
+/*#graph-div,
+#download-div {
+	border-bottom-style: none;
+}*/
+
 .db-sub-table {
 	margin-right: 5px;
 }
@@ -34,7 +39,7 @@ div[id*='group-body'] {
 	padding: 2px;
 }
 
-.db-sub-table th {
+th {
 	padding-left: 4px;
 	text-align: left;
 }
@@ -164,6 +169,7 @@ div[id*='group-body'] {
 
 .toc-item,
 .find-header,
+.data-header,
 #find-other-toc {
 	background-color: #e4e6e4;
     border-bottom-color: #777;
@@ -215,6 +221,19 @@ div[id*='group-body'] {
 	color: #000;
 	padding: 10px 12px;
 }
+
+.data-body {
+	background-color: #e4e6e4;
+	border-bottom-color: #777;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+	color: #000;
+	padding: 0 12px;
+}
+
+/*.data-body td {
+	padding: 5px;
+}*/
 
 .find-label {
 	text-align: right;
