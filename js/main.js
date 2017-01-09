@@ -1981,7 +1981,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
@@ -2015,7 +2015,7 @@ function(
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat' onclick='checkWellRadio(&quot;buff-feat&quot;)'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
 		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
