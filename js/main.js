@@ -153,9 +153,10 @@ function(
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 	// var countiesLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:2}], id:"Counties", visible:true} );
 	var countiesLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis5/rest/services/admin_boundaries/KS_County_Boundaries/MapServer", id:"Counties", visible:true} );
+	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -260,7 +261,11 @@ function(
 			title: " "
 		},
 		{
-			layer: swdLayer,
+			layer: neicLayer,
+			title: " "
+		},
+		{
+			layer: historicLayer,
 			title: " "
 		},
 		// {
@@ -2133,9 +2138,12 @@ function(
 		var wellsTocContent = "";
 		var boundariesTocContent = "";
 		var basemapTocContent = "";
+		var otherEqContent = '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
+		otherEqContent += '<div class="find-body hide" id="other-group-body">';
 
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
-		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events","NEIC-Cataloged-Events"];
+		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
+		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
 		var wellsGroup = ["Salt-Water-Disposal-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Topo","Aerial-Imagery"];
@@ -2157,15 +2165,23 @@ function(
             chkd = map.findLayerById(layerID).visible ? "checked" : "";
 			var htmlID = layerID.replace(/ /g, "-");
 
+			// if (earthquakeGroup.indexOf(htmlID) > -1) {
+			// 	if (htmlID !== "NEIC-Cataloged-Events") {
+			// 		eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+			// 	} else {
+			// 		eqTocContent += '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
+			// 		eqTocContent += '<div class="find-body hide" id="other-group-body">';
+			// 		eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
+			// 		eqTocContent += '</div>';
+			// 	}
+			// }
 			if (earthquakeGroup.indexOf(htmlID) > -1) {
-				if (htmlID !== "NEIC-Cataloged-Events") {
-					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
-				} else {
-					eqTocContent += '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
-					eqTocContent += '<div class="find-body hide" id="other-group-body">';
-					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
-					eqTocContent += '</div>';
-				}
+				eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+			}
+			// eqTocContent += '</div>';
+
+			if (otherEarthquakeGroup.indexOf(htmlID) > -1) {
+				otherEqContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (wellsGroup.indexOf(htmlID) > -1) {
@@ -2180,6 +2196,8 @@ function(
 				basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='" + layerID + "' onclick='toggleBasemapLayer();'" + chkd + "> " + layerID + "</label></div>";
 			}
         }
+
+		eqTocContent += otherEqContent;
 
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
