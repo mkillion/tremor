@@ -1893,7 +1893,8 @@ function(
 		// Display (layers) panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Display <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        // content += '<div class="panel-header">Display <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+		content += '<div class="panel-header">Display</div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1906,7 +1907,7 @@ function(
         // Data (tools) panel:
         content = '';
         content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">Data <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Data <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"></div>';
         content += '<div class="panel-padding">';
 		content += '</div>';
 		content += '<div id="wells-tbl"></div>';
@@ -1921,7 +1922,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Find <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Find</div>';
         content += '<div class="panel-padding">';
 
 		// api:
@@ -2007,7 +2008,7 @@ function(
 		// Legend panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Legend <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Legend</div>';
         content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
 		// content += '<div class="panel-header">Links</div>';
