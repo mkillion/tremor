@@ -174,7 +174,6 @@ function(
     view.then(function() {
 		createTOC();
 		createDashboard();
-		createDialogs();
 		popCountyDropdown();
 
         on(view, "click", executeIdTask);
@@ -331,141 +330,11 @@ function(
 
     function popCountyDropdown() {
         var cntyArr = new Array("Counties", "Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
-		$('#evt-county').html('<option value="all">All</option>');
         for(var i=0; i<cntyArr.length; i++) {
             theCnty = cntyArr[i];
             $('#lstCounty').append('<option value="' + theCnty + '">' + theCnty + '</option>');
 			$('#lstCounty2').append('<option value="' + theCnty + '">' + theCnty + '</option>');
-			$('#evt-county').append('<option value="' + theCnty + '">' + theCnty + '</option>');
         }
-    }
-
-
-    function createDialogs() {
-        // // OG wells filter:
-		// var wellType = ["Coal Bed Methane","Coal Bed Methane, Plugged","Dry and Abandoned","Enhanced Oil Recovery","Enhanced Oil Recovery, Plugged","Gas","Gas, Plugged","Injection","Injection, Plugged","Intent","Location","Oil","Oil and Gas","Oil and Gas, Plugged","Oil, Plugged","Other","Other, Plugged","Salt Water Disposal","Salt Water Disposal, Plugged"];
-		// var ogF = "<span class='filter-hdr'>Well Type:</span><br>";
-		// ogF += "<table><tr><td><select id='og-well-type' class='og-select' multiple size='4'>";
-		// if (!isMobile) {
-		// 	ogF += "<option value='' class='opt-note'>select one or many (ctrl or cmd)</option>";
-		// }
-		// for (var j = 0; j < wellType.length; j++) {
-		// 	ogF += "<option value='" + wellType[j] + "'>" + wellType[j] + "</option>";
-		// }
-		// ogF += "</select></td></tr></table>";
-		// ogF += "<span class='filter-hdr'>Completion Date:</span><br>";
-		// ogF += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='og-from-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr>";
-        // ogF += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='og-to-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Operator:</td><td><input id='operators'></td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Has:</td><td><input type='checkbox' name='og-has' value='paper-log'>Paper Logs</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='scan-log'>Scanned Logs</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='las'>LAS File</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='core'>Core</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='cuttings'>Cuttings</td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Injection Wells:</td>";
-		// ogF += "<td><select id='inj' class='og-select'><option value=''></option><option value='inj-1'>Class I</option><option value='inj-2'>Class II</option></select></td></tr>";
-		// ogF += "<tr><td class='filter-hdr'style='padding-left:0'>Horizontal Wells:</td><td><input type='checkbox' id='hrz'></td></tr></table>";
-		// ogF += "<span class='filter-hdr'>Total Depth (ft):</span><br>";
-		// ogF += "<table><tr><td>Greater Than or Equal:</td><td><input type='text' size='4' id='og-gt-depth' class='og-input'></td></tr>";
-        // ogF += "<tr><td>Less Than or Equal:</td><td><input type='text' size='4' id='og-lt-depth' class='og-input'></td></tr></table>";
-		// ogF += "<hr><button class='find-button' id='wwc5-go-btn' onclick='filterOG();'>Apply Filter</button>&nbsp;&nbsp;&nbsp;";
-		// ogF += "<button class='find-button' onclick='clearOgFilter();' autofocus>Clear Filter</button>";
-		//
-		// var ogN = domConstruct.create("div", { id: "og-filter", class: "filter-dialog", innerHTML: ogF } );
-        // $("body").append(ogN);
-		//
-        // $("#og-filter").dialog( {
-        //     autoOpen: false,
-        //     dialogClass: "dialog",
-		// 	title: "Filter Oil and Gas Wells",
-        //     width: 320
-        // } );
-
-		//$("#og-from-date").datepicker();
-        //$("#og-to-date").datepicker();
-
-		// Buffer dialog:
-		var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["Anthony","Freeport","Bluff City","Milan","Caldwell","Expanded Area"];
-
-
-		// var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="return-type" value="Salt Water Disposal" onchange="resetEvtChk();"> Salt Water Disposal Wells</td></tr>';
-		// // buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		// // buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		// // buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		// buffDia += '</table>';
-		//
-		// buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Within This Area:</td><td></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="state" onchange="checkOgState()"> Statewide</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right"><select id="sca" onchange="changeSelect(&quot;sca&quot;)">';
-		// for (var j = 0; j < seismicAreas.length; j++) {
-		// 	buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
-		// }
-		// buffDia += '</select></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="buff" onchange="changeSelect(&quot;buff&quot;)"> Buffer Around Feature:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" id="buff-dist" oninput="changeSelect(&quot;buff&quot;)"></td></tr>';
-		// buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;buff&quot;)">';
-		// for (var i = 0; i < units.length; i++) {
-		// 	buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
-		// }
-		// buffDia += '</select></td></tr></table>';
-		//
-		// buffDia += '<hr>';
-		// buffDia += '<table><tr><td><button class="find-button" onclick="filterSwitch()">Apply</button></td>';
-		// buffDia += '<td><button class="find-button" onclick="clearFilter()" autofocus>Clear</button></td></tr></table>'
-		//
-		// var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
-        // $("body").append(buffN);
-		//
-        // $("#filter-buff-dia").dialog( {
-        //     autoOpen: false,
-        //     dialogClass: "dialog",
-		// 	title: "Filter/Select Features"
-        // } );
-
-		$("#eq-from-date").datepicker();
-        $("#eq-to-date").datepicker();
-
-		// Report problem dialog:
-		var probDia = "<table><tr><td class='find-label'>Message:</td><td><textarea rows='4' cols='25' id='prob-msg' placeholder='Feature ID is automatically appended. Messages are anonymous unless contact info is included.'></textarea></td></tr>";
-		probDia += "<tr><td></td><td><button class='find-button' onclick='sendProblem()'>Send</button></td></tr>";
-		probDia += "<tr><td colspan='2'><span class='toc-note'>(report website problems <a href='mailto:killion@kgs.ku.edu'>here)</a></span></td></tr></table>";
-
-		var problemN = domConstruct.create("div", { id: "prob-dia", class: "filter-dialog", innerHTML: probDia } );
-        $("body").append(problemN);
-
-        $("#prob-dia").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Report a location or data error",
-			width: 375
-        } );
-
-		// Select graph type dialog:
-		// var graphDia = '<table><tr><td><input type="radio" name="graph-type" value="count" checked> Count / Date</td></tr>';
-		// graphDia += '<tr><td><input type="radio" name="graph-type" value="mag"> Magnitude / Date</td></tr>';
-		// graphDia += '<tr><td><button class="find-button" onclick="makeGraph()">Create Graph</button></td></tr></table>';
-
-		var graphTypeN = domConstruct.create("div", { id: "graph-type-dia", class: "filter-dialog", innerHTML: graphDia } );
-        $("body").append(graphTypeN);
-
-        $("#graph-type-dia").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Select a Graph Type"
-        } );
     }
 
 
@@ -2100,18 +1969,13 @@ function(
 		}
 	}
 
-	junk = function() {
-		var it = $("#lstCounty2").val();
-		console.log(it);
-	}
-
 
 	function createDashboard() {
 		// var units = ["miles","kilometers","meters","yards","feet"];
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='junk()'>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick=''>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
