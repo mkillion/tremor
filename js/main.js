@@ -648,6 +648,88 @@ function(
 	}
 
 
+	updateMap = function() {
+		var combinedWhere = "";
+		var locWhere = "";
+
+		// Format location clause:
+		var location = $("input[name=loc-type]:checked").val();
+		switch (location) {
+			case "state":
+				locWhere = "latitude >= 37 and latitude <= 40 and longitude >= -102.05 and longitude <= -94.58";
+				break;
+			case "buf":
+				locBuff = $("#loc-buff").val();
+				// TODO: finish - requires geometries.
+				var locWhere = locBuff;
+				break
+			case "co":
+				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
+				if (counties !== 'Counties') {
+					locWhere = "county_name in (" + counties + ")";
+				}
+				break;
+			case "sca":
+				var scAreas = "'" + $("#sca").val().join("','") + "'";
+				if (scAreas !== 'Seismic Concer Areas') {
+					// TODO: finish - requires geometries.
+				}
+				break;
+		}
+
+		// Format time clause:
+		var time = $("input[name=time-type]:checked").val();
+		switch (time) {
+			case "week":
+
+				break;
+			case "month":
+
+				break
+			case "year":
+
+				break;
+			case "date":
+
+				break;
+		}
+
+		// Format mag-sas clause:
+		var mag = $("input[name=mag-type]:checked").val();
+		switch (time) {
+			case "all":
+
+				break;
+			case "magrange":
+
+				break
+			case "gt3517":
+
+				break;
+		}
+
+		// Format wells clause:
+		var mag = $("input[name=well-type]:checked").val();
+		switch (time) {
+			case "all":
+
+				break;
+			case "buff-disp":
+
+				break
+			case "buff-feat":
+
+				break;
+		}
+		if ( $("#chk-bbls").is(":checked") ) {
+			var bbls = $("#bbls").val();
+			console.log(bbls);
+		}
+
+		// console.log(timeWhere);
+	}
+
+
 	function filterStateCounty() {
 		openToolsPanel();
 
@@ -1967,11 +2049,6 @@ function(
 		} else {
 			$("#sca").attr("size","1");
 		}
-	}
-
-
-	updateMap = function() {
-		
 	}
 
 
