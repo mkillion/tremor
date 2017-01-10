@@ -182,7 +182,7 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 4;
-        identifyParams.layerIds = [14, 15, 16, 17, 18, 19];
+        identifyParams.layerIds = [14, 15, 16, 17, 18, 19, 20];
         identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
@@ -1970,12 +1970,17 @@ function(
 	}
 
 
+	updateMap = function() {
+		
+	}
+
+
 	function createDashboard() {
 		// var units = ["miles","kilometers","meters","yards","feet"];
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick=''>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
@@ -2186,9 +2191,9 @@ function(
 				} );
 				feature.popupTemplate = wwc5Template;
 			}
-			else if (layerName === 'KGS Cataloged Events' || layerName === 'KGS Preliminary Events' || layerName === 'NEIC Cataloged Events' || layerName === 'OGS Cataloged Events') {
+			else if (layerName.indexOf("Events") > -1) {
 				var earthquakeTemplate = new PopupTemplate( {
-					title: layerName.replace("s", ""),
+					title: layerName.replace("Events", "Event"),
 					content: earthquakeContent(feature)
 				} );
 				feature.popupTemplate = earthquakeTemplate;
@@ -2210,7 +2215,7 @@ function(
 		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
 		var m = f.MC !== "Null" ? f.MC + " mc" : "";
 		var sas = f.SAS !== "Null" ? f.SAS : "";
-		var co = f.COUNTY !== "Null" ? f.COUNTY : "";
+		var co = f.COUNTY_NAME !== "Null" ? f.COUNTY_NAME : "";
 
 		if (f.LAYER === 'USGS') {
 			var m = f.ML !== "Null" ? parseFloat(f.ML).toFixed(1) + " ml" : "";
