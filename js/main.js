@@ -649,19 +649,21 @@ function(
 
 
 	updateMap = function() {
-		var combinedWhere = "";
+		var bigWhere = "";
 		var locWhere = "";
+		var timeWhere = "";
+		var magWhere = "";
+		var wellsWhere = "";
 
 		// Format location clause:
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
 			case "state":
-				locWhere = "latitude >= 37 and latitude <= 40 and longitude >= -102.05 and longitude <= -94.58";
+				// blank in this case, events already limited by definition query in mxd.
 				break;
 			case "buf":
 				locBuff = $("#loc-buff").val();
-				// TODO: finish - requires geometries.
-				var locWhere = locBuff;
+				// TODO: geometry
 				break
 			case "co":
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
@@ -672,7 +674,7 @@ function(
 			case "sca":
 				var scAreas = "'" + $("#sca").val().join("','") + "'";
 				if (scAreas !== 'Seismic Concer Areas') {
-					// TODO: finish - requires geometries.
+					// TODO: geometries
 				}
 				break;
 		}
@@ -695,13 +697,29 @@ function(
 		}
 
 		// Format mag-sas clause:
-		var mag = $("input[name=mag-type]:checked").val();
-		switch (time) {
-			case "all":
+		var lMag = dom.byId('low-mag').value;
+		var uMag = dom.byId('high-mag').value;
+		// TODO: rework the following if mag columns change:
+		// var magtype = "mc";
+		//
+		// if (lyrID[0] == 16) {
+		// 	magtype = "ml";
+		// }
 
+		var mag = $("input[name=mag-type]:checked").val();
+		switch (mag) {
+			case "all":
+				// blank in this case.
 				break;
 			case "magrange":
-
+				// TODO: rework if mag columns change:
+				// if (lMag && uMag) {
+				// 	magWhere = magtype + " >= " + lMag + " and " + magtype + " <= " + uMag;
+				// } else if (lMag && !uMag) {
+				// 	magWhere = magtype + " >= " + lMag;
+				// } else if (!lMag && uMag) {
+				// 	magWhere = magtype + " <= " + uMag;
+				// }
 				break
 			case "gt3517":
 
@@ -709,8 +727,8 @@ function(
 		}
 
 		// Format wells clause:
-		var mag = $("input[name=well-type]:checked").val();
-		switch (time) {
+		var well = $("input[name=well-type]:checked").val();
+		switch (well) {
 			case "all":
 
 				break;
@@ -723,10 +741,10 @@ function(
 		}
 		if ( $("#chk-bbls").is(":checked") ) {
 			var bbls = $("#bbls").val();
-			console.log(bbls);
 		}
 
-		// console.log(timeWhere);
+		// TODO: put it all together and apply to visible layers:
+
 	}
 
 
@@ -2057,7 +2075,7 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close-circled' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
@@ -2076,8 +2094,8 @@ function(
 		// Time:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past week</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past month</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past 7 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past 30 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='date'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
 		dbCon += "</table></div>";
@@ -2195,11 +2213,6 @@ function(
 			}
 			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
 		} );
-    }
-
-
-    labelWells = function(type) {
-        // TODO:
     }
 
 
