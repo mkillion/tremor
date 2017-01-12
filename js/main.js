@@ -430,172 +430,172 @@ function(
 	}
 
 
-	sendProblem = function() {
-		var sfa = view.popup.selectedFeature.attributes;
-		if (sfa.hasOwnProperty('INPUT_SEQ_NUMBER')) {
-			var fId = sfa.INPUT_SEQ_NUMBER;
-			var fName = sfa.OWNER_NAME;
-			var fType = "wwc5";
-			var otherId = "";
-		} else if (sfa.hasOwnProperty('API_NUMBER')) {
-			var fId = sfa.KID;
-			var fName = sfa.LEASE_NAME + " " + sfa.WELL_NAME;
-			var fType = "ogwell";
-			var otherId = sfa.API_NUMBER;
-		} else if (sfa.hasOwnProperty('MAG')) {
-			var fId = sfa.ID;
-			var fName = "";
-			var fType = "earthquake";
-			var otherId = "";
-		} else if (sfa.hasOwnProperty('FIELD_KID')) {
-			var fId = sfa.FIELD_KID;
-			var fName = sfa.FIELD_NAME;
-			var fType = "field";
-			var otherId = "";
-		}
+	// sendProblem = function() {
+	// 	var sfa = view.popup.selectedFeature.attributes;
+	// 	if (sfa.hasOwnProperty('INPUT_SEQ_NUMBER')) {
+	// 		var fId = sfa.INPUT_SEQ_NUMBER;
+	// 		var fName = sfa.OWNER_NAME;
+	// 		var fType = "wwc5";
+	// 		var otherId = "";
+	// 	} else if (sfa.hasOwnProperty('API_NUMBER')) {
+	// 		var fId = sfa.KID;
+	// 		var fName = sfa.LEASE_NAME + " " + sfa.WELL_NAME;
+	// 		var fType = "ogwell";
+	// 		var otherId = sfa.API_NUMBER;
+	// 	} else if (sfa.hasOwnProperty('MAG')) {
+	// 		var fId = sfa.ID;
+	// 		var fName = "";
+	// 		var fType = "earthquake";
+	// 		var otherId = "";
+	// 	} else if (sfa.hasOwnProperty('FIELD_KID')) {
+	// 		var fId = sfa.FIELD_KID;
+	// 		var fName = sfa.FIELD_NAME;
+	// 		var fType = "field";
+	// 		var otherId = "";
+	// 	}
+	//
+	// 	$.ajax( {
+	// 	  type: "post",
+	// 	  url: "reportProblem.cfm",
+	// 	  data: {
+	// 		  "id": fId,
+	// 		  "name": fName,
+	// 		  "type": fType,
+	// 		  "otherId": otherId,
+	// 		  "msg": $("#prob-msg").val()
+	// 	  }
+	// 	} );
+	// 	$("#prob-dia").dialog("close");
+	// }
 
-		$.ajax( {
-		  type: "post",
-		  url: "reportProblem.cfm",
-		  data: {
-			  "id": fId,
-			  "name": fName,
-			  "type": fType,
-			  "otherId": otherId,
-			  "msg": $("#prob-msg").val()
-		  }
-		} );
-		$("#prob-dia").dialog("close");
-	}
 
-
-	filterOG = function() {
-		var def = [];
-		var theWhere = "";
-		var typeWhere = "";
-		var dateWhere = "";
-		var opWhere = "";
-		var injWhere = "";
-		var hrzWhere = "";
-		var depthWhere = "";
-		var paperLogWhere = "";
-		var scanLogWhere = "";
-		var lasWhere = "";
-		var coreWhere = "";
-		var cuttingsWhere = "";
-		var ogType = $("#og-well-type").val();
-		var fromDate = dom.byId("og-from-date").value;
-		var toDate = dom.byId("og-to-date").value;
-		var op = dom.byId(operators).value;
-		var ogHas = $('input[name="og-has"]:checked').map(function() {
-		    return this.value;
-		} ).get();
-		var inj = dom.byId("inj").value;
-		var depthGT = dom.byId("og-gt-depth").value;
-		var depthLT = dom.byId("og-lt-depth").value;
-
-		if (ogType) {
-			var typeList = "'" + ogType.join("','") + "'";
-			typeWhere = "status_txt in (" + typeList +")";
-		}
-
-		if (fromDate && toDate) {
-			dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy') and completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-		} else if (fromDate && !toDate) {
-			dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy')";
-		} else if (!fromDate && toDate) {
-			dateWhere = "completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-		}
-
-		if (op) {
-			opWhere = "curr_operator = '" + op + "'";
-		}
-
-		if (inj) {
-			if (inj === "inj-1") {
-				injWhere = "well_type = 'CLASS1'";
-			} else {
-				injWhere = "status in ('SWD','EOR','INJ')";
-			}
-		}
-
-		if (dom.byId(hrz).checked) {
-			hrzWhere = "substr(api_workovers, 1, 2) <> '00'";
-		}
-
-		if (depthGT && depthLT) {
-			if (parseInt(depthLT) < parseInt(depthGT)) {
-				alert("Invalid depth values: less-than value must be larger than greater-than value.");
-			} else {
-				depthWhere = "rotary_total_depth >= " + depthGT + " and rotary_total_depth <= " + depthLT;
-			}
-		} else if (depthGT && !depthLT) {
-			depthWhere = "rotary_total_depth >= " + depthGT;
-		} else if (!depthGT && depthLT) {
-			depthWhere = "rotary_total_depth <= " + depthLT;
-		}
-
-		for (var y=0; y<ogHas.length; y++) {
-			switch (ogHas[y]) {
-				case "paper-log":
-					paperLogWhere = "kid in (select well_header_kid from elog.log_headers)";
-					break;
-				case "scan-log":
-					scanLogWhere = "kid in (select well_header_kid from elog.scan_urls)";
-					break;
-				case "las":
-					lasWhere = "kid in (select well_header_kid from las.well_headers where proprietary = 0)";
-					break;
-				case "core":
-					coreWhere = "kid in (select well_header_kid from core.core_headers)";
-					break;
-				case "cuttings":
-					cuttingsWhere = "kid in (select well_header_kid from cuttings.boxes)";
-					break;
-			}
-		}
-
-		if (typeWhere !== "") {
-			theWhere += typeWhere + " and ";
-		}
-		if (dateWhere !== "") {
-			theWhere += dateWhere + " and ";
-		}
-		if (opWhere !== "") {
-			theWhere += opWhere + " and ";
-		}
-		if (injWhere !== "") {
-			theWhere += injWhere + " and ";
-		}
-		if (hrzWhere !== "") {
-			theWhere += hrzWhere + " and ";
-		}
-		if (depthWhere !== "") {
-			theWhere += depthWhere + " and ";
-		}
-		if (paperLogWhere !== "") {
-			theWhere += paperLogWhere + " and ";
-		}
-		if (scanLogWhere !== "") {
-			theWhere += scanLogWhere + " and ";
-		}
-		if (lasWhere !== "") {
-			theWhere += lasWhere + " and ";
-		}
-		if (coreWhere !== "") {
-			theWhere += coreWhere + " and ";
-		}
-		if (cuttingsWhere !== "") {
-			theWhere += cuttingsWhere + " and ";
-		}
-		if (theWhere.substr(theWhere.length - 5) === " and ") {
-			theWhere = theWhere.slice(0,theWhere.length - 5);
-		}
-
-		def[0] = theWhere;
-		idDef[0] = def[0];
-		wellsLayer.findSublayerById(0).definitionExpression = def[0];
-	}
+	// filterOG = function() {
+	// 	var def = [];
+	// 	var theWhere = "";
+	// 	var typeWhere = "";
+	// 	var dateWhere = "";
+	// 	var opWhere = "";
+	// 	var injWhere = "";
+	// 	var hrzWhere = "";
+	// 	var depthWhere = "";
+	// 	var paperLogWhere = "";
+	// 	var scanLogWhere = "";
+	// 	var lasWhere = "";
+	// 	var coreWhere = "";
+	// 	var cuttingsWhere = "";
+	// 	var ogType = $("#og-well-type").val();
+	// 	var fromDate = dom.byId("og-from-date").value;
+	// 	var toDate = dom.byId("og-to-date").value;
+	// 	var op = dom.byId(operators).value;
+	// 	var ogHas = $('input[name="og-has"]:checked').map(function() {
+	// 	    return this.value;
+	// 	} ).get();
+	// 	var inj = dom.byId("inj").value;
+	// 	var depthGT = dom.byId("og-gt-depth").value;
+	// 	var depthLT = dom.byId("og-lt-depth").value;
+	//
+	// 	if (ogType) {
+	// 		var typeList = "'" + ogType.join("','") + "'";
+	// 		typeWhere = "status_txt in (" + typeList +")";
+	// 	}
+	//
+	// 	if (fromDate && toDate) {
+	// 		dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy') and completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
+	// 	} else if (fromDate && !toDate) {
+	// 		dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy')";
+	// 	} else if (!fromDate && toDate) {
+	// 		dateWhere = "completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
+	// 	}
+	//
+	// 	if (op) {
+	// 		opWhere = "curr_operator = '" + op + "'";
+	// 	}
+	//
+	// 	if (inj) {
+	// 		if (inj === "inj-1") {
+	// 			injWhere = "well_type = 'CLASS1'";
+	// 		} else {
+	// 			injWhere = "status in ('SWD','EOR','INJ')";
+	// 		}
+	// 	}
+	//
+	// 	if (dom.byId(hrz).checked) {
+	// 		hrzWhere = "substr(api_workovers, 1, 2) <> '00'";
+	// 	}
+	//
+	// 	if (depthGT && depthLT) {
+	// 		if (parseInt(depthLT) < parseInt(depthGT)) {
+	// 			alert("Invalid depth values: less-than value must be larger than greater-than value.");
+	// 		} else {
+	// 			depthWhere = "rotary_total_depth >= " + depthGT + " and rotary_total_depth <= " + depthLT;
+	// 		}
+	// 	} else if (depthGT && !depthLT) {
+	// 		depthWhere = "rotary_total_depth >= " + depthGT;
+	// 	} else if (!depthGT && depthLT) {
+	// 		depthWhere = "rotary_total_depth <= " + depthLT;
+	// 	}
+	//
+	// 	for (var y=0; y<ogHas.length; y++) {
+	// 		switch (ogHas[y]) {
+	// 			case "paper-log":
+	// 				paperLogWhere = "kid in (select well_header_kid from elog.log_headers)";
+	// 				break;
+	// 			case "scan-log":
+	// 				scanLogWhere = "kid in (select well_header_kid from elog.scan_urls)";
+	// 				break;
+	// 			case "las":
+	// 				lasWhere = "kid in (select well_header_kid from las.well_headers where proprietary = 0)";
+	// 				break;
+	// 			case "core":
+	// 				coreWhere = "kid in (select well_header_kid from core.core_headers)";
+	// 				break;
+	// 			case "cuttings":
+	// 				cuttingsWhere = "kid in (select well_header_kid from cuttings.boxes)";
+	// 				break;
+	// 		}
+	// 	}
+	//
+	// 	if (typeWhere !== "") {
+	// 		theWhere += typeWhere + " and ";
+	// 	}
+	// 	if (dateWhere !== "") {
+	// 		theWhere += dateWhere + " and ";
+	// 	}
+	// 	if (opWhere !== "") {
+	// 		theWhere += opWhere + " and ";
+	// 	}
+	// 	if (injWhere !== "") {
+	// 		theWhere += injWhere + " and ";
+	// 	}
+	// 	if (hrzWhere !== "") {
+	// 		theWhere += hrzWhere + " and ";
+	// 	}
+	// 	if (depthWhere !== "") {
+	// 		theWhere += depthWhere + " and ";
+	// 	}
+	// 	if (paperLogWhere !== "") {
+	// 		theWhere += paperLogWhere + " and ";
+	// 	}
+	// 	if (scanLogWhere !== "") {
+	// 		theWhere += scanLogWhere + " and ";
+	// 	}
+	// 	if (lasWhere !== "") {
+	// 		theWhere += lasWhere + " and ";
+	// 	}
+	// 	if (coreWhere !== "") {
+	// 		theWhere += coreWhere + " and ";
+	// 	}
+	// 	if (cuttingsWhere !== "") {
+	// 		theWhere += cuttingsWhere + " and ";
+	// 	}
+	// 	if (theWhere.substr(theWhere.length - 5) === " and ") {
+	// 		theWhere = theWhere.slice(0,theWhere.length - 5);
+	// 	}
+	//
+	// 	def[0] = theWhere;
+	// 	idDef[0] = def[0];
+	// 	wellsLayer.findSublayerById(0).definitionExpression = def[0];
+	// }
 
 
 	clearOgFilter = function() {
@@ -654,6 +654,12 @@ function(
 		var timeWhere = "";
 		var magWhere = "";
 		var wellsWhere = "";
+
+		// See which filterable layers are visible:
+		var lIDs = [];
+		var displayedLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
 
 		// Format location clause:
 		var location = $("input[name=loc-type]:checked").val();
@@ -2172,16 +2178,15 @@ function(
 			var htmlID = layerID.replace(/ /g, "-");
 
 			if (earthquakeGroup.indexOf(htmlID) > -1) {
-				eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
-			// eqTocContent += '</div>';
 
 			if (otherEarthquakeGroup.indexOf(htmlID) > -1) {
-				otherEqContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				otherEqContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (wellsGroup.indexOf(htmlID) > -1) {
-				wellsTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				wellsTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (boundariesGroup.indexOf(htmlID) > -1) {
