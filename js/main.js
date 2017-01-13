@@ -655,12 +655,6 @@ function(
 		var magWhere = "";
 		var wellsWhere = "";
 
-		// See which filterable layers are visible:
-		var lIDs = [];
-		var displayedLyrs = $("input:checked[class=filterable]").map(function() {
-			return $(this).val();
-		} ).get();
-
 		// Format location clause:
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
@@ -689,28 +683,30 @@ function(
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
-
+				timeWhere = "sysdate - cast(origin_time as date) <= 6";
 				break;
 			case "month":
-
+				timeWhere = "sysdate - cast(origin_time as date) <= 29";
 				break
 			case "year":
-
+				timeWhere = "to_char(origin_time,'YYYY') = to_char(sysdate, 'YYYY')";
 				break;
 			case "date":
-
+				var fromDate = dom.byId('from-date').value;
+				var toDate = dom.byId('to-date').value;
+				if (fromDate && toDate) {
+					timeWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				} else if (fromDate && !toDate) {
+					timeWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+				} else if (!fromDate && toDate) {
+					timeWhere = "trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				}
 				break;
 		}
 
 		// Format mag-sas clause:
 		var lMag = dom.byId('low-mag').value;
 		var uMag = dom.byId('high-mag').value;
-		// TODO: rework the following if mag columns change:
-		// var magtype = "mc";
-		//
-		// if (lyrID[0] == 16) {
-		// 	magtype = "ml";
-		// }
 
 		var mag = $("input[name=mag-type]:checked").val();
 		switch (mag) {
@@ -718,17 +714,16 @@ function(
 				// blank in this case.
 				break;
 			case "magrange":
-				// TODO: rework if mag columns change:
-				// if (lMag && uMag) {
-				// 	magWhere = magtype + " >= " + lMag + " and " + magtype + " <= " + uMag;
-				// } else if (lMag && !uMag) {
-				// 	magWhere = magtype + " >= " + lMag;
-				// } else if (!lMag && uMag) {
-				// 	magWhere = magtype + " <= " + uMag;
-				// }
+				if (lMag && uMag) {
+					magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+				} else if (lMag && !uMag) {
+					magWhere = "mc >= " + lMag;
+				} else if (!lMag && uMag) {
+					magWhere = "mc <= " + uMag;
+				}
 				break
 			case "gt3517":
-
+				magWhere = "(mc >= 3.5 or sas >= 17)";
 				break;
 		}
 
@@ -749,9 +744,48 @@ function(
 			var bbls = $("#bbls").val();
 		}
 
-		// TODO: put it all together and apply to visible layers:
+		// Put where clauses together:
+		if (locWhere !== "") {
+			bigWhere += locWhere + " and ";
+		}
+		if (timeWhere !== "") {
+			bigWhere += timeWhere + " and ";
+		}
+		if (magWhere !== "") {
+			bigWhere += magWhere + " and ";
+		}
+		// Strip off final "and":
+		if (bigWhere.substr(bigWhere.length - 5) === " and ") {
+			bigWhere = bigWhere.slice(0,bigWhere.length - 5);
+		}
+		// console.log(bigWhere);
 
-	}
+		// Apply to those filterable layers that are visible:
+		var lIDs = [];
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
+
+		for (var i = 0; i < filterLyrs.length; i++) {
+			switch ( filterLyrs[i] ) {
+				case "KGS Cataloged Events":
+					kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere;
+					break;
+				case "KGS Preliminary Events":
+					kgsPrelimLayer.findSublayerById(15).definitionExpression = bigWhere;
+					break;
+				case "Historic Events":
+					historicLayer.findSublayerById(20).definitionExpression = bigWhere;
+					break;
+				case "NEIC Cataloged Events":
+					neicLayer.findSublayerById(16).definitionExpression = bigWhere;
+					break;
+				case "Salt Water Disposal Well":
+					// TODO:
+					break;
+			}
+		}
+	}	// end updateMap().
 
 
 	function filterStateCounty() {
