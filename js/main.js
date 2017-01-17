@@ -672,10 +672,9 @@ function(
 				}
 				break;
 			case "sca":
-				var scAreas = "'" + $("#sca").val().join("','") + "'";
-				if (scAreas !== 'Seismic Concer Areas') {
-					// TODO: geometries
-				}
+				var scas = "'" + $("#sca").val().join("','") + "'";
+				scas = scas.replace("Seismic Concern Areas","");
+				findInScas(scas);
 				break;
 		}
 
@@ -758,7 +757,7 @@ function(
 		if (bigWhere.substr(bigWhere.length - 5) === " and ") {
 			bigWhere = bigWhere.slice(0,bigWhere.length - 5);
 		}
-		console.log(bigWhere);
+		// console.log(bigWhere);
 
 		// Apply to those filterable layers that are visible:
 		var lIDs = [];
@@ -942,12 +941,62 @@ function(
 	}
 
 
-	function filterSca() {
-		graphicsLayer.removeAll();
-		openToolsPanel();
+	function findInScas(scas) {
+		var qt = new QueryTask();
+		var qry = new Query();
 
-		var returnType = $('input[name=return-type]:checked').val();
-		var areaType = $('input[name=area-type]:checked').val();
+		// Query task to get geometry for selected SCAs:
+		if (scas.indexOf("Specified") > -1) {
+			// expanded area.
+			var serviceLyr = 1;
+			qry.where = "objectid = 1";
+		} else {
+			var serviceLyr = 0;
+			qry.where = "area_name in (" + scas + ")";
+		}
+
+		qt.url = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
+		qry.returnGeometry = true;
+
+		qt.execute(qry).then(function(result) {
+			var f = result.features;
+			var geom = (f[0].geometry);
+			if (f.length > 1) {
+				for (var i = 1; i < f.length; i++) {
+					geom = geometryEngine.union( [ geom, f[i].geometry ] );
+				}
+			}
+			getFeaturesInGeometry(geom);
+		} );
+	}
+
+
+	function getFeaturesInGeometry(geom) {
+		//get objectIds of (visible layer) earthquakes w/in the geometry:
+		//how about getting all (not just visible) oids then applying to the layers definition expression?
+		var qt = new QueryTask();
+		var qry = new Query();
+		var oids = [];
+		var objIds;
+		var cfData;
+		qt.url = // PICK UP HERE
+		qry.geometry = geom;
+
+		qt.executeForIds(qry).then(function(ids) {
+			console.log(ids);
+			// if (ids) {
+			// 	oids = oids.concat(ids);
+			// }
+		} );
+	}
+
+
+	function filterSca(scas) {
+		graphicsLayer.removeAll();
+		// openToolsPanel();
+
+		// var returnType = $('input[name=return-type]:checked').val();
+		// var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask("http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer");
 		var fp = new FindParameters();
 		var qt = new QueryTask();
@@ -960,19 +1009,22 @@ function(
 		fp.layerDefinitions = [];
 
 		// Find task to get geometry of selected sca:
-		if (dom.byId("sca").value === "Expanded Area") {
-			fp.layerIds = [1];
-			fp.searchFields = ["OBJECTID"];
-			fp.searchText = "1";
-			seismicConcernExpandedLayer.visible = true;
-			$("#Expanded-Area-of-Seismic-Concern input").prop("checked", true);
-		} else {
-			fp.layerIds = [0];
-			fp.searchFields = ["AREA_NAME"];
-			fp.searchText = dom.byId("sca").value;
-			seismicConcernLayer.visible = true;
-			$("#Areas-of-Seismic-Concern input").prop("checked", true);
-		}
+		// if (dom.byId("sca").value === "Expanded Area") {
+		// 	fp.layerIds = [1];
+		// 	fp.searchFields = ["OBJECTID"];
+		// 	fp.searchText = "1";
+		// 	seismicConcernExpandedLayer.visible = true;
+		// 	$("#Expanded-Area-of-Seismic-Concern input").prop("checked", true);
+		// } else {
+		// 	fp.layerIds = [0];
+		// 	fp.searchFields = ["AREA_NAME"];
+		// 	fp.searchText = dom.byId("sca").value;
+		// 	seismicConcernLayer.visible = true;
+		// 	$("#Areas-of-Seismic-Concern input").prop("checked", true);
+		// }
+		fp.layerIds = [0];
+		fp.searchFields = ["AREA_NAME"];
+		fp.searchText = dom.byId("sca").value;
 		ft.execute(fp).then(function(result) {
 			// highlightFeature(result.results[0].feature);
 			zoomToFeature(result.results[0].feature);
