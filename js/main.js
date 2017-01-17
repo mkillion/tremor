@@ -683,23 +683,23 @@ function(
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
-				timeWhere = "sysdate - cast(origin_time as date) <= 6";
+				timeWhere = "sysdate - cast(origin_time_cst as date) <= 6";
 				break;
 			case "month":
-				timeWhere = "sysdate - cast(origin_time as date) <= 29";
+				timeWhere = "sysdate - cast(origin_time_cst as date) <= 29";
 				break
 			case "year":
-				timeWhere = "to_char(origin_time,'YYYY') = to_char(sysdate, 'YYYY')";
+				timeWhere = "to_char(origin_time_cst,'YYYY') = to_char(sysdate, 'YYYY')";
 				break;
 			case "date":
 				var fromDate = dom.byId('from-date').value;
 				var toDate = dom.byId('to-date').value;
 				if (fromDate && toDate) {
-					timeWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 				} else if (fromDate && !toDate) {
-					timeWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 				} else if (!fromDate && toDate) {
-					timeWhere = "trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 				}
 				break;
 		}
@@ -758,7 +758,7 @@ function(
 		if (bigWhere.substr(bigWhere.length - 5) === " and ") {
 			bigWhere = bigWhere.slice(0,bigWhere.length - 5);
 		}
-		// console.log(bigWhere);
+		console.log(bigWhere);
 
 		// Apply to those filterable layers that are visible:
 		var lIDs = [];
@@ -1324,11 +1324,11 @@ function(
 		}
 
 		if (fromDate && toDate) {
-			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		} else if (fromDate && !toDate) {
-			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 		} else if (!fromDate && toDate) {
-			dateWhere = "trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		}
 
 		if (lMag && uMag) {
@@ -1620,8 +1620,8 @@ function(
 			if (a.feature.attributes["LAYER"] < b.feature.attributes["LAYER"]) { return -1; }
 			if (a.feature.attributes["LAYER"] > b.feature.attributes["LAYER"]) { return 1; }
 			if (a.feature.attributes["LAYER"] === b.feature.attributes["LAYER"]) {
-				var aDate = new Date(a.feature.attributes["ORIGIN_TIME"]);
-				var bDate = new Date(b.feature.attributes["ORIGIN_TIME"]);
+				var aDate = new Date(a.feature.attributes["origin_time_cst"]);
+				var bDate = new Date(b.feature.attributes["origin_time_cst"]);
 				if (aDate < bDate) { return -1; }
 				if (aDate > bDate) { return 1; }
 				return 0;
@@ -2366,7 +2366,7 @@ function(
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
-		content += "<tr><td>Origin Time (UTC): </td><td>{ORIGIN_TIME}</td></tr>";
+		content += "<tr><td>Origin Time (CST): </td><td>{ORIGIN_TIME_CST}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
