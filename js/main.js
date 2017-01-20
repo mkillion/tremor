@@ -88,6 +88,8 @@ function(
 	var urlParams, hilite, bufferGraphic;
 	var listCount = 0;
 	var sharedCfTable;
+	var tmpOidTable;
+	var bigWhere = "";
 
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
@@ -649,7 +651,6 @@ function(
 
 
 	updateMap = function() {
-		var bigWhere = "";
 		var locWhere = "";
 		var timeWhere = "";
 		var magWhere = "";
@@ -674,7 +675,7 @@ function(
 			case "sca":
 				var scas = "'" + $("#sca").val().join("','") + "'";
 				scas = scas.replace("Seismic Concern Areas","");
-				findInScas(scas);
+				getScaGeometry(scas);
 				break;
 		}
 
@@ -757,7 +758,6 @@ function(
 		if (bigWhere.substr(bigWhere.length - 5) === " and ") {
 			bigWhere = bigWhere.slice(0,bigWhere.length - 5);
 		}
-		// console.log(bigWhere);
 
 		// Apply to those filterable layers that are visible:
 		var lIDs = [];
@@ -765,10 +765,13 @@ function(
 			return $(this).val();
 		} ).get();
 
+		// maybe move this block to a new create defExp function
 		for (var i = 0; i < filterLyrs.length; i++) {
 			switch ( filterLyrs[i] ) {
 				case "KGS Cataloged Events":
-					kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere;
+					// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere;
+					setTimeout(waitForElement, 100);
+					// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
 					break;
 				case "KGS Preliminary Events":
 					kgsPrelimLayer.findSublayerById(15).definitionExpression = bigWhere;
@@ -941,7 +944,7 @@ function(
 	}
 
 
-	function findInScas(scas) {
+	function getScaGeometry(scas) {
 		var qt = new QueryTask();
 		var qry = new Query();
 
@@ -971,22 +974,36 @@ function(
 	}
 
 
+	function waitForElement() {
+		if (typeof tmpOidTable !== "undefined") {
+			var xx = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
+			console.log(xx);
+			// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
+		} else {
+			setTimeout(waitForElement, 100);
+		}
+	}
+
+
 	function getFeaturesInGeometry(geom) {
-		//get objectIds of (visible layer) earthquakes w/in the geometry:
-		//how about getting all (not just visible) oids then applying to the layers definition expression?
 		var qt = new QueryTask();
 		var qry = new Query();
 		var oids = [];
 		var objIds;
 		var cfData;
-		qt.url = // PICK UP HERE
-		qry.geometry = geom;
 
-		qt.executeForIds(qry).then(function(ids) {
-			console.log(ids);
-			// if (ids) {
-			// 	oids = oids.concat(ids);
-			// }
+		qt.url = tremorGeneralServiceURL + "/21";
+		qry.geometry = geom;
+		qt.executeForIds(qry).then(function(oids) {
+			objIds = oids.join(",");
+			//split into chunks
+			//create defExp, or at least geomWhere, maybe pass to a new function
+
+			// cfData = { "type": "quakes", "objIds": objIds };
+			// $.post( "createDefExpTable.cfm", cfData, function(response) {
+			// 	tmpOidTable = response;
+			// 	console.log(response);
+			// } );
 		} );
 	}
 
@@ -1308,16 +1325,16 @@ function(
 	}
 
 
-	function applyDefExp(lIDs, theWhere, tempTable) {
-		// Turn all event layers off:
-		kgsCatalogedLayer.visible = false;
-		$("#KGS-Cataloged-Events input").prop("checked", false);
-		kgsPrelimLayer.visible = false;
-		$("#KGS-Preliminary-Events input").prop("checked", false);
-		neicLayer.visible = false;
-		$("#NEIC-Cataloged-Events input").prop("checked", false);
-		// ogsLayer.visible = false;
-		// $("#OGS-Cataloged-Events input").prop("checked", false);
+	function applyDefExp(theWhere, tempTable) {
+		// // Turn all event layers off:
+		// kgsCatalogedLayer.visible = false;
+		// $("#KGS-Cataloged-Events input").prop("checked", false);
+		// kgsPrelimLayer.visible = false;
+		// $("#KGS-Preliminary-Events input").prop("checked", false);
+		// neicLayer.visible = false;
+		// $("#NEIC-Cataloged-Events input").prop("checked", false);
+		// // ogsLayer.visible = false;
+		// // $("#OGS-Cataloged-Events input").prop("checked", false);
 
 		if ( tempTable && theWhere ) {
 			theWhere += " and objectid in (select oid from " + tempTable +" )";
@@ -1327,34 +1344,42 @@ function(
 		}
 
 		// Apply definitionExpression to filter which features are visible; turn layer on:
-		for (var i = 0; i < lIDs.length; i++) {
-			switch (lIDs[i]) {
-				case 14:
-					kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
-					kgsCatalogedLayer.visible = true;
-					idDef[14] = theWhere;
-					$("#KGS-Cataloged-Events input").prop("checked", true);
-					break;
-				case 15:
-					kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
-					kgsPrelimLayer.visible = true;
-					idDef[15] = theWhere;
-					$("#KGS-Preliminary-Events input").prop("checked", true);
-					break;
-				case 16:
-					neicLayer.findSublayerById(16).definitionExpression = theWhere;
-					neicLayer.visible = true;
-					idDef[16] = theWhere;
-					$("#NEIC-Cataloged-Events input").prop("checked", true);
-					break;
-				// case 17:
-				// 	ogsLayer.findSublayerById(17).definitionExpression = theWhere;
-				// 	ogsLayer.visible = true;
-				// 	idDef[17] = theWhere;
-				// 	$("#OGS-Cataloged-Events input").prop("checked", true);
-				// 	break;
-			}
-		}
+		// for (var i = 0; i < lIDs.length; i++) {
+		// 	switch (lIDs[i]) {
+		// 		case 14:
+		// 			kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
+		// 			kgsCatalogedLayer.visible = true;
+		// 			idDef[14] = theWhere;
+		// 			$("#KGS-Cataloged-Events input").prop("checked", true);
+		// 			break;
+		// 		case 15:
+		// 			kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
+		// 			kgsPrelimLayer.visible = true;
+		// 			idDef[15] = theWhere;
+		// 			$("#KGS-Preliminary-Events input").prop("checked", true);
+		// 			break;
+		// 		case 16:
+		// 			neicLayer.findSublayerById(16).definitionExpression = theWhere;
+		// 			neicLayer.visible = true;
+		// 			idDef[16] = theWhere;
+		// 			$("#NEIC-Cataloged-Events input").prop("checked", true);
+		// 			break;
+		// 		// case 17:
+		// 		// 	ogsLayer.findSublayerById(17).definitionExpression = theWhere;
+		// 		// 	ogsLayer.visible = true;
+		// 		// 	idDef[17] = theWhere;
+		// 		// 	$("#OGS-Cataloged-Events input").prop("checked", true);
+		// 		// 	break;
+		// 	}
+		// }
+		kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
+		idDef[14] = theWhere;
+		kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
+		idDef[15] = theWhere;
+		neicLayer.findSublayerById(16).definitionExpression = theWhere;
+		idDef[16] = theWhere;
+		historicLayer.findSublayerById(20).definitionExpression = theWhere;
+		idDef[20] = theWhere;
 	}
 
 

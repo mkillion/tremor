@@ -8,27 +8,32 @@
 	<cfset Type = #form.type#>
 </cfif>
 
-<cfset Uid = right(CreateUUID(),26)>
+<cfset Uid = right(CreateUUID(),16)>
 <cfset Uid = replace(#Uid#, "-", "_", "all")>
-<cfset tempTable = "tmp_#Uid#">
 
 <cfif #Type# eq "Oil and Gas" OR #Type# eq "Class I Injection" OR #Type# eq "Salt Water Disposal">
 	<cfset DS = "plss">
+	<cfset tempTable = "TMP_#Uid#">
 </cfif>
 
-<cfif #Type# eq "Earthquakes">
-	<cfset DS = "gis_webinfo">
+<cfif #Type# eq "quakes">
+	<cfset DS = "tremor">
+	<cfset tempTable = "MJKTMP_#Uid#">
 </cfif>
 
 <cfquery name="qCreate" datasource="#DS#">
-	create table #tempTable#(oid varchar2(20))
+	create table #tempTable#(oid clob)
 </cfquery>
 
-<cfloop index="i" list="#form.objIds#">
+<cfquery name="qInsert" datasource="#DS#">
+	insert into #tempTable# values('#form.objIds#')
+</cfquery>
+
+<!---<cfloop index="i" list="#form.objIds#">
 	<cfquery name="qInsert" datasource="#DS#">
 		insert into #tempTable# values('#i#')
 	</cfquery>
-</cfloop>
+</cfloop>--->
 
 <!--- Return: --->
 <cfoutput>
