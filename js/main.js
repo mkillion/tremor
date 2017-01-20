@@ -86,10 +86,9 @@ function(
 	var idDef = [];
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
-	var listCount = 0;
-	var sharedCfTable;
-	var tmpOidTable;
-	var bigWhere = "";
+	// var listCount = 0;
+	var geomWhere = "";
+	var attrWhere = "";
 
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
@@ -184,8 +183,6 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 4;
-        identifyParams.layerIds = [14, 15, 16, 17, 18, 19, 20];
-        identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
 
@@ -404,6 +401,7 @@ function(
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
+		historicLayer.findSublayerById(20).definitionExpression = "";
 		// ogsLayer.findSublayerById(17).definitionExpression = "";
 		// class1Layer.findSublayerById(18).definitionExpression = "";
 
@@ -415,7 +413,7 @@ function(
 		idDef[16] = "";
 		idDef[17] = "";
 		idDef[18] = "";
-		idDef[19] = "";
+		idDef[20] = "";
 		identifyParams.layerDefinitions = idDef;
 	}
 
@@ -655,8 +653,9 @@ function(
 		var timeWhere = "";
 		var magWhere = "";
 		var wellsWhere = "";
+		attrWhere = "";
 
-		// Format location clause:
+		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
 			case "state":
@@ -673,13 +672,21 @@ function(
 				}
 				break;
 			case "sca":
-				var scas = "'" + $("#sca").val().join("','") + "'";
-				scas = scas.replace("Seismic Concern Areas","");
-				getScaGeometry(scas);
+				var selected = $("#sca").val();
+				if (selected.length == 1 && selected[0] === "Seismic Concern Areas") {
+					return;
+				} else {
+					if (selected[0] === "Seismic Concern Areas") {
+						selected.shift();
+					}
+					var scas = "'" + selected.join("','") + "'";
+					geomWhere = "";
+					getScaGeometry(scas);
+				}
 				break;
 		}
 
-		// Format time clause:
+		// Create time clause:
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
@@ -704,7 +711,7 @@ function(
 				break;
 		}
 
-		// Format mag-sas clause:
+		// Create mag-sas clause:
 		var lMag = dom.byId('low-mag').value;
 		var uMag = dom.byId('high-mag').value;
 
@@ -727,7 +734,7 @@ function(
 				break;
 		}
 
-		// Format wells clause:
+		// Create wells clause:
 		var well = $("input[name=well-type]:checked").val();
 		switch (well) {
 			case "all":
@@ -746,48 +753,35 @@ function(
 
 		// Put where clauses together:
 		if (locWhere !== "") {
-			bigWhere += locWhere + " and ";
+			attrWhere += locWhere + " and ";
 		}
 		if (timeWhere !== "") {
-			bigWhere += timeWhere + " and ";
+			attrWhere += timeWhere + " and ";
 		}
 		if (magWhere !== "") {
-			bigWhere += magWhere + " and ";
+			attrWhere += magWhere + " and ";
 		}
 		// Strip off final "and":
-		if (bigWhere.substr(bigWhere.length - 5) === " and ") {
-			bigWhere = bigWhere.slice(0,bigWhere.length - 5);
+		if (attrWhere.substr(attrWhere.length - 5) === " and ") {
+			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		// Apply to those filterable layers that are visible:
-		var lIDs = [];
-		var filterLyrs = $("input:checked[class=filterable]").map(function() {
-			return $(this).val();
-		} ).get();
-
-		// maybe move this block to a new create defExp function
-		for (var i = 0; i < filterLyrs.length; i++) {
-			switch ( filterLyrs[i] ) {
-				case "KGS Cataloged Events":
-					// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere;
-					setTimeout(waitForElement, 100);
-					// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
-					break;
-				case "KGS Preliminary Events":
-					kgsPrelimLayer.findSublayerById(15).definitionExpression = bigWhere;
-					break;
-				case "Historic Events":
-					historicLayer.findSublayerById(20).definitionExpression = bigWhere;
-					break;
-				case "NEIC Cataloged Events":
-					neicLayer.findSublayerById(16).definitionExpression = bigWhere;
-					break;
-				case "Salt Water Disposal Well":
-					// TODO:
-					break;
-			}
+		if (scas && geomWhere == "") {
+			setTimeout(waitForGeomWhere(), 100);
+		} else {
+			applyDefExp();
 		}
+
 	}	// end updateMap().
+
+
+	function waitForGeomWhere() {
+		if (geomWhere !== "") {
+			applyDefExp();
+		} else {
+			setTimeout(waitForGeomWhere, 100);
+		}
+	}
 
 
 	function filterStateCounty() {
@@ -905,7 +899,7 @@ function(
 			}, 3000);
 
 			// Turn on selected layers and filter features w/ a definitionExpression:
-			applyDefExp(lIDs, theWhere);
+			// applyDefExp(lIDs, theWhere);
 
 			if (areaType === "state") {
 				zoomToState();
@@ -947,6 +941,7 @@ function(
 	function getScaGeometry(scas) {
 		var qt = new QueryTask();
 		var qry = new Query();
+		var geom;
 
 		// Query task to get geometry for selected SCAs:
 		if (scas.indexOf("Specified") > -1) {
@@ -958,53 +953,43 @@ function(
 			qry.where = "area_name in (" + scas + ")";
 		}
 
-		qt.url = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
 		qry.returnGeometry = true;
-
+		qt.url = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
 		qt.execute(qry).then(function(result) {
 			var f = result.features;
-			var geom = (f[0].geometry);
+			geom = (f[0].geometry);
 			if (f.length > 1) {
 				for (var i = 1; i < f.length; i++) {
 					geom = geometryEngine.union( [ geom, f[i].geometry ] );
 				}
 			}
-			getFeaturesInGeometry(geom);
+			geomWhere = createGeomWhere(geom);
 		} );
 	}
 
 
-	function waitForElement() {
-		if (typeof tmpOidTable !== "undefined") {
-			var xx = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
-			console.log(xx);
-			// kgsCatalogedLayer.findSublayerById(14).definitionExpression = bigWhere + " and objectid in (select oid from " + tmpOidTable + ")";
-		} else {
-			setTimeout(waitForElement, 100);
-		}
-	}
-
-
-	function getFeaturesInGeometry(geom) {
+	function createGeomWhere(geom) {
 		var qt = new QueryTask();
 		var qry = new Query();
-		var oids = [];
-		var objIds;
-		var cfData;
+		geomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/21";
+		// TODO: add a check here for selecting quakes or wells.
+		qt.url = tremorGeneralServiceURL + "/21";	// Note this selects all events. Filter by visible layer somewhere else.
 		qry.geometry = geom;
-		qt.executeForIds(qry).then(function(oids) {
-			objIds = oids.join(",");
-			//split into chunks
-			//create defExp, or at least geomWhere, maybe pass to a new function
+		qt.executeForIds(qry).then(function(ids) {
+			var chunk;
+			geomWhere = "objectid in";
 
-			// cfData = { "type": "quakes", "objIds": objIds };
-			// $.post( "createDefExpTable.cfm", cfData, function(response) {
-			// 	tmpOidTable = response;
-			// 	console.log(response);
-			// } );
+			while (ids.length > 0) {
+				chunk = ids.splice(0,1000);
+				chunk = " (" + chunk.join(",") + ") or objectid in";
+				geomWhere += chunk;
+			}
+			if (geomWhere.substr(geomWhere.length - 2) === "in") {
+				geomWhere = geomWhere.slice(0,geomWhere.length - 15);
+			}
 		} );
+		return geomWhere;
 	}
 
 
@@ -1087,7 +1072,7 @@ function(
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
 						var tempTable = response;
 						createWellsList(oids, returnType, areaType);
-						applyDefExp(lIDs, theWhere, tempTable);
+						// applyDefExp(lIDs, theWhere, tempTable);
 					} );
 				}, 3000 );
 			}
@@ -1250,7 +1235,7 @@ function(
 				$.post( "createDefExpTable.cfm", cfData, function(response) {
 					var tempTable = response;
 					createWellsList(oids, returnType, areaType);
-					applyDefExp(lIDs, theWhere, tempTable);
+					// applyDefExp(lIDs, theWhere, tempTable);
 				} );
 			}, 3000 );
 		}
@@ -1325,61 +1310,56 @@ function(
 	}
 
 
-	function applyDefExp(theWhere, tempTable) {
-		// // Turn all event layers off:
-		// kgsCatalogedLayer.visible = false;
-		// $("#KGS-Cataloged-Events input").prop("checked", false);
-		// kgsPrelimLayer.visible = false;
-		// $("#KGS-Preliminary-Events input").prop("checked", false);
-		// neicLayer.visible = false;
-		// $("#NEIC-Cataloged-Events input").prop("checked", false);
-		// // ogsLayer.visible = false;
-		// // $("#OGS-Cataloged-Events input").prop("checked", false);
-
-		if ( tempTable && theWhere ) {
-			theWhere += " and objectid in (select oid from " + tempTable +" )";
+	function applyDefExp() {
+		if (attrWhere && geomWhere) {
+			var comboWhere = attrWhere + " and (" + geomWhere + ")";
 		}
-		if (tempTable && !theWhere) {
-			theWhere += "objectid in (select oid from " + tempTable + ")";
+		if (attrWhere && !geomWhere) {
+			var comboWhere = attrWhere;
+		}
+		if (!attrWhere && geomWhere) {
+			var comboWhere = geomWhere;
+		}
+		if (!attrWhere && !geomWhere) {
+			var comboWhere = "";
 		}
 
-		// Apply definitionExpression to filter which features are visible; turn layer on:
-		// for (var i = 0; i < lIDs.length; i++) {
-		// 	switch (lIDs[i]) {
-		// 		case 14:
-		// 			kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
-		// 			kgsCatalogedLayer.visible = true;
-		// 			idDef[14] = theWhere;
-		// 			$("#KGS-Cataloged-Events input").prop("checked", true);
+		graphicsLayer.remove(hilite);
+
+		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
+		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
+		neicLayer.findSublayerById(16).definitionExpression = comboWhere;
+		historicLayer.findSublayerById(20).definitionExpression = comboWhere;
+		idDef[14] = comboWhere;
+		idDef[15] = comboWhere;
+		idDef[16] = comboWhere;
+		idDef[20] = comboWhere;
+
+		// KEEP THIS FOR  AWHILE for vis layer code:
+		// Apply to those filterable layers that are visible:
+		// var filterLyrs = $("input:checked[class=filterable]").map(function() {
+		// 	return $(this).val();
+		// } ).get();
+		//
+		// for (var i = 0; i < filterLyrs.length; i++) {
+		// 	switch ( filterLyrs[i] ) {
+		// 		case "KGS Cataloged Events":
+		// 			kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		// 			break;
-		// 		case 15:
-		// 			kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
-		// 			kgsPrelimLayer.visible = true;
-		// 			idDef[15] = theWhere;
-		// 			$("#KGS-Preliminary-Events input").prop("checked", true);
+		// 		case "KGS Preliminary Events":
+		// 			kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
 		// 			break;
-		// 		case 16:
-		// 			neicLayer.findSublayerById(16).definitionExpression = theWhere;
-		// 			neicLayer.visible = true;
-		// 			idDef[16] = theWhere;
-		// 			$("#NEIC-Cataloged-Events input").prop("checked", true);
+		// 		case "Historic Events":
+		// 			historicLayer.findSublayerById(20).definitionExpression = comboWhere;
 		// 			break;
-		// 		// case 17:
-		// 		// 	ogsLayer.findSublayerById(17).definitionExpression = theWhere;
-		// 		// 	ogsLayer.visible = true;
-		// 		// 	idDef[17] = theWhere;
-		// 		// 	$("#OGS-Cataloged-Events input").prop("checked", true);
-		// 		// 	break;
+		// 		case "NEIC Cataloged Events":
+		// 			neicLayer.findSublayerById(16).definitionExpression = comboWhere;
+		// 			break;
+		// 		case "Salt Water Disposal Well":
+		// 			// TODO:
+		// 			break;
 		// 	}
 		// }
-		kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
-		idDef[14] = theWhere;
-		kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
-		idDef[15] = theWhere;
-		neicLayer.findSublayerById(16).definitionExpression = theWhere;
-		idDef[16] = theWhere;
-		historicLayer.findSublayerById(20).definitionExpression = theWhere;
-		idDef[20] = theWhere;
 	}
 
 
@@ -2340,6 +2320,12 @@ function(
 
 
     function executeIdTask(event) {
+		identifyParams.layerIds = [14, 15, 16, 17, 18, 19, 20];
+		// PICK UP HERE:
+		if (!kgsCatalogedLayer.visible) {
+			identifyParams.layerIds = [15, 16, 17, 18, 19, 20];
+		}
+
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
 		identifyParams.layerDefinitions = idDef;
