@@ -87,7 +87,7 @@ function(
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
 	// var listCount = 0;
-	var geomWhere = "";
+	var geomWhere;
 	var attrWhere = "";
 
     // Set up basic frame:
@@ -210,6 +210,7 @@ function(
                 $("#prob-dia").dialog("open");
             }
         } );
+		updateMap();
     } );
 
 	var searchWidget = new Search( {
@@ -775,7 +776,6 @@ function(
 		} else {
 			applyDefExp();
 		}
-
 	}	// end updateMap().
 
 
@@ -2248,9 +2248,9 @@ function(
 		// Mag-SAS:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='magsas'>Magnitude/SAS</span>";
 		dbCon += "<table class='db-sub-table' id='magsas-body'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked></td><td> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text'  class='txt-input' id='low-mag' oninput='checkMagRadio()'> to <input type='text'  class='txt-input' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' checked></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' ></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
