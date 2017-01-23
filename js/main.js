@@ -2320,12 +2320,33 @@ function(
 
 
     function executeIdTask(event) {
-		identifyParams.layerIds = [14, 15, 16, 17, 18, 19, 20];
-		// PICK UP HERE:
-		if (!kgsCatalogedLayer.visible) {
-			identifyParams.layerIds = [15, 16, 17, 18, 19, 20];
-		}
+		var idLayers = [];
+		var visLayers = $(".toc-sub-item :checked").map(function() {
+			return $(this).val();
+		} ).get();
 
+		for (var i = 0; i < visLayers.length; i++) {
+			switch (visLayers[i]) {
+				case "KGS Cataloged Events":
+					idLayers.push(14);
+					break;
+				case "KGS Preliminary Events":
+					idLayers.push(15);
+					break;
+				case "Historic Events":
+					idLayers.push(20);
+					break;
+				case "NEIC Cataloged Events":
+					idLayers.push(16);
+					break;
+				case "Salt Water Disposal Wells":
+					idLayers.push(19);
+					break;
+			}
+		}
+		var layerids = idLayers.join(",");
+
+		identifyParams.layerIds = [layerids];
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
 		identifyParams.layerDefinitions = idDef;
@@ -2338,16 +2359,16 @@ function(
             	openPopup(feature);
 
 				// Highlight row in wells list table:
-				var fAtts = feature[0].attributes;
-				if (fAtts.hasOwnProperty('INPUT_SEQ_NUMBER')) {
-					var ptID = fAtts.INPUT_SEQ_NUMBER;
-				} else if (fAtts.hasOwnProperty('KID')) {
-					var ptID = fAtts.KID;
-				} else if (fAtts.hasOwnProperty('EVENT_ID')) {
-					var ptID = fAtts.EVENT_ID;
-				}
-				$(".well-list-tbl tr").removeClass("highlighted");
-				$(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
+				// var fAtts = feature[0].attributes;
+				// if (fAtts.hasOwnProperty('INPUT_SEQ_NUMBER')) {
+				// 	var ptID = fAtts.INPUT_SEQ_NUMBER;
+				// } else if (fAtts.hasOwnProperty('KID')) {
+				// 	var ptID = fAtts.KID;
+				// } else if (fAtts.hasOwnProperty('EVENT_ID')) {
+				// 	var ptID = fAtts.EVENT_ID;
+				// }
+				// $(".well-list-tbl tr").removeClass("highlighted");
+				// $(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
 
             	highlightFeature(feature);
 			} else {
