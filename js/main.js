@@ -304,11 +304,6 @@ function(
 		}
 	} );
 
-    $(".esri-icon-erase").click(function() {
-		graphicsLayer.removeAll();
-		clearFilter();
-    } );
-
 	$(".esri-icon-filter").click(function() {
 		$("#filter-buff-dia").dialog("open");
 	} );
@@ -662,10 +657,10 @@ function(
 				break;
 			case "buf":
 				locBuff = $("#loc-buff").val();
-				if (view.popup.selectedFeature.popupTemplate.title.indexOf("Well:") > -1) {
+				if (view.popup.selectedFeature && view.popup.selectedFeature.popupTemplate.title.indexOf("Well:") > -1) {
 					createBufferGeom(locBuff);
 				} else {
-					alert("Please select a WELL to buffer.");
+					alert("Please select a well to buffer.");
 				}
 				break;
 			case "co":
@@ -809,13 +804,15 @@ function(
 			} );
 			graphicsLayer.add(bufferGraphic);
 
+			$(".esri-icon-erase").show();
+
 			view.goTo( {
 				target: buffPoly.extent
 			}, {duration: 500} );
 
 			createGeomWhere(buffPoly);
 		} else {
-			alert("nothing selected to buffer");
+			alert("Please select a feature to buffer");
 		}
 	}
 
@@ -1473,6 +1470,7 @@ function(
 
 
     function openPopup(feature) {
+		//keep this for a bit, maybe use to set popup height so it isn't covered by dashboard:
 		// console.log(window.innerHeight);
 		// console.log( $(".dashboard").css("height") );
 
@@ -1484,6 +1482,8 @@ function(
 			position: "bottom-right"
 		};
 		view.popup.visible = true;
+
+		$(".esri-icon-checkbox-checked").show();
     }
 
 
@@ -1531,7 +1531,7 @@ function(
 		} else {
 			view.extent = f.geometry.extent;
 		}
-		highlightFeature(f);
+		// highlightFeature(f);
     }
 
 
@@ -2222,7 +2222,7 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
@@ -2281,6 +2281,18 @@ function(
 		$("#reset-db").click(function() {
 			clearFilter();
 		} );
+
+		$("#deselect-icon").click(function() {
+			$(".esri-icon-checkbox-checked").hide();
+			graphicsLayer.remove(hilite);
+			view.popup.clear();
+			view.popup.visible = false;
+		} );
+
+		$("#erase-graphics").click(function() {
+			graphicsLayer.remove(bufferGraphic);
+			$(".esri-icon-erase").hide();
+	    } );
 	}
 
 
