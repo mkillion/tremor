@@ -384,10 +384,13 @@ function(
 
 
 	clearFilter = function() {
-		// Reset dashboard inputs:
+		graphicsLayer.removeAll();
+		view.popup.visible = false;
+
 		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
 		$("[name=time-type]").filter("[value='week']").prop("checked", true);
-		$("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
+		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
+		$("[name=mag-type]").filter("[value='all']").prop("checked", true);
 		$("[name=well-type]").filter("[value='buff-disp']").prop("checked", true);
 		$("#lstCounty2, #sca").prop("selectedIndex", 0);
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
@@ -395,19 +398,11 @@ function(
 		$("#chk-bbls").prop("checked", false);
 		$("#bbls").val("5000");
 
-		// TODO: rework for new dashboard/filter or comment out:
-		// Clear layer definitionExpressions to make filtered features visible:
-		// wellsLayer.findSublayerById(0).definitionExpression = "";
 		swdLayer.findSublayerById(19).definitionExpression = "";
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
 		historicLayer.findSublayerById(20).definitionExpression = "";
-		// ogsLayer.findSublayerById(17).definitionExpression = "";
-		// class1Layer.findSublayerById(18).definitionExpression = "";
-
-		// Clear ID layer definitions:
-		// idDef[0] = "";
 		idDef[19] = "";
 		idDef[14] = "";
 		idDef[15] = "";
@@ -416,6 +411,9 @@ function(
 		idDef[18] = "";
 		idDef[20] = "";
 		identifyParams.layerDefinitions = idDef;
+
+		geomWhere = "clear";	// Will get reset to "" in applyDefExp().
+		updateMap();
 	}
 
 
@@ -1357,6 +1355,11 @@ function(
 
 
 	function applyDefExp() {
+		if (geomWhere === "clear") {
+			// Means form has been reset to defaults.
+			geomWhere = "";
+		}
+
 		if (attrWhere && geomWhere) {
 			var comboWhere = attrWhere + " and (" + geomWhere + ")";
 		}
@@ -2194,11 +2197,11 @@ function(
 
 	showList = function(list) {
 		if (list === 'co') {
-			$("#lstCounty2").attr("size","4");
+			$("#lstCounty2").attr("size","10");
 			$("#sca").attr("size","1");
 			$('[name=loc-type][value="co"]').prop('checked',true);
 		} else {
-			$("#sca").attr("size","4");
+			$("#sca").attr("size","8");
 			$("#lstCounty2").attr("size","1");
 			$('[name=loc-type][value="sca"]').prop('checked',true);
 		}
@@ -2219,7 +2222,7 @@ function(
 		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset form'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
