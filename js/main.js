@@ -663,8 +663,12 @@ function(
 				break;
 			case "buf":
 				locBuff = $("#loc-buff").val();
-				// TODO: geometry
-				break
+				if (view.popup.selectedFeature.popupTemplate.title.indexOf("Well:") > -1) {
+					createBufferGeom(locBuff);
+				} else {
+					alert("Please select a WELL to buffer.");
+				}
+				break;
 			case "co":
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
 				if (counties !== 'Counties') {
@@ -766,13 +770,56 @@ function(
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		if (scas && geomWhere == "") {
+		if (geomWhere == "") {
 			setTimeout(waitForGeomWhere(), 100);
 		} else {
 			applyDefExp();
 		}
 
 	}	// end updateMap().
+
+
+	function createBufferGeom(buffDist) {
+		graphicsLayer.remove(bufferGraphic);
+
+		if (view.popup.selectedFeature) {
+			var f = view.popup.selectedFeature;
+			if (f.geometry.type === "point") {
+				var buffFeature = new Point( {
+				    x: f.geometry.x,
+				    y: f.geometry.y,
+				    spatialReference: wmSR
+				 } );
+			} else {
+				var buffFeature = new Polygon( {
+				    rings: f.geometry.rings,
+				    spatialReference: wmSR
+				 } );
+			}
+
+			var buffPoly = geometryEngine.geodesicBuffer(buffFeature, buffDist, "miles");
+			var fillSymbol = new SimpleFillSymbol( {
+				color: [102, 205, 170, 0.25],
+				outline: new SimpleLineSymbol( {
+					color: [0, 0, 0],
+				  	width: 1
+				} )
+			} );
+			bufferGraphic = new Graphic( {
+				geometry: buffPoly,
+				symbol: fillSymbol
+			} );
+			graphicsLayer.add(bufferGraphic);
+
+			view.goTo( {
+				target: buffPoly.extent
+			}, {duration: 500} );
+
+			createGeomWhere(buffPoly);
+		} else {
+			alert("nothing selected to buffer");
+		}
+	}
 
 
 	function waitForGeomWhere() {
@@ -973,8 +1020,7 @@ function(
 		var qry = new Query();
 		geomWhere = "";
 
-		// TODO: add a check here for selecting quakes or wells.
-		qt.url = tremorGeneralServiceURL + "/21";	// Note this selects all events. Filter by visible layer somewhere else.
+		qt.url = tremorGeneralServiceURL + "/21";	// Note this selects all events so objectids are already in where clause when layer is made visible.
 		qry.geometry = geom;
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
@@ -1324,8 +1370,6 @@ function(
 			var comboWhere = "";
 		}
 
-		graphicsLayer.remove(hilite);
-
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
 		neicLayer.findSublayerById(16).definitionExpression = comboWhere;
@@ -1426,6 +1470,9 @@ function(
 
 
     function openPopup(feature) {
+		// console.log(window.innerHeight);
+		// console.log( $(".dashboard").css("height") );
+
 		dom.byId("mapDiv").style.cursor = "auto";
 		view.popup.features = feature;
 		view.popup.dockEnabled = true;
