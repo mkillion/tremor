@@ -267,6 +267,10 @@ function(
 			layer: historicLayer,
 			title: " "
 		},
+		{
+			layer: swdLayer,
+			title: " "
+		}
 		// {
 		// 	layer: class1Layer,
 		// 	title: " "
@@ -1369,6 +1373,7 @@ function(
 		if (!attrWhere && !geomWhere) {
 			var comboWhere = "";
 		}
+		console.log(comboWhere);
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
