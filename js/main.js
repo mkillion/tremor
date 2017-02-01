@@ -2247,7 +2247,7 @@ function(
 		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
 
 		// Location:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected feature</td></tr>";
@@ -2283,9 +2283,10 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat' onclick='checkWellRadio(&quot;buff-feat&quot;)'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		// dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
+		// dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat' onclick='checkWellRadio(&quot;buff-feat&quot;)'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
+		// dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
