@@ -86,7 +86,6 @@ function(
 	var idDef = [];
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
-	// var listCount = 0;
 	var geomWhere;
 	var attrWhere = "";
 
@@ -1373,7 +1372,7 @@ function(
 		if (!attrWhere && !geomWhere) {
 			var comboWhere = "";
 		}
-		console.log(comboWhere);
+		// console.log(comboWhere);
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
@@ -2048,9 +2047,9 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
-		content += "<table><tr><td></td><td><input type='checkbox' value=''> Earthquakes</td></tr>";
-		content += "<tr><td></td><td><input type='checkbox' id='chk-wells'> Wells</td></tr>";
-		content += "<tr><td></td><td><button class='find-button' onclick=''> Download</button></td></tr></table>";
+		content += "<table><tr><td></td><td><input type='checkbox' class='download-data-type' value='events' id='chk-dwn-evts'> Earthquakes</td></tr>";
+		content += "<tr><td></td><td><input type='checkbox' class='download-data-type' id='chk-dwn-wells' value='wells'> Wells</td></tr>";
+		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Download</button></td></tr></table>";
 		content += '</div>';	// end download div.
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Graph</span></div>';
@@ -2185,6 +2184,24 @@ function(
     }
 
 
+	dataDownload = function() {
+		var visLayers = $(".toc-sub-item :checked").map(function() {
+			return $(this).val();
+		} ).get();
+		var visLayers = visLayers.join(",");
+		// PICK UP HERE, TRYING TO GET WHICH BOXES ARE CHECKED. NOT WORKING LIKE ^
+		var downloadDataTypes = $(".download-data-type :checked").map(function() {
+			return $(this).val();
+		} ).get();
+		var dataTypes = dataTypes.join(",");
+		// console.log(dataTypes);
+
+		//need - selected objectids; visible layers. Basically the comboWhere plus visible layers?
+		//create a data object w/ vis layers, comboWhere, and selected checkboxes (earthquakes and/or wells)
+		//post to cfmm; return - a link to the csv file. Then auto-open?
+	}
+
+
     function showFullInfo() {
         var popupTitle = $(".esri-popup__header-title").html();
         if (popupTitle.indexOf("Field:") > -1) {
@@ -2233,7 +2250,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected well</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected feature</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
 		for (var j = 0; j < seismicAreas.length; j++) {
@@ -2244,7 +2261,7 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Origin Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past 7 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past 30 days</td></tr>";
