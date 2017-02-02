@@ -88,6 +88,8 @@ function(
 	var urlParams, hilite, bufferGraphic;
 	var geomWhere;
 	var attrWhere = "";
+	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
+
 
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
@@ -327,11 +329,9 @@ function(
 
 
     function popCountyDropdown() {
-        var cntyArr = new Array("Counties", "Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
         for(var i=0; i<cntyArr.length; i++) {
             theCnty = cntyArr[i];
             $('#lstCounty').append('<option value="' + theCnty + '">' + theCnty + '</option>');
-			$('#lstCounty2').append('<option value="' + theCnty + '">' + theCnty + '</option>');
         }
     }
 
@@ -347,7 +347,7 @@ function(
 	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
 		if (!view.popup.selectedFeature) {
-			alert("Please select a well to buffer.")
+			alert("Please select an event or well to buffer.")
 		}
 		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
 	}
@@ -387,14 +387,16 @@ function(
 
 		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
 		$("[name=time-type]").filter("[value='week']").prop("checked", true);
+		// TODO: reset next 2 lines when done testing:
 		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
-		$("[name=mag-type]").filter("[value='all']").prop("checked", true);
-		$("[name=well-type]").filter("[value='buff-disp']").prop("checked", true);
-		$("#lstCounty2, #sca").prop("selectedIndex", 0);
+		$("[name=mag-type]").filter("[value='all']").prop("checked", true)
+		$('select[multiple]').multiselect("reset");
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
-		$("#loc-buff, #buff-disp, #buff-feat").val("6");
+		$("#loc-buff").val("6");
 		$("#chk-bbls").prop("checked", false);
 		$("#bbls").val("5000");
+		$(".esri-icon-checkbox-checked").hide();
+		$(".esri-icon-erase").hide();
 
 		swdLayer.findSublayerById(19).definitionExpression = "";
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
@@ -660,10 +662,10 @@ function(
 				break;
 			case "buf":
 				locBuff = $("#loc-buff").val();
-				if (view.popup.selectedFeature && view.popup.selectedFeature.popupTemplate.title.indexOf("Well:") > -1) {
+				if (view.popup.selectedFeature) {
 					createBufferGeom(locBuff);
 				} else {
-					alert("Please select a well to buffer.");
+					alert("Please select an event or well to buffer.");
 				}
 				break;
 			case "co":
@@ -2217,31 +2219,9 @@ function(
     }
 
 
-	showList = function(list) {
-		if (list === 'co') {
-			$("#lstCounty2").attr("size","10");
-			$("#sca").attr("size","1");
-			$('[name=loc-type][value="co"]').prop('checked',true);
-		} else {
-			$("#sca").attr("size","8");
-			$("#lstCounty2").attr("size","1");
-			$('[name=loc-type][value="sca"]').prop('checked',true);
-		}
-	}
-
-
-	hideList = function(list) {
-		if (list === 'co') {
-			$("#lstCounty2").attr("size","1");
-		} else {
-			$("#sca").attr("size","1");
-		}
-	}
-
-
 	function createDashboard() {
 		// var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
+		var seismicAreas = ["Anthony","Bluff City","Caldwell","Freeport","Milan","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
 		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
@@ -2251,8 +2231,12 @@ function(
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected feature</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></td><td> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'></td><td> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
+		for (var k = 0; k < cntyArr.length; k++) {
+		 	dbCon += "<option value='" + cntyArr[k] + "'>" + cntyArr[k] + "</option>";
+		}
+		dbCon += "</select></td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' ></td><td> <select class='loc-select' id='sca' multiple>";
 		for (var j = 0; j < seismicAreas.length; j++) {
 		 	dbCon += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
@@ -2316,6 +2300,26 @@ function(
 			graphicsLayer.remove(bufferGraphic);
 			$(".esri-icon-erase").hide();
 	    } );
+
+		$("#lstCounty2").multiselect( {
+			showCheckbox: false,
+		    texts: {
+		        placeholder: "Counties"
+		    },
+			onOptionClick: function(e) {
+				$('[name=loc-type][value="co"]').prop('checked',true);
+			}
+		} );
+		$("#sca").multiselect( {
+			// selectAll: true,
+			showCheckbox: false,
+		    texts: {
+		        placeholder: "Seismic Concern Areas"
+		    },
+			onOptionClick: function(e) {
+				$('[name=loc-type][value="sca"]').prop('checked',true);
+			}
+		} );
 	}
 
 

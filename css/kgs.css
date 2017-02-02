@@ -20,6 +20,10 @@
 	padding-left: 4px;
 }
 
+.ms-options-wrap {
+	max-width: 250px;
+}
+
 div[id*='group-body'] {
 	background-color: #e4e6e4;
 	border-bottom-color: #777;
