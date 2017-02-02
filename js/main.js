@@ -381,7 +381,7 @@ function(
 	}
 
 
-	clearFilter = function() {
+	resetDefaults = function() {
 		graphicsLayer.removeAll();
 		view.popup.visible = false;
 
@@ -653,6 +653,7 @@ function(
 		var magWhere = "";
 		var wellsWhere = "";
 		attrWhere = "";
+		geomWhere = "";
 
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
@@ -769,7 +770,7 @@ function(
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		if (geomWhere == "") {
+		if ( (location === "buf" || location === "sca") && (geomWhere == "") ) {
 			setTimeout(waitForGeomWhere(), 100);
 		} else {
 			applyDefExp();
@@ -1374,7 +1375,7 @@ function(
 		if (!attrWhere && !geomWhere) {
 			var comboWhere = "";
 		}
-		// console.log(comboWhere);
+		console.log(comboWhere);
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
@@ -2286,7 +2287,7 @@ function(
 		} );
 
 		$("#reset-db").click(function() {
-			clearFilter();
+			resetDefaults();
 		} );
 
 		$("#deselect-icon").click(function() {
