@@ -88,6 +88,7 @@ function(
 	var urlParams, hilite, bufferGraphic;
 	var geomWhere;
 	var attrWhere = "";
+	var wellsWhere = "";
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
@@ -393,7 +394,7 @@ function(
 		$('select[multiple]').multiselect("reset");
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
-		$("#chk-bbls").prop("checked", false);
+		$("[name=well-type]").filter("[value='bbls']").prop("checked", false);
 		$("#bbls").val("5000");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
@@ -403,6 +404,7 @@ function(
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
 		historicLayer.findSublayerById(20).definitionExpression = "";
+		swdLayer.findSublayerById(19).definitionExpression = "";
 		idDef[19] = "";
 		idDef[14] = "";
 		idDef[15] = "";
@@ -410,6 +412,7 @@ function(
 		idDef[17] = "";
 		idDef[18] = "";
 		idDef[20] = "";
+		idDef[19] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Will get reset to "" in applyDefExp().
@@ -651,7 +654,7 @@ function(
 		var locWhere = "";
 		var timeWhere = "";
 		var magWhere = "";
-		var wellsWhere = "";
+		wellsWhere = "";
 		attrWhere = "";
 		geomWhere = "";
 
@@ -744,18 +747,13 @@ function(
 			case "all":
 
 				break;
-			case "buff-disp":
-
+			case "bbls":
+				var bbls = $("#bbls").val();
+				wellsWhere = "has_injection_data = 1";
 				break
-			case "buff-feat":
-
-				break;
-		}
-		if ( $("#chk-bbls").is(":checked") ) {
-			var bbls = $("#bbls").val();
 		}
 
-		// Put where clauses together:
+		// Put where clauses together (excluding wells clause which is handled in applyDefExp function):
 		if (locWhere !== "") {
 			attrWhere += locWhere + " and ";
 		}
@@ -765,6 +763,7 @@ function(
 		if (magWhere !== "") {
 			attrWhere += magWhere + " and ";
 		}
+
 		// Strip off final "and":
 		if (attrWhere.substr(attrWhere.length - 5) === " and ") {
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
@@ -1358,6 +1357,10 @@ function(
 
 
 	function applyDefExp() {
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
+
 		if (geomWhere === "clear") {
 			// Means form has been reset to defaults.
 			geomWhere = "";
@@ -1375,7 +1378,7 @@ function(
 		if (!attrWhere && !geomWhere) {
 			var comboWhere = "";
 		}
-		console.log(comboWhere);
+		console.log(wellsWhere);
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
@@ -1386,31 +1389,9 @@ function(
 		idDef[16] = comboWhere;
 		idDef[20] = comboWhere;
 
-		// KEEP THIS FOR  AWHILE for vis layer code:
-		// Apply to those filterable layers that are visible:
-		// var filterLyrs = $("input:checked[class=filterable]").map(function() {
-		// 	return $(this).val();
-		// } ).get();
-		//
-		// for (var i = 0; i < filterLyrs.length; i++) {
-		// 	switch ( filterLyrs[i] ) {
-		// 		case "KGS Cataloged Events":
-		// 			kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
-		// 			break;
-		// 		case "KGS Preliminary Events":
-		// 			kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
-		// 			break;
-		// 		case "Historic Events":
-		// 			historicLayer.findSublayerById(20).definitionExpression = comboWhere;
-		// 			break;
-		// 		case "NEIC Cataloged Events":
-		// 			neicLayer.findSublayerById(16).definitionExpression = comboWhere;
-		// 			break;
-		// 		case "Salt Water Disposal Well":
-		// 			// TODO:
-		// 			break;
-		// 	}
-		// }
+		if (filterLyrs.indexOf("Salt Water Disposal Wells") > -1 && wellsWhere !== "") {
+			swdLayer.findSublayerById(19).definitionExpression = wellsWhere;
+		}
 	}
 
 
@@ -1533,12 +1514,18 @@ function(
     function zoomToFeature(features) {
         var f = features[0] ? features[0] : features;
 		if (f.geometry.type === "point") {
-            view.center = new Point(f.geometry.x, f.geometry.y, wmSR);;
-            view.scale = 24000;
+			var p = new Point(f.geometry.x, f.geometry.y, wmSR);
+			view.goTo( {
+				target: p,
+				zoom: 15
+			}, {duration: 500} );
 		} else {
-			view.extent = f.geometry.extent;
+			var e = f.geometry.extent;
+			view.goTo( {
+				target: e
+			}, {duration: 500} );
 		}
-		// highlightFeature(f);
+		highlightFeature(f);
     }
 
 
@@ -2268,10 +2255,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
-		// dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-disp' checked></td><td> Within <input type='text' id='buff-disp'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mi of mapped earthquakes</td></tr>";
-		// dbCon += "<tr><td class='sel-rad'><input type='radio' name='well-type' value='buff-feat' onclick='checkWellRadio(&quot;buff-feat&quot;)'></td><td> Within <input type='text' id='buff-feat'  class='txt-input' value='6' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mi of selected feature</td></tr>";
-		// dbCon += "<tr><td><input type='checkbox' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='chk-bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
