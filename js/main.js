@@ -87,8 +87,9 @@ function(
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
 	var geomWhere;
+	var wellsGeomWhere;
 	var attrWhere = "";
-	var wellsWhere = "";
+	var wellsAttrWhere = "";
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
@@ -384,6 +385,7 @@ function(
 
 	resetDefaults = function() {
 		graphicsLayer.removeAll();
+		view.popup.clear();
 		view.popup.visible = false;
 
 		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
@@ -415,7 +417,8 @@ function(
 		idDef[19] = "";
 		identifyParams.layerDefinitions = idDef;
 
-		geomWhere = "clear";	// Will get reset to "" in applyDefExp().
+		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
+		wellsGeomWhere = "clear";	// ditto.
 		updateMap();
 	}
 
@@ -657,6 +660,8 @@ function(
 		wellsWhere = "";
 		attrWhere = "";
 		geomWhere = "";
+		wellsGeomWhere = "";
+		wellsAttrWhere = "";
 
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
@@ -745,7 +750,7 @@ function(
 		var well = $("input[name=well-type]:checked").val();
 		switch (well) {
 			case "all":
-
+				// blank in this case.
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val();
@@ -753,7 +758,7 @@ function(
 				break
 		}
 
-		// Put where clauses together (excluding wells clause which is handled in applyDefExp function):
+		// Put where clauses together (excluding wells clause which is created separately):
 		if (locWhere !== "") {
 			attrWhere += locWhere + " and ";
 		}
@@ -763,14 +768,25 @@ function(
 		if (magWhere !== "") {
 			attrWhere += magWhere + " and ";
 		}
-
 		// Strip off final "and":
 		if (attrWhere.substr(attrWhere.length - 5) === " and ") {
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		if ( (location === "buf" || location === "sca") && (geomWhere == "") ) {
-			setTimeout(waitForGeomWhere(), 100);
+		// Put wells clause together w/ location where:
+		if (wellsWhere !== "") {
+			wellsAttrWhere += wellsWhere + " and ";
+		}
+		if (locWhere !== "") {
+			wellsAttrWhere += locWhere + " and ";
+		}
+		// Strip off final "and":
+		if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
+			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
+		}
+
+		if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "") ) {
+			setTimeout(waitForGeomWheres(), 100);
 		} else {
 			applyDefExp();
 		}
@@ -816,17 +832,18 @@ function(
 			}, {duration: 500} );
 
 			createGeomWhere(buffPoly);
+			createwellsGeomWhere(buffPoly);
 		} else {
 			alert("Please select a feature to buffer");
 		}
 	}
 
 
-	function waitForGeomWhere() {
-		if (geomWhere !== "") {
+	function waitForGeomWheres() {
+		if (geomWhere !== "" && wellsGeomWhere !== "") {
 			applyDefExp();
 		} else {
-			setTimeout(waitForGeomWhere, 100);
+			setTimeout(waitForGeomWheres, 100);
 		}
 	}
 
@@ -1011,6 +1028,7 @@ function(
 				}
 			}
 			geomWhere = createGeomWhere(geom);
+			wellsGeomWhere = createwellsGeomWhere(geom);
 		} );
 	}
 
@@ -1036,6 +1054,30 @@ function(
 			}
 		} );
 		return geomWhere;
+	}
+
+
+	function createwellsGeomWhere(geom) {
+		var qt = new QueryTask();
+		var qry = new Query();
+		wellsGeomWhere = "";
+
+		qt.url = tremorGeneralServiceURL + "/19";
+		qry.geometry = geom;
+		qt.executeForIds(qry).then(function(ids) {
+			var chunk;
+			wellsGeomWhere = "objectid in";
+
+			while (ids.length > 0) {
+				chunk = ids.splice(0,1000);
+				chunk = " (" + chunk.join(",") + ") or objectid in";
+				wellsGeomWhere += chunk;
+			}
+			if (wellsGeomWhere.substr(wellsGeomWhere.length - 2) === "in") {
+				wellsGeomWhere = wellsGeomWhere.slice(0,wellsGeomWhere.length - 15);
+			}
+		} );
+		return wellsGeomWhere;
 	}
 
 
@@ -1365,6 +1407,10 @@ function(
 			// Means form has been reset to defaults.
 			geomWhere = "";
 		}
+		if (wellsGeomWhere === "clear") {
+			// Means form has been reset to defaults.
+			wellsGeomWhere = "";
+		}
 
 		if (attrWhere && geomWhere) {
 			var comboWhere = attrWhere + " and (" + geomWhere + ")";
@@ -1378,7 +1424,6 @@ function(
 		if (!attrWhere && !geomWhere) {
 			var comboWhere = "";
 		}
-		console.log(wellsWhere);
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
@@ -1389,9 +1434,21 @@ function(
 		idDef[16] = comboWhere;
 		idDef[20] = comboWhere;
 
-		if (filterLyrs.indexOf("Salt Water Disposal Wells") > -1 && wellsWhere !== "") {
-			swdLayer.findSublayerById(19).definitionExpression = wellsWhere;
+		if (wellsAttrWhere && wellsGeomWhere) {
+			var wellsComboWhere = wellsAttrWhere + " and (" + wellsGeomWhere + ")";
 		}
+		if (wellsAttrWhere && !wellsGeomWhere) {
+			var wellsComboWhere = wellsAttrWhere;
+		}
+		if (!wellsAttrWhere && wellsGeomWhere) {
+			var wellsComboWhere = wellsGeomWhere;
+		}
+		if (!wellsAttrWhere && !wellsGeomWhere) {
+			var wellsComboWhere = "";
+		}
+		console.log(wellsComboWhere);
+		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
+		idDef[19] = wellsComboWhere;
 	}
 
 
@@ -1458,10 +1515,6 @@ function(
 
 
     function openPopup(feature) {
-		//keep this for a bit, maybe use to set popup height so it isn't covered by dashboard:
-		// console.log(window.innerHeight);
-		// console.log( $(".dashboard").css("height") );
-
 		dom.byId("mapDiv").style.cursor = "auto";
 		view.popup.features = feature;
 		view.popup.dockEnabled = true;
@@ -2254,7 +2307,7 @@ function(
 		// Wells:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
