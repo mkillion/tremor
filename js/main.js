@@ -87,6 +87,8 @@ function(
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
 	var geomWhere;
+	var comboWhere = "";
+	var wellsComboWhere = "";
 	var wellsGeomWhere;
 	var attrWhere = "";
 	var wellsAttrWhere = "";
@@ -663,6 +665,9 @@ function(
 		wellsGeomWhere = "";
 		wellsAttrWhere = "";
 
+		// Remove download link:
+		$(".download-link").html("");
+
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
@@ -754,6 +759,7 @@ function(
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val();
+				// TODO: rework when real injection wishes are know:
 				wellsWhere = "has_injection_data = 1";
 				break
 		}
@@ -1399,6 +1405,8 @@ function(
 
 
 	function applyDefExp() {
+		comboWhere = "";
+		wellsComboWhere = "";
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
 		} ).get();
@@ -1413,16 +1421,16 @@ function(
 		}
 
 		if (attrWhere && geomWhere) {
-			var comboWhere = attrWhere + " and (" + geomWhere + ")";
+			comboWhere = attrWhere + " and (" + geomWhere + ")";
 		}
 		if (attrWhere && !geomWhere) {
-			var comboWhere = attrWhere;
+			comboWhere = attrWhere;
 		}
 		if (!attrWhere && geomWhere) {
-			var comboWhere = geomWhere;
+			comboWhere = geomWhere;
 		}
 		if (!attrWhere && !geomWhere) {
-			var comboWhere = "";
+			comboWhere = "";
 		}
 
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
@@ -1435,18 +1443,18 @@ function(
 		idDef[20] = comboWhere;
 
 		if (wellsAttrWhere && wellsGeomWhere) {
-			var wellsComboWhere = wellsAttrWhere + " and (" + wellsGeomWhere + ")";
+			wellsComboWhere = wellsAttrWhere + " and (" + wellsGeomWhere + ")";
 		}
 		if (wellsAttrWhere && !wellsGeomWhere) {
-			var wellsComboWhere = wellsAttrWhere;
+			wellsComboWhere = wellsAttrWhere;
 		}
 		if (!wellsAttrWhere && wellsGeomWhere) {
-			var wellsComboWhere = wellsGeomWhere;
+			wellsComboWhere = wellsGeomWhere;
 		}
 		if (!wellsAttrWhere && !wellsGeomWhere) {
-			var wellsComboWhere = "";
+			wellsComboWhere = "";
 		}
-		console.log(wellsComboWhere);
+
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
 	}
@@ -1985,7 +1993,7 @@ function(
 
 	downloadList = function(evt) {
 		$("#loader").show();
-		$.post( "downloadPointsInPoly.cfm", data, function(response) {
+		$.post( "downloadPoints.cfm", data, function(response) {
 			$(".download-link").html(response);
 			$("#loader").hide();
 		} );
@@ -2090,9 +2098,10 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
-		content += "<table><tr><td></td><td><input type='checkbox' class='download-data-type' value='events' id='chk-dwn-evts'> Earthquakes</td></tr>";
-		content += "<tr><td></td><td><input type='checkbox' class='download-data-type' id='chk-dwn-wells' value='wells'> Wells</td></tr>";
+		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Download</button></td></tr></table>";
+		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Graph</span></div>';
@@ -2228,20 +2237,29 @@ function(
 
 
 	dataDownload = function() {
-		var visLayers = $(".toc-sub-item :checked").map(function() {
+		// Which layers are visible:
+		var dispLyrs = $(".dwnld :checked").map(function() {
 			return $(this).val();
 		} ).get();
-		var visLayers = visLayers.join(",");
-		// PICK UP HERE, TRYING TO GET WHICH BOXES ARE CHECKED. NOT WORKING LIKE ^
-		var downloadDataTypes = $(".download-data-type :checked").map(function() {
-			return $(this).val();
-		} ).get();
-		var dataTypes = dataTypes.join(",");
-		// console.log(dataTypes);
+		var dispLyrs = dispLyrs.join(",");
 
-		//need - selected objectids; visible layers. Basically the comboWhere plus visible layers?
-		//create a data object w/ vis layers, comboWhere, and selected checkboxes (earthquakes and/or wells)
-		//post to cfmm; return - a link to the csv file. Then auto-open?
+		// Which download options are checked:
+		var downloadOptions = [];
+		if ( $("#chk-dwn-evts").is(":checked") ) {
+			downloadOptions.push("events");
+		}
+		if ( $("#chk-dwn-wells").is(":checked") ) {
+			downloadOptions.push("wells");
+		}
+		var downloadOptions = downloadOptions.join(",");
+
+		var packet = { "what": downloadOptions, "layers": dispLyrs, "evtwhere": comboWhere, "wellwhere": wellsComboWhere };
+
+		$("#loader").show();
+		$.post( "downloadPoints.cfm", packet, function(response) {
+			$("#wells-link").html(response);
+			$("#loader").hide();
+		} );
 	}
 
 
@@ -2396,15 +2414,15 @@ function(
 			var htmlID = layerID.replace(/ /g, "-");
 
 			if (earthquakeGroup.indexOf(htmlID) > -1) {
-				eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				eqTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (otherEarthquakeGroup.indexOf(htmlID) > -1) {
-				otherEqContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				otherEqContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (wellsGroup.indexOf(htmlID) > -1) {
-				wellsTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				wellsTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (boundariesGroup.indexOf(htmlID) > -1) {
