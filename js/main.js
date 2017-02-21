@@ -665,8 +665,9 @@ function(
 		wellsGeomWhere = "";
 		wellsAttrWhere = "";
 
-		// Remove download link:
+		// Remove download links and clear graphics:
 		$(".download-link").html("");
+		graphicsLayer.removeAll();
 
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
@@ -1920,8 +1921,6 @@ function(
 
 
 	makeGraph = function() {
-		$("#graph-type-dia").dialog("close");
-
 		var graphType = $('input[name=graph-type]:checked').val();
 		switch (graphType) {
 			case "count":
@@ -1929,6 +1928,7 @@ function(
 				var yAxisText = "Count";
 				var pointFormatText = "Count: <b>{point.y}</b>";
 				var showDecimals = false;
+				var graphWhere = comboWhere;
 				break;
 			case "mag":
 				var graphTitle = "Magnitude / Date";
@@ -1936,6 +1936,21 @@ function(
 				var yAxisText = "Magnitude";
 				var pointFormatText = "Magnitude: <b>{point.y}</b>";
 				var showDecimals = true;
+				var graphWhere = comboWhere;
+				break;
+			case "cumulative":
+				var graphTitle = "cumulative";
+				var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
+				var yAxisText = "Magnitude";
+				var pointFormatText = "Magnitude: <b>{point.y}</b>";
+				var showDecimals = true;
+				var graphWhere = comboWhere;
+				break;
+			case "injvol":
+				// graphWhere is some kind of attribute where on wells
+				break;
+			case "joint":
+				// have to create some kind of custom where here?
 				break;
 		}
 
@@ -1943,10 +1958,11 @@ function(
 			$("#chart").highcharts().destroy();
 			$("#chart-x, #chart").hide();
 		}
-
 		$("#chart").show();
 
-		$.get('createChartData.cfm?type=' + graphType + '&tbl=' + sharedCfTable, function(response) {
+		var packet = { "type": graphType, "where": graphWhere };
+
+		$.post("createChartData.cfm", packet, function(response) {
 			var data = JSON.parse(response);
 
 		    $('#chart').highcharts( {
@@ -2108,7 +2124,7 @@ function(
 		content += '<div class="data-body hide" id="data-grph">';
 		content += "<table><tr><td></td><td><input type='radio' name='graph-type' value='mag'> Magnitude</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='count'> Number / Day</td></tr>";
-		content += "<tr><td></td><td><input type='radio' name='graph-type' value='cum'> Cumulative</td></tr>";
+		content += "<tr><td></td><td><input type='radio' name='graph-type' value='cumulative'> Cumulative</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='injvol'> Injection Volume</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='joint'> Joint Plot</td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='makeGraph()'>Create Graph</button></td></tr></table>";
@@ -2237,12 +2253,6 @@ function(
 
 
 	dataDownload = function() {
-		// Which layers are visible:
-		var dispLyrs = $(".dwnld :checked").map(function() {
-			return $(this).val();
-		} ).get();
-		var dispLyrs = dispLyrs.join(",");
-
 		// Which download options are checked:
 		var downloadOptions = [];
 		if ( $("#chk-dwn-evts").is(":checked") ) {
@@ -2253,7 +2263,7 @@ function(
 		}
 		var downloadOptions = downloadOptions.join(",");
 
-		var packet = { "what": downloadOptions, "layers": dispLyrs, "evtwhere": comboWhere, "wellwhere": wellsComboWhere };
+		var packet = { "what": downloadOptions, "evtwhere": comboWhere, "wellwhere": wellsComboWhere };
 
 		$("#loader").show();
 		$.post( "downloadPoints.cfm", packet, function(response) {

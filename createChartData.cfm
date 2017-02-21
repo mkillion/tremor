@@ -1,9 +1,11 @@
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
-<cfquery name="qLayers" datasource="gis_webinfo">
+<cfquery name="qLayers" datasource="tremor">
     select distinct layer
-    from tremor_events
-    where objectid in (select oid from #url.tbl#)
+    from quakes
+    <cfif #form.where# neq "">
+        where #PreserveSingleQuotes(form.where)#
+    </cfif>
 </cfquery>
 
 <cfloop query="qLayers">
@@ -13,38 +15,39 @@
         <cfset MagType = "mc">
     </cfif>
 
-    <cfif #url.type# eq "mag">
-        <cfquery name="q#layer#" datasource="gis_webinfo">
+    <cfif #form.type# eq "mag">
+        <cfquery name="q#layer#" datasource="tremor">
             select
                 layer,
                 #MagType# as magnitude,
-                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
             from
-                tremor_events
+                quakes
             where
-                objectid in (select oid from #url.tbl#)
-                and
-                    #MagType# is not null
+                #MagType# is not null
                 and
                     layer = '#layer#'
+                <cfif #form.where# neq "">
+        			and #PreserveSingleQuotes(form.where)#
+        		</cfif>
         </cfquery>
-    <cfelseif #url.type# eq "count">
-        <cfquery name="q#layer#" datasource="gis_webinfo">
+    <cfelseif #form.type# eq "count">
+        <cfquery name="q#layer#" datasource="tremor">
             select
                 layer,
                 count(*) as cnt,
-                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
             from
                 tremor_events
             where
-                objectid in (select oid from #url.tbl#)
+                objectid in (select oid from #form.tbl#)
                 and
                     #MagType# is not null
                 and
                     layer = '#layer#'
             group by
                 layer,
-                (trunc(origin_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000
+                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000
         </cfquery>
     </cfif>
 </cfloop>
@@ -71,9 +74,9 @@
             "data": [
                 <cfset i = 1>
                 <cfloop query="q#layer#">
-                    <cfif #url.type# eq "mag">
+                    <cfif #form.type# eq "mag">
                         [#ms#,#magnitude#]
-                    <cfelseif #url.type# eq "count">
+                    <cfelseif #form.type# eq "count">
                         [#ms#,#cnt#]
                     </cfif>
                     <cfif i neq Evaluate("q#layer#.recordcount")>
