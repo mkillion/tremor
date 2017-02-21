@@ -1,11 +1,15 @@
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'USGS'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Salt Water Disposal Wells", "'SWD'")>
+
 <cfquery name="qLayers" datasource="tremor">
     select distinct layer
     from quakes
-    <cfif #form.where# neq "">
-        where #PreserveSingleQuotes(form.where)#
-    </cfif>
+    where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
 <cfloop query="qLayers">
@@ -67,9 +71,9 @@
             <cfelseif #layer# eq "USGS">
                 "name": "NEIC",
                 "color": "rgba(0,197,255,0.85)",
-            <cfelseif #layer# eq "OGS">
-                "name": "OGS",
-                "color": "rgba(114,137,68,0.85)",
+            <cfelseif #layer# eq "KSNE">
+                "name": "Historic",
+                "color": "rgba(76,230,0,0.85)",
             </cfif>
 
             "data": [
