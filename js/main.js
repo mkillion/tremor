@@ -1921,89 +1921,99 @@ function(
 
 
 	makeGraph = function() {
-		var graphType = $('input[name=graph-type]:checked').val();
-		switch (graphType) {
-			case "count":
-				var graphTitle = "Count / Date";
-				var yAxisText = "Count";
-				var pointFormatText = "Count: <b>{point.y}</b>";
-				var showDecimals = false;
-				var graphWhere = comboWhere;
-				break;
-			case "mag":
-				var graphTitle = "Magnitude / Date";
-				var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
-				var yAxisText = "Magnitude";
-				var pointFormatText = "Magnitude: <b>{point.y}</b>";
-				var showDecimals = true;
-				var graphWhere = comboWhere;
-				break;
-			case "cumulative":
-				var graphTitle = "cumulative";
-				var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
-				var yAxisText = "Magnitude";
-				var pointFormatText = "Magnitude: <b>{point.y}</b>";
-				var showDecimals = true;
-				var graphWhere = comboWhere;
-				break;
-			case "injvol":
-				// graphWhere is some kind of attribute where on wells
-				break;
-			case "joint":
-				// have to create some kind of custom where here?
-				break;
-		}
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
 
-		if ( $("#chart").highcharts() ) {
-			$("#chart").highcharts().destroy();
-			$("#chart-x, #chart").hide();
-		}
-		$("#chart").show();
+		if (filterLyrs.length === 0) {
+			alert("At least one earthquake or well layer must be visible.")
+		} else {
+			var graphLayers = filterLyrs.join(",");
 
-		var packet = { "type": graphType, "where": graphWhere };
+			var graphType = $('input[name=graph-type]:checked').val();
+			switch (graphType) {
+				case "count":
+					var graphTitle = "Count / Date";
+					var yAxisText = "Count";
+					var pointFormatText = "Count: <b>{point.y}</b>";
+					var showDecimals = false;
+					var graphWhere = comboWhere;
+					break;
+				case "mag":
+					var graphTitle = "Magnitude / Date";
+					var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
+					var yAxisText = "Magnitude";
+					var pointFormatText = "Magnitude: <b>{point.y}</b>";
+					var showDecimals = true;
+					var graphWhere = comboWhere;
+					break;
+				case "cumulative":
+					var graphTitle = "cumulative";
+					var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
+					var yAxisText = "Magnitude";
+					var pointFormatText = "Magnitude: <b>{point.y}</b>";
+					var showDecimals = true;
+					var graphWhere = comboWhere;
+					break;
+				case "injvol":
+					// graphWhere is some kind of attribute where on wells
+					break;
+				case "joint":
+					// have to create some kind of custom where here?
+					break;
+			}
 
-		$.post("createChartData.cfm", packet, function(response) {
-			var data = JSON.parse(response);
+			if ( $("#chart").highcharts() ) {
+				$("#chart").highcharts().destroy();
+				$("#chart-x, #chart").hide();
+			}
+			$("#chart").show();
 
-		    $('#chart').highcharts( {
-		        chart: {
-		            type: 'scatter',
-					borderColor: '#A9A9A9',
-            		borderWidth: 3,
-					borderRadius: 8,
-					zoomType: 'xy'
-		        },
-				title: {
-					text: graphTitle
-				},
-				subtitle: {
-					text: graphSubTitle
-				},
-				tooltip: {
-					crosshairs: {
-				        color: 'green',
-				        dashStyle: 'solid'
-				    },
-		        	// enabled: false
-					headerFormat: '<b>{point.key}</b><br/>',
-					pointFormat: pointFormatText,
-					xDateFormat: '%b %e, %Y'
-		        },
-				xAxis: {
-		            type: 'datetime',
-					endOnTick: true,
-					startOnTick: true
-		        },
-				yAxis: {
-					allowDecimals: showDecimals,
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
+
+			$.post("createChartData.cfm", packet, function(response) {
+				var data = JSON.parse(response);
+
+			    $('#chart').highcharts( {
+			        chart: {
+			            type: 'scatter',
+						borderColor: '#A9A9A9',
+	            		borderWidth: 3,
+						borderRadius: 8,
+						zoomType: 'xy'
+			        },
 					title: {
-						text: yAxisText
-					}
-				},
-				series: data
-		    } );
-		} );
-		$("#chart-x").show();
+						text: graphTitle
+					},
+					subtitle: {
+						text: graphSubTitle
+					},
+					tooltip: {
+						crosshairs: {
+					        color: 'green',
+					        dashStyle: 'solid'
+					    },
+			        	// enabled: false
+						headerFormat: '<b>{point.key}</b><br/>',
+						pointFormat: pointFormatText,
+						xDateFormat: '%b %e, %Y'
+			        },
+					xAxis: {
+			            type: 'datetime',
+						endOnTick: true,
+						startOnTick: true
+			        },
+					yAxis: {
+						allowDecimals: showDecimals,
+						title: {
+							text: yAxisText
+						}
+					},
+					series: data
+			    } );
+			} );
+			$("#chart-x").show();
+		}
 	}
 
 
@@ -2122,7 +2132,7 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Graph</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
-		content += "<table><tr><td></td><td><input type='radio' name='graph-type' value='mag'> Magnitude</td></tr>";
+		content += "<table><tr><td></td><td><input type='radio' name='graph-type' value='mag' checked> Magnitude</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='count'> Number / Day</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='cumulative'> Cumulative</td></tr>";
 		content += "<tr><td></td><td><input type='radio' name='graph-type' value='injvol'> Injection Volume</td></tr>";

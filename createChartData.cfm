@@ -38,13 +38,14 @@
                 count(*) as cnt,
                 (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
             from
-                tremor_events
+                quakes
             where
-                objectid in (select oid from #form.tbl#)
-                and
-                    #MagType# is not null
+                #MagType# is not null
                 and
                     layer = '#layer#'
+                <cfif #form.where# neq "">
+        			and #PreserveSingleQuotes(form.where)#
+        		</cfif>
             group by
                 layer,
                 (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000
