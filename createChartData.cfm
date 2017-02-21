@@ -12,6 +12,8 @@
     where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
+<cfset DateToMS = "(trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
+
 <cfloop query="qLayers">
     <cfif #layer# eq "USGS">
         <cfset MagType = "ml">
@@ -24,7 +26,7 @@
             select
                 layer,
                 #MagType# as magnitude,
-                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+                #PreserveSingleQuotes(DateToMS)# as ms
             from
                 quakes
             where
@@ -40,7 +42,7 @@
             select
                 layer,
                 count(*) as cnt,
-                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
+                #PreserveSingleQuotes(DateToMS)# as ms
             from
                 quakes
             where
@@ -52,7 +54,20 @@
         		</cfif>
             group by
                 layer,
-                (trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000
+                #PreserveSingleQuotes(DateToMS)#
+        </cfquery>
+    <cfelseif #form.type# eq "cumulative">
+        <cfquery name="q#layer#" datasource="tremor">
+            select
+                ms,
+                daily_total,
+                sum(daily_total) over (order by ms range unbounded preceding) running_total
+            from
+                (select #PreserveSingleQuotes(DateToMS)# as ms, count(*) as daily_total
+                    from quakes
+                    where layer = '#layer#'
+                        and #PreserveSingleQuotes(form.where)#
+                    group by #PreserveSingleQuotes(DateToMS)#)
         </cfquery>
     </cfif>
 </cfloop>
@@ -83,6 +98,8 @@
                         [#ms#,#magnitude#]
                     <cfelseif #form.type# eq "count">
                         [#ms#,#cnt#]
+                    <cfelseif #form.type# eq "cumulative">
+                        [#ms#,#running_total#]
                     </cfif>
                     <cfif i neq Evaluate("q#layer#.recordcount")>
                         ,

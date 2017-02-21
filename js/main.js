@@ -1948,10 +1948,9 @@ function(
 					var graphWhere = comboWhere;
 					break;
 				case "cumulative":
-					var graphTitle = "cumulative";
-					var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
-					var yAxisText = "Magnitude";
-					var pointFormatText = "Magnitude: <b>{point.y}</b>";
+					var graphTitle = "Cumulative Total";
+					var yAxisText = "Total";
+					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = true;
 					var graphWhere = comboWhere;
 					break;
