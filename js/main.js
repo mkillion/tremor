@@ -1973,6 +1973,7 @@ function(
 
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
 
+			$("#loader").show();
 			$.post("createChartData.cfm", packet, function(response) {
 				var data = JSON.parse(response);
 
@@ -2013,6 +2014,7 @@ function(
 					},
 					series: data
 			    } );
+				$("#loader").hide();
 			} );
 			$("#chart-x").show();
 		}

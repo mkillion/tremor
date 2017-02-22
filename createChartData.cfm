@@ -66,7 +66,9 @@
                 (select #PreserveSingleQuotes(DateToMS)# as ms, count(*) as daily_total
                     from quakes
                     where layer = '#layer#'
+                    <cfif #form.where# neq "">
                         and #PreserveSingleQuotes(form.where)#
+                    </cfif>
                     group by #PreserveSingleQuotes(DateToMS)#)
         </cfquery>
     </cfif>
