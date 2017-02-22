@@ -66,20 +66,6 @@ th {
 	margin-left: 10px;
 }
 
-#chart {
-	left: 100px;
-	position: absolute;
-	top: 100px;
-	z-index: 11;
-}
-
-#chart-x {
-	left: 105px;
-	position: absolute;
-	top: 110px;
-	z-index: 12;
-}
-
 .txt-input {
 	width: 22px;
 }

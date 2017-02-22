@@ -321,11 +321,6 @@ function(
 		$("#buff-opts").toggleClass("show");
 	} );
 
-	$("#chart-x").click(function() {
-		$("#chart").highcharts().destroy();
-		$("#chart-x, #chart").hide();
-	} );
-
 	$("#dashboard-btn").click(function() {
 		$(".dashboard").show();
 		$("#dashboard-btn").hide();
@@ -648,7 +643,7 @@ function(
 		$("#wells-tbl").html("");
 		if ( $("#chart").highcharts() ) {
 			$("#chart").highcharts().destroy();
-			$("#chart-x, #chart").hide();
+			$("#chart").hide();
 		}
 		$(".esri-icon-line-chart").hide();
 		$(".esri-icon-download").hide();
@@ -1967,8 +1962,15 @@ function(
 
 			if ( $("#chart").highcharts() ) {
 				$("#chart").highcharts().destroy();
-				$("#chart-x, #chart").hide();
+				$("#chart").hide();
 			}
+
+			// Set size of chart container as a percentage of window size:
+			var wWidth = $(window).width();
+			var dWidth = wWidth * 0.75;
+			$("#chart-container").dialog("option", "width", dWidth);
+
+			$("#chart-container").dialog("open");
 			$("#chart").show();
 
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
@@ -2016,7 +2018,6 @@ function(
 			    } );
 				$("#loader").hide();
 			} );
-			$("#chart-x").show();
 		}
 	}
 
@@ -2150,6 +2151,13 @@ function(
 		// content += '</div>';	// end list div.
 
         content += '</div>';	// end data panel div.
+
+		// Initialize chart:
+		$("#chart-container").dialog( {
+            autoOpen: false,
+            dialogClass: "dialog",
+			title: ""
+        } );
 
         menuObj = {
             label: '<div class="esri-icon-table"></div><div class="icon-text">Data</div>',
