@@ -1938,6 +1938,7 @@ function(
 					var pointFormatText = "Count: <b>{point.y}</b>";
 					var showDecimals = false;
 					var graphWhere = comboWhere;
+					var chartType = "scatter";
 					break;
 				case "mag":
 					var graphTitle = "Magnitude / Date";
@@ -1946,6 +1947,7 @@ function(
 					var pointFormatText = "Magnitude: <b>{point.y}</b>";
 					var showDecimals = true;
 					var graphWhere = comboWhere;
+					var chartType = "scatter";
 					break;
 				case "cumulative":
 					var graphTitle = "Cumulative Total";
@@ -1953,6 +1955,7 @@ function(
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = true;
 					var graphWhere = comboWhere;
+					var chartType = "line";
 					break;
 				case "injvol":
 					// graphWhere is some kind of attribute where on wells
@@ -1975,7 +1978,7 @@ function(
 
 			    $('#chart').highcharts( {
 			        chart: {
-			            type: 'scatter',
+			            type: chartType,
 						borderColor: '#A9A9A9',
 	            		borderWidth: 3,
 						borderRadius: 8,
