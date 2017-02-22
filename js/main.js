@@ -2129,13 +2129,13 @@ function(
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
 
-		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Graph</span></div>';
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Time Graphs</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
-		content += "<table><tr><td></td><td><input type='radio' name='graph-type' value='mag' checked> Magnitude</td></tr>";
-		content += "<tr><td></td><td><input type='radio' name='graph-type' value='count'> Number / Day</td></tr>";
-		content += "<tr><td></td><td><input type='radio' name='graph-type' value='cumulative'> Cumulative</td></tr>";
-		content += "<tr><td></td><td><input type='radio' name='graph-type' value='injvol'> Injection Volume</td></tr>";
-		content += "<tr><td></td><td><input type='radio' name='graph-type' value='joint'> Joint Plot</td></tr>";
+		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Plot</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='makeGraph()'>Create Graph</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 

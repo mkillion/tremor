@@ -76,6 +76,7 @@
     [
         <cfset j = 1>
         <cfloop query="qLayers">
+            <cfset Lyr = #layer#>
             {
             <cfif #layer# eq "KGS">
                 "name": "KGS",
@@ -101,7 +102,7 @@
                     <cfelseif #form.type# eq "cumulative">
                         [#ms#,#running_total#]
                     </cfif>
-                    <cfif i neq Evaluate("q#layer#.recordcount")>
+                    <cfif i neq Evaluate("q#Lyr#.recordcount")>
                         ,
                     </cfif>
                     <cfset i = i + 1>
