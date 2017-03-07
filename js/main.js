@@ -86,8 +86,13 @@ function(
 	var idDef = [];
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
-	var listCount = 0;
-	var sharedCfTable;
+	var geomWhere;
+	var comboWhere = "";
+	var wellsComboWhere = "";
+	var wellsGeomWhere;
+	var attrWhere = "";
+	var wellsAttrWhere = "";
+	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
     // Set up basic frame:
@@ -154,9 +159,10 @@ function(
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 	// var countiesLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:2}], id:"Counties", visible:true} );
 	var countiesLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis5/rest/services/admin_boundaries/KS_County_Boundaries/MapServer", id:"Counties", visible:true} );
+	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -165,7 +171,7 @@ function(
     var view = new MapView( {
         map: map,
         container: "mapDiv",
-        center: [-98, 38],
+        center: [-98, 39.1],
         zoom: 7,
         ui: { components: ["zoom"] },
 		constraints: { rotationEnabled: false }
@@ -174,7 +180,6 @@ function(
     view.then(function() {
 		createTOC();
 		createDashboard();
-		createDialogs();
 		popCountyDropdown();
 
         on(view, "click", executeIdTask);
@@ -183,8 +188,6 @@ function(
         identifyParams = new IdentifyParameters();
 		identifyParams.returnGeometry = true;
         identifyParams.tolerance = (isMobile) ? 9 : 4;
-        identifyParams.layerIds = [14, 15, 16, 17, 18, 19];
-        identifyParams.layerOption = "visible";
         identifyParams.width = view.width;
         identifyParams.height = view.height;
 
@@ -212,6 +215,7 @@ function(
                 $("#prob-dia").dialog("open");
             }
         } );
+		updateMap();
     } );
 
 	var searchWidget = new Search( {
@@ -261,9 +265,17 @@ function(
 			title: " "
 		},
 		{
-			layer: swdLayer,
+			layer: neicLayer,
 			title: " "
 		},
+		{
+			layer: historicLayer,
+			title: " "
+		},
+		{
+			layer: swdLayer,
+			title: " "
+		}
 		// {
 		// 	layer: class1Layer,
 		// 	title: " "
@@ -277,6 +289,7 @@ function(
     urlZoom(urlParams);
 
     // Miscellaneous click handlers:
+	// find section:
     $(".find-header").click(function() {
         $("[id^=find]").fadeOut("fast");
         $(".find-header").removeClass("esri-icon-down-arrow");
@@ -285,10 +298,20 @@ function(
         $("#find-"+findBody).fadeIn("fast");
     } );
 
-    $(".esri-icon-erase").click(function() {
-		graphicsLayer.removeAll();
-		clearFilter();
-    } );
+	// data section:
+	$(".data-header").click(function() {
+		var section = $(this).attr("id");
+		if ( $(this).hasClass("esri-icon-down-arrow") ) {
+			$("#data-" + section).fadeOut("fast");
+			$(this).removeClass("esri-icon-down-arrow");
+			$(this).addClass("esri-icon-right-triangle-arrow");
+		} else {
+			$("[id^=data]").fadeOut("fast");
+			$(".data-header").removeClass("esri-icon-down-arrow no-border");
+		    $(this).addClass("esri-icon-down-arrow no-border");
+			$("#data-" + section).fadeIn("fast");
+		}
+	} );
 
 	$(".esri-icon-filter").click(function() {
 		$("#filter-buff-dia").dialog("open");
@@ -298,149 +321,17 @@ function(
 		$("#buff-opts").toggleClass("show");
 	} );
 
-	$("#chart-x").click(function() {
-		$("#chart").highcharts().destroy();
-		$("#chart-x, #chart").hide();
+	$("#dashboard-btn").click(function() {
+		$(".dashboard").show();
+		$("#dashboard-btn").hide();
 	} );
 
 
     function popCountyDropdown() {
-        var cntyArr = new Array("Counties", "Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
-		$('#evt-county').html('<option value="all">All</option>');
         for(var i=0; i<cntyArr.length; i++) {
             theCnty = cntyArr[i];
             $('#lstCounty').append('<option value="' + theCnty + '">' + theCnty + '</option>');
-			$('#lstCounty2').append('<option value="' + theCnty + '">' + theCnty + '</option>');
-			$('#evt-county').append('<option value="' + theCnty + '">' + theCnty + '</option>');
         }
-    }
-
-
-    function createDialogs() {
-        // // OG wells filter:
-		// var wellType = ["Coal Bed Methane","Coal Bed Methane, Plugged","Dry and Abandoned","Enhanced Oil Recovery","Enhanced Oil Recovery, Plugged","Gas","Gas, Plugged","Injection","Injection, Plugged","Intent","Location","Oil","Oil and Gas","Oil and Gas, Plugged","Oil, Plugged","Other","Other, Plugged","Salt Water Disposal","Salt Water Disposal, Plugged"];
-		// var ogF = "<span class='filter-hdr'>Well Type:</span><br>";
-		// ogF += "<table><tr><td><select id='og-well-type' class='og-select' multiple size='4'>";
-		// if (!isMobile) {
-		// 	ogF += "<option value='' class='opt-note'>select one or many (ctrl or cmd)</option>";
-		// }
-		// for (var j = 0; j < wellType.length; j++) {
-		// 	ogF += "<option value='" + wellType[j] + "'>" + wellType[j] + "</option>";
-		// }
-		// ogF += "</select></td></tr></table>";
-		// ogF += "<span class='filter-hdr'>Completion Date:</span><br>";
-		// ogF += "<table><tr><td class='find-label'>From:</td><td><input type='text' size='12' id='og-from-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr>";
-        // ogF += "<tr><td class='find-label'>To:</td><td><input type='text' size='12' id='og-to-date' class='og-input' placeholder='mm/dd/yyyy'></td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Operator:</td><td><input id='operators'></td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Has:</td><td><input type='checkbox' name='og-has' value='paper-log'>Paper Logs</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='scan-log'>Scanned Logs</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='las'>LAS File</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='core'>Core</td></tr>";
-		// ogF += "<tr><td></td><td><input type='checkbox' name='og-has' value='cuttings'>Cuttings</td></tr></table>";
-		// ogF += "<table><tr><td class='filter-hdr' style='padding-left:0'>Injection Wells:</td>";
-		// ogF += "<td><select id='inj' class='og-select'><option value=''></option><option value='inj-1'>Class I</option><option value='inj-2'>Class II</option></select></td></tr>";
-		// ogF += "<tr><td class='filter-hdr'style='padding-left:0'>Horizontal Wells:</td><td><input type='checkbox' id='hrz'></td></tr></table>";
-		// ogF += "<span class='filter-hdr'>Total Depth (ft):</span><br>";
-		// ogF += "<table><tr><td>Greater Than or Equal:</td><td><input type='text' size='4' id='og-gt-depth' class='og-input'></td></tr>";
-        // ogF += "<tr><td>Less Than or Equal:</td><td><input type='text' size='4' id='og-lt-depth' class='og-input'></td></tr></table>";
-		// ogF += "<hr><button class='find-button' id='wwc5-go-btn' onclick='filterOG();'>Apply Filter</button>&nbsp;&nbsp;&nbsp;";
-		// ogF += "<button class='find-button' onclick='clearOgFilter();' autofocus>Clear Filter</button>";
-		//
-		// var ogN = domConstruct.create("div", { id: "og-filter", class: "filter-dialog", innerHTML: ogF } );
-        // $("body").append(ogN);
-		//
-        // $("#og-filter").dialog( {
-        //     autoOpen: false,
-        //     dialogClass: "dialog",
-		// 	title: "Filter Oil and Gas Wells",
-        //     width: 320
-        // } );
-
-		//$("#og-from-date").datepicker();
-        //$("#og-to-date").datepicker();
-
-		// Buffer dialog:
-		var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["Anthony","Freeport","Bluff City","Milan","Caldwell","Expanded Area"];
-
-
-		// var buffDia = '<table><tr><td style="font-weight:bold;">Find These Features:</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="return-type" value="Salt Water Disposal" onchange="resetEvtChk();"> Salt Water Disposal Wells</td></tr>';
-		// // buffDia += '<tr><td><input type="radio" name="return-type" value="Class I Injection" onchange="resetEvtChk()"> Class I Injection Wells</td></tr>';
-		// // buffDia += '<tr><td><input type="radio" name="return-type" value="Oil and Gas" onchange="resetEvtChk();checkOgState();"> Oil and Gas Wells</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="return-type" value="Earthquakes"> Earthquakes</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="14" onchange="changeEvtChk()">KGS Cataloged</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="15" onchange="changeEvtChk()">KGS Preliminary</td></tr>';
-		// buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="16" onchange="changeEvtChk()">NEIC Cataloged</td></tr>';
-		// // buffDia += '<tr><td><input type="checkbox" class="evt-chk" name="evt-lay" value="17" onchange="changeEvtChk()">OGS Cataloged</td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. >=&nbsp;<input class="eqf" type="text" size="8" id="low-mag" oninput="changeEvtChk()"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mag. <=&nbsp;<input class="eqf" type="text" size="8" id="high-mag" oninput="changeEvtChk()"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date >=&nbsp;<input class="eqf" type="text" size="12" id="eq-from-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		// buffDia += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date <=&nbsp;<input class="eqf" type="text" size="12" id="eq-to-date" onchange="changeEvtChk()" placeholder="mm/dd/yyyy"></td></tr>';
-		// buffDia += '</table>';
-		//
-		// buffDia += '<table><tr><td colspan="2" style="font-weight:bold;">Within This Area:</td><td></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="state" onchange="checkOgState()"> Statewide</td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="co"> County:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right"><select id="lstCounty2" onchange="changeSelect(&quot;co&quot;)"></select></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="sca"> Seismic Concern Area:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right"><select id="sca" onchange="changeSelect(&quot;sca&quot;)">';
-		// for (var j = 0; j < seismicAreas.length; j++) {
-		// 	buffDia += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
-		// }
-		// buffDia += '</select></td></tr>';
-		// buffDia += '<tr><td><input type="radio" name="area-type" value="buff" onchange="changeSelect(&quot;buff&quot;)"> Buffer Around Feature:</td></tr>';
-		// buffDia += '<tr><td style="text-align:right">Distance:&nbsp;<input type="text" size="4" id="buff-dist" oninput="changeSelect(&quot;buff&quot;)"></td></tr>';
-		// buffDia += '<tr><td style="text-align:right">Units:&nbsp;<select id="buff-units" onchange="changeSelect(&quot;buff&quot;)">';
-		// for (var i = 0; i < units.length; i++) {
-		// 	buffDia += "<option value='" + units[i] + "'>" + units[i] + "</option>";
-		// }
-		// buffDia += '</select></td></tr></table>';
-		//
-		// buffDia += '<hr>';
-		// buffDia += '<table><tr><td><button class="find-button" onclick="filterSwitch()">Apply</button></td>';
-		// buffDia += '<td><button class="find-button" onclick="clearFilter()" autofocus>Clear</button></td></tr></table>'
-		//
-		// var buffN = domConstruct.create("div", { id: "filter-buff-dia", class: "filter-dialog", innerHTML: buffDia } );
-        // $("body").append(buffN);
-		//
-        // $("#filter-buff-dia").dialog( {
-        //     autoOpen: false,
-        //     dialogClass: "dialog",
-		// 	title: "Filter/Select Features"
-        // } );
-
-		$("#eq-from-date").datepicker();
-        $("#eq-to-date").datepicker();
-
-		// Report problem dialog:
-		var probDia = "<table><tr><td class='find-label'>Message:</td><td><textarea rows='4' cols='25' id='prob-msg' placeholder='Feature ID is automatically appended. Messages are anonymous unless contact info is included.'></textarea></td></tr>";
-		probDia += "<tr><td></td><td><button class='find-button' onclick='sendProblem()'>Send</button></td></tr>";
-		probDia += "<tr><td colspan='2'><span class='toc-note'>(report website problems <a href='mailto:killion@kgs.ku.edu'>here)</a></span></td></tr></table>";
-
-		var problemN = domConstruct.create("div", { id: "prob-dia", class: "filter-dialog", innerHTML: probDia } );
-        $("body").append(problemN);
-
-        $("#prob-dia").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Report a location or data error",
-			width: 375
-        } );
-
-		// Select graph type dialog:
-		var graphDia = '<table><tr><td><input type="radio" name="graph-type" value="count" checked> Count / Date</td></tr>';
-		graphDia += '<tr><td><input type="radio" name="graph-type" value="mag"> Magnitude / Date</td></tr>';
-		graphDia += '<tr><td><button class="find-button" onclick="makeGraph()">Create Graph</button></td></tr></table>';
-
-		var graphTypeN = domConstruct.create("div", { id: "graph-type-dia", class: "filter-dialog", innerHTML: graphDia } );
-        $("body").append(graphTypeN);
-
-        $("#graph-type-dia").dialog( {
-            autoOpen: false,
-            dialogClass: "dialog",
-			title: "Select a Graph Type"
-        } );
     }
 
 
@@ -455,7 +346,7 @@ function(
 	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
 		if (!view.popup.selectedFeature) {
-			alert("Please select a feature to buffer.")
+			alert("Please select an event or well to buffer.")
 		}
 		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
 	}
@@ -489,34 +380,43 @@ function(
 	}
 
 
-	clearFilter = function() {
-		// Reset inputs:
-		$("[name=area-type]").prop("checked", false);
-		$("[name=return-type]").prop("checked", false);
-		$("[name=evt-lay]").prop("checked", false);
-		$(".eqf").val("");
-		$("#buff-dist").val("");
-		$("#lstCounty2,#sca,#buff-units").prop("selectedIndex", 0);
+	resetDefaults = function() {
+		graphicsLayer.removeAll();
+		view.popup.clear();
+		view.popup.visible = false;
 
-		// Clear layer definitionExpressions to make filtered features visible:
-		// wellsLayer.findSublayerById(0).definitionExpression = "";
+		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
+		$("[name=time-type]").filter("[value='week']").prop("checked", true);
+		// TODO: reset next 2 lines when done testing:
+		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
+		$("[name=mag-type]").filter("[value='all']").prop("checked", true)
+		$('select[multiple]').multiselect("reset");
+		$("#from-date, #to-date, #low-mag, #high-mag").val("");
+		$("#loc-buff").val("6");
+		$("[name=well-type]").filter("[value='bbls']").prop("checked", false);
+		$("#bbls").val("5000");
+		$(".esri-icon-checkbox-checked").hide();
+		$(".esri-icon-erase").hide();
+
 		swdLayer.findSublayerById(19).definitionExpression = "";
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
 		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
 		neicLayer.findSublayerById(16).definitionExpression = "";
-		// ogsLayer.findSublayerById(17).definitionExpression = "";
-		// class1Layer.findSublayerById(18).definitionExpression = "";
-
-		// Clear ID layer definitions:
-		// idDef[0] = "";
+		historicLayer.findSublayerById(20).definitionExpression = "";
+		swdLayer.findSublayerById(19).definitionExpression = "";
 		idDef[19] = "";
 		idDef[14] = "";
 		idDef[15] = "";
 		idDef[16] = "";
 		idDef[17] = "";
 		idDef[18] = "";
+		idDef[20] = "";
 		idDef[19] = "";
 		identifyParams.layerDefinitions = idDef;
+
+		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
+		wellsGeomWhere = "clear";	// ditto.
+		updateMap();
 	}
 
 
@@ -532,172 +432,172 @@ function(
 	}
 
 
-	sendProblem = function() {
-		var sfa = view.popup.selectedFeature.attributes;
-		if (sfa.hasOwnProperty('INPUT_SEQ_NUMBER')) {
-			var fId = sfa.INPUT_SEQ_NUMBER;
-			var fName = sfa.OWNER_NAME;
-			var fType = "wwc5";
-			var otherId = "";
-		} else if (sfa.hasOwnProperty('API_NUMBER')) {
-			var fId = sfa.KID;
-			var fName = sfa.LEASE_NAME + " " + sfa.WELL_NAME;
-			var fType = "ogwell";
-			var otherId = sfa.API_NUMBER;
-		} else if (sfa.hasOwnProperty('MAG')) {
-			var fId = sfa.ID;
-			var fName = "";
-			var fType = "earthquake";
-			var otherId = "";
-		} else if (sfa.hasOwnProperty('FIELD_KID')) {
-			var fId = sfa.FIELD_KID;
-			var fName = sfa.FIELD_NAME;
-			var fType = "field";
-			var otherId = "";
-		}
+	// sendProblem = function() {
+	// 	var sfa = view.popup.selectedFeature.attributes;
+	// 	if (sfa.hasOwnProperty('INPUT_SEQ_NUMBER')) {
+	// 		var fId = sfa.INPUT_SEQ_NUMBER;
+	// 		var fName = sfa.OWNER_NAME;
+	// 		var fType = "wwc5";
+	// 		var otherId = "";
+	// 	} else if (sfa.hasOwnProperty('API_NUMBER')) {
+	// 		var fId = sfa.KID;
+	// 		var fName = sfa.LEASE_NAME + " " + sfa.WELL_NAME;
+	// 		var fType = "ogwell";
+	// 		var otherId = sfa.API_NUMBER;
+	// 	} else if (sfa.hasOwnProperty('MAG')) {
+	// 		var fId = sfa.ID;
+	// 		var fName = "";
+	// 		var fType = "earthquake";
+	// 		var otherId = "";
+	// 	} else if (sfa.hasOwnProperty('FIELD_KID')) {
+	// 		var fId = sfa.FIELD_KID;
+	// 		var fName = sfa.FIELD_NAME;
+	// 		var fType = "field";
+	// 		var otherId = "";
+	// 	}
+	//
+	// 	$.ajax( {
+	// 	  type: "post",
+	// 	  url: "reportProblem.cfm",
+	// 	  data: {
+	// 		  "id": fId,
+	// 		  "name": fName,
+	// 		  "type": fType,
+	// 		  "otherId": otherId,
+	// 		  "msg": $("#prob-msg").val()
+	// 	  }
+	// 	} );
+	// 	$("#prob-dia").dialog("close");
+	// }
 
-		$.ajax( {
-		  type: "post",
-		  url: "reportProblem.cfm",
-		  data: {
-			  "id": fId,
-			  "name": fName,
-			  "type": fType,
-			  "otherId": otherId,
-			  "msg": $("#prob-msg").val()
-		  }
-		} );
-		$("#prob-dia").dialog("close");
-	}
 
-
-	filterOG = function() {
-		var def = [];
-		var theWhere = "";
-		var typeWhere = "";
-		var dateWhere = "";
-		var opWhere = "";
-		var injWhere = "";
-		var hrzWhere = "";
-		var depthWhere = "";
-		var paperLogWhere = "";
-		var scanLogWhere = "";
-		var lasWhere = "";
-		var coreWhere = "";
-		var cuttingsWhere = "";
-		var ogType = $("#og-well-type").val();
-		var fromDate = dom.byId("og-from-date").value;
-		var toDate = dom.byId("og-to-date").value;
-		var op = dom.byId(operators).value;
-		var ogHas = $('input[name="og-has"]:checked').map(function() {
-		    return this.value;
-		} ).get();
-		var inj = dom.byId("inj").value;
-		var depthGT = dom.byId("og-gt-depth").value;
-		var depthLT = dom.byId("og-lt-depth").value;
-
-		if (ogType) {
-			var typeList = "'" + ogType.join("','") + "'";
-			typeWhere = "status_txt in (" + typeList +")";
-		}
-
-		if (fromDate && toDate) {
-			dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy') and completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-		} else if (fromDate && !toDate) {
-			dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy')";
-		} else if (!fromDate && toDate) {
-			dateWhere = "completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
-		}
-
-		if (op) {
-			opWhere = "curr_operator = '" + op + "'";
-		}
-
-		if (inj) {
-			if (inj === "inj-1") {
-				injWhere = "well_type = 'CLASS1'";
-			} else {
-				injWhere = "status in ('SWD','EOR','INJ')";
-			}
-		}
-
-		if (dom.byId(hrz).checked) {
-			hrzWhere = "substr(api_workovers, 1, 2) <> '00'";
-		}
-
-		if (depthGT && depthLT) {
-			if (parseInt(depthLT) < parseInt(depthGT)) {
-				alert("Invalid depth values: less-than value must be larger than greater-than value.");
-			} else {
-				depthWhere = "rotary_total_depth >= " + depthGT + " and rotary_total_depth <= " + depthLT;
-			}
-		} else if (depthGT && !depthLT) {
-			depthWhere = "rotary_total_depth >= " + depthGT;
-		} else if (!depthGT && depthLT) {
-			depthWhere = "rotary_total_depth <= " + depthLT;
-		}
-
-		for (var y=0; y<ogHas.length; y++) {
-			switch (ogHas[y]) {
-				case "paper-log":
-					paperLogWhere = "kid in (select well_header_kid from elog.log_headers)";
-					break;
-				case "scan-log":
-					scanLogWhere = "kid in (select well_header_kid from elog.scan_urls)";
-					break;
-				case "las":
-					lasWhere = "kid in (select well_header_kid from las.well_headers where proprietary = 0)";
-					break;
-				case "core":
-					coreWhere = "kid in (select well_header_kid from core.core_headers)";
-					break;
-				case "cuttings":
-					cuttingsWhere = "kid in (select well_header_kid from cuttings.boxes)";
-					break;
-			}
-		}
-
-		if (typeWhere !== "") {
-			theWhere += typeWhere + " and ";
-		}
-		if (dateWhere !== "") {
-			theWhere += dateWhere + " and ";
-		}
-		if (opWhere !== "") {
-			theWhere += opWhere + " and ";
-		}
-		if (injWhere !== "") {
-			theWhere += injWhere + " and ";
-		}
-		if (hrzWhere !== "") {
-			theWhere += hrzWhere + " and ";
-		}
-		if (depthWhere !== "") {
-			theWhere += depthWhere + " and ";
-		}
-		if (paperLogWhere !== "") {
-			theWhere += paperLogWhere + " and ";
-		}
-		if (scanLogWhere !== "") {
-			theWhere += scanLogWhere + " and ";
-		}
-		if (lasWhere !== "") {
-			theWhere += lasWhere + " and ";
-		}
-		if (coreWhere !== "") {
-			theWhere += coreWhere + " and ";
-		}
-		if (cuttingsWhere !== "") {
-			theWhere += cuttingsWhere + " and ";
-		}
-		if (theWhere.substr(theWhere.length - 5) === " and ") {
-			theWhere = theWhere.slice(0,theWhere.length - 5);
-		}
-
-		def[0] = theWhere;
-		idDef[0] = def[0];
-		wellsLayer.findSublayerById(0).definitionExpression = def[0];
-	}
+	// filterOG = function() {
+	// 	var def = [];
+	// 	var theWhere = "";
+	// 	var typeWhere = "";
+	// 	var dateWhere = "";
+	// 	var opWhere = "";
+	// 	var injWhere = "";
+	// 	var hrzWhere = "";
+	// 	var depthWhere = "";
+	// 	var paperLogWhere = "";
+	// 	var scanLogWhere = "";
+	// 	var lasWhere = "";
+	// 	var coreWhere = "";
+	// 	var cuttingsWhere = "";
+	// 	var ogType = $("#og-well-type").val();
+	// 	var fromDate = dom.byId("og-from-date").value;
+	// 	var toDate = dom.byId("og-to-date").value;
+	// 	var op = dom.byId(operators).value;
+	// 	var ogHas = $('input[name="og-has"]:checked').map(function() {
+	// 	    return this.value;
+	// 	} ).get();
+	// 	var inj = dom.byId("inj").value;
+	// 	var depthGT = dom.byId("og-gt-depth").value;
+	// 	var depthLT = dom.byId("og-lt-depth").value;
+	//
+	// 	if (ogType) {
+	// 		var typeList = "'" + ogType.join("','") + "'";
+	// 		typeWhere = "status_txt in (" + typeList +")";
+	// 	}
+	//
+	// 	if (fromDate && toDate) {
+	// 		dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy') and completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
+	// 	} else if (fromDate && !toDate) {
+	// 		dateWhere = "completion_date >= to_date('" + fromDate + "','mm/dd/yyyy')";
+	// 	} else if (!fromDate && toDate) {
+	// 		dateWhere = "completion_date < to_date('" + toDate + "','mm/dd/yyyy') + 1";
+	// 	}
+	//
+	// 	if (op) {
+	// 		opWhere = "curr_operator = '" + op + "'";
+	// 	}
+	//
+	// 	if (inj) {
+	// 		if (inj === "inj-1") {
+	// 			injWhere = "well_type = 'CLASS1'";
+	// 		} else {
+	// 			injWhere = "status in ('SWD','EOR','INJ')";
+	// 		}
+	// 	}
+	//
+	// 	if (dom.byId(hrz).checked) {
+	// 		hrzWhere = "substr(api_workovers, 1, 2) <> '00'";
+	// 	}
+	//
+	// 	if (depthGT && depthLT) {
+	// 		if (parseInt(depthLT) < parseInt(depthGT)) {
+	// 			alert("Invalid depth values: less-than value must be larger than greater-than value.");
+	// 		} else {
+	// 			depthWhere = "rotary_total_depth >= " + depthGT + " and rotary_total_depth <= " + depthLT;
+	// 		}
+	// 	} else if (depthGT && !depthLT) {
+	// 		depthWhere = "rotary_total_depth >= " + depthGT;
+	// 	} else if (!depthGT && depthLT) {
+	// 		depthWhere = "rotary_total_depth <= " + depthLT;
+	// 	}
+	//
+	// 	for (var y=0; y<ogHas.length; y++) {
+	// 		switch (ogHas[y]) {
+	// 			case "paper-log":
+	// 				paperLogWhere = "kid in (select well_header_kid from elog.log_headers)";
+	// 				break;
+	// 			case "scan-log":
+	// 				scanLogWhere = "kid in (select well_header_kid from elog.scan_urls)";
+	// 				break;
+	// 			case "las":
+	// 				lasWhere = "kid in (select well_header_kid from las.well_headers where proprietary = 0)";
+	// 				break;
+	// 			case "core":
+	// 				coreWhere = "kid in (select well_header_kid from core.core_headers)";
+	// 				break;
+	// 			case "cuttings":
+	// 				cuttingsWhere = "kid in (select well_header_kid from cuttings.boxes)";
+	// 				break;
+	// 		}
+	// 	}
+	//
+	// 	if (typeWhere !== "") {
+	// 		theWhere += typeWhere + " and ";
+	// 	}
+	// 	if (dateWhere !== "") {
+	// 		theWhere += dateWhere + " and ";
+	// 	}
+	// 	if (opWhere !== "") {
+	// 		theWhere += opWhere + " and ";
+	// 	}
+	// 	if (injWhere !== "") {
+	// 		theWhere += injWhere + " and ";
+	// 	}
+	// 	if (hrzWhere !== "") {
+	// 		theWhere += hrzWhere + " and ";
+	// 	}
+	// 	if (depthWhere !== "") {
+	// 		theWhere += depthWhere + " and ";
+	// 	}
+	// 	if (paperLogWhere !== "") {
+	// 		theWhere += paperLogWhere + " and ";
+	// 	}
+	// 	if (scanLogWhere !== "") {
+	// 		theWhere += scanLogWhere + " and ";
+	// 	}
+	// 	if (lasWhere !== "") {
+	// 		theWhere += lasWhere + " and ";
+	// 	}
+	// 	if (coreWhere !== "") {
+	// 		theWhere += coreWhere + " and ";
+	// 	}
+	// 	if (cuttingsWhere !== "") {
+	// 		theWhere += cuttingsWhere + " and ";
+	// 	}
+	// 	if (theWhere.substr(theWhere.length - 5) === " and ") {
+	// 		theWhere = theWhere.slice(0,theWhere.length - 5);
+	// 	}
+	//
+	// 	def[0] = theWhere;
+	// 	idDef[0] = def[0];
+	// 	wellsLayer.findSublayerById(0).definitionExpression = def[0];
+	// }
 
 
 	clearOgFilter = function() {
@@ -743,10 +643,210 @@ function(
 		$("#wells-tbl").html("");
 		if ( $("#chart").highcharts() ) {
 			$("#chart").highcharts().destroy();
-			$("#chart-x, #chart").hide();
+			$("#chart").hide();
 		}
 		$(".esri-icon-line-chart").hide();
 		$(".esri-icon-download").hide();
+	}
+
+
+	updateMap = function() {
+		var locWhere = "";
+		var timeWhere = "";
+		var magWhere = "";
+		wellsWhere = "";
+		attrWhere = "";
+		geomWhere = "";
+		wellsGeomWhere = "";
+		wellsAttrWhere = "";
+
+		// Remove download links and clear graphics:
+		$(".download-link").html("");
+		graphicsLayer.removeAll();
+
+		// Create location clause:
+		var location = $("input[name=loc-type]:checked").val();
+		switch (location) {
+			case "state":
+				// blank in this case, events already limited by definition query in mxd.
+				break;
+			case "buf":
+				locBuff = $("#loc-buff").val();
+				if (view.popup.selectedFeature) {
+					createBufferGeom(locBuff);
+				} else {
+					alert("Please select an event or well to buffer.");
+				}
+				break;
+			case "co":
+				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
+				if (counties !== 'Counties') {
+					locWhere = "county_name in (" + counties + ")";
+				}
+				break;
+			case "sca":
+				var selected = $("#sca").val();
+				if (selected.length == 1 && selected[0] === "Seismic Concern Areas") {
+					return;
+				} else {
+					if (selected[0] === "Seismic Concern Areas") {
+						selected.shift();
+					}
+					var scas = "'" + selected.join("','") + "'";
+					geomWhere = "";
+					getScaGeometry(scas);
+				}
+				break;
+		}
+
+		// Create time clause:
+		var time = $("input[name=time-type]:checked").val();
+		switch (time) {
+			case "week":
+				timeWhere = "sysdate - cast(origin_time_cst as date) <= 6";
+				break;
+			case "month":
+				timeWhere = "sysdate - cast(origin_time_cst as date) <= 29";
+				break
+			case "year":
+				timeWhere = "to_char(origin_time_cst,'YYYY') = to_char(sysdate, 'YYYY')";
+				break;
+			case "date":
+				var fromDate = dom.byId('from-date').value;
+				var toDate = dom.byId('to-date').value;
+				if (fromDate && toDate) {
+					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				} else if (fromDate && !toDate) {
+					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+				} else if (!fromDate && toDate) {
+					timeWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				}
+				break;
+		}
+
+		// Create mag-sas clause:
+		var lMag = dom.byId('low-mag').value;
+		var uMag = dom.byId('high-mag').value;
+
+		var mag = $("input[name=mag-type]:checked").val();
+		switch (mag) {
+			case "all":
+				// blank in this case.
+				break;
+			case "magrange":
+				if (lMag && uMag) {
+					magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+				} else if (lMag && !uMag) {
+					magWhere = "mc >= " + lMag;
+				} else if (!lMag && uMag) {
+					magWhere = "mc <= " + uMag;
+				}
+				break
+			case "gt3517":
+				magWhere = "(mc >= 3.5 or sas >= 17)";
+				break;
+		}
+
+		// Create wells clause:
+		var well = $("input[name=well-type]:checked").val();
+		switch (well) {
+			case "all":
+				// blank in this case.
+				break;
+			case "bbls":
+				var bbls = $("#bbls").val();
+				// TODO: rework when real injection wishes are know:
+				wellsWhere = "has_injection_data = 1";
+				break
+		}
+
+		// Put where clauses together (excluding wells clause which is created separately):
+		if (locWhere !== "") {
+			attrWhere += locWhere + " and ";
+		}
+		if (timeWhere !== "") {
+			attrWhere += timeWhere + " and ";
+		}
+		if (magWhere !== "") {
+			attrWhere += magWhere + " and ";
+		}
+		// Strip off final "and":
+		if (attrWhere.substr(attrWhere.length - 5) === " and ") {
+			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
+		}
+
+		// Put wells clause together w/ location where:
+		if (wellsWhere !== "") {
+			wellsAttrWhere += wellsWhere + " and ";
+		}
+		if (locWhere !== "") {
+			wellsAttrWhere += locWhere + " and ";
+		}
+		// Strip off final "and":
+		if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
+			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
+		}
+
+		if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "") ) {
+			setTimeout(waitForGeomWheres(), 100);
+		} else {
+			applyDefExp();
+		}
+	}	// end updateMap().
+
+
+	function createBufferGeom(buffDist) {
+		graphicsLayer.remove(bufferGraphic);
+
+		if (view.popup.selectedFeature) {
+			var f = view.popup.selectedFeature;
+			if (f.geometry.type === "point") {
+				var buffFeature = new Point( {
+				    x: f.geometry.x,
+				    y: f.geometry.y,
+				    spatialReference: wmSR
+				 } );
+			} else {
+				var buffFeature = new Polygon( {
+				    rings: f.geometry.rings,
+				    spatialReference: wmSR
+				 } );
+			}
+
+			var buffPoly = geometryEngine.geodesicBuffer(buffFeature, buffDist, "miles");
+			var fillSymbol = new SimpleFillSymbol( {
+				color: [102, 205, 170, 0.25],
+				outline: new SimpleLineSymbol( {
+					color: [0, 0, 0],
+				  	width: 1
+				} )
+			} );
+			bufferGraphic = new Graphic( {
+				geometry: buffPoly,
+				symbol: fillSymbol
+			} );
+			graphicsLayer.add(bufferGraphic);
+
+			$(".esri-icon-erase").show();
+
+			view.goTo( {
+				target: buffPoly.extent
+			}, {duration: 500} );
+
+			createGeomWhere(buffPoly);
+			createwellsGeomWhere(buffPoly);
+		} else {
+			alert("Please select a feature to buffer");
+		}
+	}
+
+
+	function waitForGeomWheres() {
+		if (geomWhere !== "" && wellsGeomWhere !== "") {
+			applyDefExp();
+		} else {
+			setTimeout(waitForGeomWheres, 100);
+		}
 	}
 
 
@@ -865,7 +965,7 @@ function(
 			}, 3000);
 
 			// Turn on selected layers and filter features w/ a definitionExpression:
-			applyDefExp(lIDs, theWhere);
+			// applyDefExp(lIDs, theWhere);
 
 			if (areaType === "state") {
 				zoomToState();
@@ -899,17 +999,96 @@ function(
 		$(".item").removeClass("item-selected");
 		$(".panel").removeClass("panel-selected");
 		$(".icon-wrench").closest(".item").addClass("item-selected");
-		$("#tools-panel").closest(".panel").addClass("panel-selected");
+		$("#data-panel").closest(".panel").addClass("panel-selected");
 		$("#loader").show();
 	}
 
 
-	function filterSca() {
-		graphicsLayer.removeAll();
-		openToolsPanel();
+	function getScaGeometry(scas) {
+		var qt = new QueryTask();
+		var qry = new Query();
+		var geom;
 
-		var returnType = $('input[name=return-type]:checked').val();
-		var areaType = $('input[name=area-type]:checked').val();
+		// Query task to get geometry for selected SCAs:
+		if (scas.indexOf("Specified") > -1) {
+			// expanded area.
+			var serviceLyr = 1;
+			qry.where = "objectid = 1";
+		} else {
+			var serviceLyr = 0;
+			qry.where = "area_name in (" + scas + ")";
+		}
+
+		qry.returnGeometry = true;
+		qt.url = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
+		qt.execute(qry).then(function(result) {
+			var f = result.features;
+			geom = (f[0].geometry);
+			if (f.length > 1) {
+				for (var i = 1; i < f.length; i++) {
+					geom = geometryEngine.union( [ geom, f[i].geometry ] );
+				}
+			}
+			geomWhere = createGeomWhere(geom);
+			wellsGeomWhere = createwellsGeomWhere(geom);
+		} );
+	}
+
+
+	function createGeomWhere(geom) {
+		var qt = new QueryTask();
+		var qry = new Query();
+		geomWhere = "";
+
+		qt.url = tremorGeneralServiceURL + "/21";	// Note this selects all events so objectids are already in where clause when layer is made visible.
+		qry.geometry = geom;
+		qt.executeForIds(qry).then(function(ids) {
+			var chunk;
+			geomWhere = "objectid in";
+
+			while (ids.length > 0) {
+				chunk = ids.splice(0,1000);
+				chunk = " (" + chunk.join(",") + ") or objectid in";
+				geomWhere += chunk;
+			}
+			if (geomWhere.substr(geomWhere.length - 2) === "in") {
+				geomWhere = geomWhere.slice(0,geomWhere.length - 15);
+			}
+		} );
+		return geomWhere;
+	}
+
+
+	function createwellsGeomWhere(geom) {
+		var qt = new QueryTask();
+		var qry = new Query();
+		wellsGeomWhere = "";
+
+		qt.url = tremorGeneralServiceURL + "/19";
+		qry.geometry = geom;
+		qt.executeForIds(qry).then(function(ids) {
+			var chunk;
+			wellsGeomWhere = "objectid in";
+
+			while (ids.length > 0) {
+				chunk = ids.splice(0,1000);
+				chunk = " (" + chunk.join(",") + ") or objectid in";
+				wellsGeomWhere += chunk;
+			}
+			if (wellsGeomWhere.substr(wellsGeomWhere.length - 2) === "in") {
+				wellsGeomWhere = wellsGeomWhere.slice(0,wellsGeomWhere.length - 15);
+			}
+		} );
+		return wellsGeomWhere;
+	}
+
+
+	function filterSca(scas) {
+		graphicsLayer.removeAll();
+		// openToolsPanel();
+
+		// var returnType = $('input[name=return-type]:checked').val();
+		// var areaType = $('input[name=area-type]:checked').val();
 		var ft = new FindTask("http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer");
 		var fp = new FindParameters();
 		var qt = new QueryTask();
@@ -922,19 +1101,22 @@ function(
 		fp.layerDefinitions = [];
 
 		// Find task to get geometry of selected sca:
-		if (dom.byId("sca").value === "Expanded Area") {
-			fp.layerIds = [1];
-			fp.searchFields = ["OBJECTID"];
-			fp.searchText = "1";
-			seismicConcernExpandedLayer.visible = true;
-			$("#Expanded-Area-of-Seismic-Concern input").prop("checked", true);
-		} else {
-			fp.layerIds = [0];
-			fp.searchFields = ["AREA_NAME"];
-			fp.searchText = dom.byId("sca").value;
-			seismicConcernLayer.visible = true;
-			$("#Areas-of-Seismic-Concern input").prop("checked", true);
-		}
+		// if (dom.byId("sca").value === "Expanded Area") {
+		// 	fp.layerIds = [1];
+		// 	fp.searchFields = ["OBJECTID"];
+		// 	fp.searchText = "1";
+		// 	seismicConcernExpandedLayer.visible = true;
+		// 	$("#Expanded-Area-of-Seismic-Concern input").prop("checked", true);
+		// } else {
+		// 	fp.layerIds = [0];
+		// 	fp.searchFields = ["AREA_NAME"];
+		// 	fp.searchText = dom.byId("sca").value;
+		// 	seismicConcernLayer.visible = true;
+		// 	$("#Areas-of-Seismic-Concern input").prop("checked", true);
+		// }
+		fp.layerIds = [0];
+		fp.searchFields = ["AREA_NAME"];
+		fp.searchText = dom.byId("sca").value;
 		ft.execute(fp).then(function(result) {
 			// highlightFeature(result.results[0].feature);
 			zoomToFeature(result.results[0].feature);
@@ -980,7 +1162,7 @@ function(
 					$.post( "createDefExpTable.cfm", cfData, function(response) {
 						var tempTable = response;
 						createWellsList(oids, returnType, areaType);
-						applyDefExp(lIDs, theWhere, tempTable);
+						// applyDefExp(lIDs, theWhere, tempTable);
 					} );
 				}, 3000 );
 			}
@@ -1143,7 +1325,7 @@ function(
 				$.post( "createDefExpTable.cfm", cfData, function(response) {
 					var tempTable = response;
 					createWellsList(oids, returnType, areaType);
-					applyDefExp(lIDs, theWhere, tempTable);
+					// applyDefExp(lIDs, theWhere, tempTable);
 				} );
 			}, 3000 );
 		}
@@ -1218,53 +1400,59 @@ function(
 	}
 
 
-	function applyDefExp(lIDs, theWhere, tempTable) {
-		// Turn all event layers off:
-		kgsCatalogedLayer.visible = false;
-		$("#KGS-Cataloged-Events input").prop("checked", false);
-		kgsPrelimLayer.visible = false;
-		$("#KGS-Preliminary-Events input").prop("checked", false);
-		neicLayer.visible = false;
-		$("#NEIC-Cataloged-Events input").prop("checked", false);
-		// ogsLayer.visible = false;
-		// $("#OGS-Cataloged-Events input").prop("checked", false);
+	function applyDefExp() {
+		comboWhere = "";
+		wellsComboWhere = "";
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
 
-		if ( tempTable && theWhere ) {
-			theWhere += " and objectid in (select oid from " + tempTable +" )";
+		if (geomWhere === "clear") {
+			// Means form has been reset to defaults.
+			geomWhere = "";
 		}
-		if (tempTable && !theWhere) {
-			theWhere += "objectid in (select oid from " + tempTable + ")";
+		if (wellsGeomWhere === "clear") {
+			// Means form has been reset to defaults.
+			wellsGeomWhere = "";
 		}
 
-		// Apply definitionExpression to filter which features are visible; turn layer on:
-		for (var i = 0; i < lIDs.length; i++) {
-			switch (lIDs[i]) {
-				case 14:
-					kgsCatalogedLayer.findSublayerById(14).definitionExpression = theWhere;
-					kgsCatalogedLayer.visible = true;
-					idDef[14] = theWhere;
-					$("#KGS-Cataloged-Events input").prop("checked", true);
-					break;
-				case 15:
-					kgsPrelimLayer.findSublayerById(15).definitionExpression = theWhere;
-					kgsPrelimLayer.visible = true;
-					idDef[15] = theWhere;
-					$("#KGS-Preliminary-Events input").prop("checked", true);
-					break;
-				case 16:
-					neicLayer.findSublayerById(16).definitionExpression = theWhere;
-					neicLayer.visible = true;
-					idDef[16] = theWhere;
-					$("#NEIC-Cataloged-Events input").prop("checked", true);
-					break;
-				// case 17:
-				// 	ogsLayer.findSublayerById(17).definitionExpression = theWhere;
-				// 	ogsLayer.visible = true;
-				// 	idDef[17] = theWhere;
-				// 	$("#OGS-Cataloged-Events input").prop("checked", true);
-				// 	break;
-			}
+		if (attrWhere && geomWhere) {
+			comboWhere = attrWhere + " and (" + geomWhere + ")";
 		}
+		if (attrWhere && !geomWhere) {
+			comboWhere = attrWhere;
+		}
+		if (!attrWhere && geomWhere) {
+			comboWhere = geomWhere;
+		}
+		if (!attrWhere && !geomWhere) {
+			comboWhere = "";
+		}
+
+		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
+		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
+		neicLayer.findSublayerById(16).definitionExpression = comboWhere;
+		historicLayer.findSublayerById(20).definitionExpression = comboWhere;
+		idDef[14] = comboWhere;
+		idDef[15] = comboWhere;
+		idDef[16] = comboWhere;
+		idDef[20] = comboWhere;
+
+		if (wellsAttrWhere && wellsGeomWhere) {
+			wellsComboWhere = wellsAttrWhere + " and (" + wellsGeomWhere + ")";
+		}
+		if (wellsAttrWhere && !wellsGeomWhere) {
+			wellsComboWhere = wellsAttrWhere;
+		}
+		if (!wellsAttrWhere && wellsGeomWhere) {
+			wellsComboWhere = wellsGeomWhere;
+		}
+		if (!wellsAttrWhere && !wellsGeomWhere) {
+			wellsComboWhere = "";
+		}
+
+		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
+		idDef[19] = wellsComboWhere;
 	}
 
 
@@ -1286,11 +1474,11 @@ function(
 		}
 
 		if (fromDate && toDate) {
-			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		} else if (fromDate && !toDate) {
-			dateWhere = "trunc(origin_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 		} else if (!fromDate && toDate) {
-			dateWhere = "trunc(origin_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		}
 
 		if (lMag && uMag) {
@@ -1339,6 +1527,8 @@ function(
 			position: "bottom-right"
 		};
 		view.popup.visible = true;
+
+		$(".esri-icon-checkbox-checked").show();
     }
 
 
@@ -1381,10 +1571,16 @@ function(
     function zoomToFeature(features) {
         var f = features[0] ? features[0] : features;
 		if (f.geometry.type === "point") {
-            view.center = new Point(f.geometry.x, f.geometry.y, wmSR);;
-            view.scale = 24000;
+			var p = new Point(f.geometry.x, f.geometry.y, wmSR);
+			view.goTo( {
+				target: p,
+				zoom: 15
+			}, {duration: 500} );
 		} else {
-			view.extent = f.geometry.extent;
+			var e = f.geometry.extent;
+			view.goTo( {
+				target: e
+			}, {duration: 500} );
 		}
 		highlightFeature(f);
     }
@@ -1582,8 +1778,8 @@ function(
 			if (a.feature.attributes["LAYER"] < b.feature.attributes["LAYER"]) { return -1; }
 			if (a.feature.attributes["LAYER"] > b.feature.attributes["LAYER"]) { return 1; }
 			if (a.feature.attributes["LAYER"] === b.feature.attributes["LAYER"]) {
-				var aDate = new Date(a.feature.attributes["ORIGIN_TIME"]);
-				var bDate = new Date(b.feature.attributes["ORIGIN_TIME"]);
+				var aDate = new Date(a.feature.attributes["origin_time_cst"]);
+				var bDate = new Date(b.feature.attributes["origin_time_cst"]);
 				if (aDate < bDate) { return -1; }
 				if (aDate > bDate) { return 1; }
 				return 0;
@@ -1720,80 +1916,115 @@ function(
 
 
 	makeGraph = function() {
-		$("#graph-type-dia").dialog("close");
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
 
-		var graphType = $('input[name=graph-type]:checked').val();
-		switch (graphType) {
-			case "count":
-				var graphTitle = "Count / Date";
-				var yAxisText = "Count";
-				var pointFormatText = "Count: <b>{point.y}</b>";
-				var showDecimals = false;
-				break;
-			case "mag":
-				var graphTitle = "Magnitude / Date";
-				var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
-				var yAxisText = "Magnitude";
-				var pointFormatText = "Magnitude: <b>{point.y}</b>";
-				var showDecimals = true;
-				break;
-		}
+		if (filterLyrs.length === 0) {
+			alert("At least one earthquake or well layer must be visible.")
+		} else {
+			var graphLayers = filterLyrs.join(",");
 
-		if ( $("#chart").highcharts() ) {
-			$("#chart").highcharts().destroy();
-			$("#chart-x, #chart").hide();
-		}
+			var graphType = $('input[name=graph-type]:checked').val();
+			switch (graphType) {
+				case "count":
+					var graphTitle = "Count / Date";
+					var yAxisText = "Count";
+					var pointFormatText = "Count: <b>{point.y}</b>";
+					var showDecimals = false;
+					var graphWhere = comboWhere;
+					var chartType = "scatter";
+					break;
+				case "mag":
+					var graphTitle = "Magnitude / Date";
+					var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
+					var yAxisText = "Magnitude";
+					var pointFormatText = "Magnitude: <b>{point.y}</b>";
+					var showDecimals = true;
+					var graphWhere = comboWhere;
+					var chartType = "scatter";
+					break;
+				case "cumulative":
+					var graphTitle = "Cumulative Total";
+					var yAxisText = "Total";
+					var pointFormatText = "Total: <b>{point.y}</b>";
+					var showDecimals = true;
+					var graphWhere = comboWhere;
+					var chartType = "line";
+					break;
+				case "injvol":
+					// graphWhere is some kind of attribute where on wells
+					break;
+				case "joint":
+					// have to create some kind of custom where here?
+					break;
+			}
 
-		$("#chart").show();
+			if ( $("#chart").highcharts() ) {
+				$("#chart").highcharts().destroy();
+				$("#chart").hide();
+			}
 
-		$.get('createChartData.cfm?type=' + graphType + '&tbl=' + sharedCfTable, function(response) {
-			var data = JSON.parse(response);
+			// Set size of chart container as a percentage of window size:
+			var wWidth = $(window).width();
+			var dWidth = wWidth * 0.75;
+			$("#chart-container").dialog("option", "width", dWidth);
 
-		    $('#chart').highcharts( {
-		        chart: {
-		            type: 'scatter',
-					borderColor: '#A9A9A9',
-            		borderWidth: 3,
-					borderRadius: 8,
-					zoomType: 'xy'
-		        },
-				title: {
-					text: graphTitle
-				},
-				subtitle: {
-					text: graphSubTitle
-				},
-				tooltip: {
-					crosshairs: {
-				        color: 'green',
-				        dashStyle: 'solid'
-				    },
-		        	// enabled: false
-					headerFormat: '<b>{point.key}</b><br/>',
-					pointFormat: pointFormatText,
-					xDateFormat: '%b %e, %Y'
-		        },
-				xAxis: {
-		            type: 'datetime',
-					endOnTick: true,
-					startOnTick: true
-		        },
-				yAxis: {
-					allowDecimals: showDecimals,
+			$("#chart-container").dialog("open");
+			$("#chart").show();
+
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
+
+			$("#loader").show();
+			$.post("createChartData.cfm", packet, function(response) {
+				var data = JSON.parse(response);
+
+			    $('#chart').highcharts( {
+			        chart: {
+			            type: chartType,
+						borderColor: '#A9A9A9',
+	            		borderWidth: 3,
+						borderRadius: 8,
+						zoomType: 'xy'
+			        },
 					title: {
-						text: yAxisText
-					}
-				},
-				series: data
-		    } );
-		} );
-		$("#chart-x").show();
+						text: graphTitle
+					},
+					subtitle: {
+						text: graphSubTitle
+					},
+					tooltip: {
+						crosshairs: {
+					        color: 'green',
+					        dashStyle: 'solid'
+					    },
+			        	// enabled: false
+						headerFormat: '<b>{point.key}</b><br/>',
+						pointFormat: pointFormatText,
+						xDateFormat: '%b %e, %Y'
+			        },
+					xAxis: {
+			            type: 'datetime',
+						endOnTick: true,
+						startOnTick: true
+			        },
+					yAxis: {
+						allowDecimals: showDecimals,
+						title: {
+							text: yAxisText
+						}
+					},
+					series: data
+			    } );
+				$("#loader").hide();
+			} );
+		}
 	}
 
 
 	downloadList = function(evt) {
 		$("#loader").show();
-		$.post( "downloadPointsInPoly.cfm", data, function(response) {
+		$.post( "downloadPoints.cfm", data, function(response) {
 			$(".download-link").html(response);
 			$("#loader").hide();
 		} );
@@ -1880,7 +2111,8 @@ function(
 		// Display (layers) panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Display <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        // content += '<div class="panel-header">Display <span id="clear-filters"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+		content += '<div class="panel-header">Display</div>';
         content += '<div id="lyrs-toc"></div>';
         content += '</div>';
 
@@ -1892,12 +2124,40 @@ function(
 
         // Data (tools) panel:
         content = '';
-        content += '<div class="panel-container" id="tools-panel">';
-        content += '<div class="panel-header">Data <span id="dwnld"></span><img id="loader" class="hide" src="images/ajax-loader.gif"><span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
-        content += '<div class="panel-padding">';
-		content += '</div>';
-		content += '<div id="wells-tbl"></div>';
-        content += '</div>';
+        content += '<div class="panel-container">';
+		content += '<div class="panel-header">Data<img id="loader" class="hide" src="images/ajax-loader.gif"></div>';
+
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
+		content += '<div class="data-body hide" id="data-dwnload">';
+		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells</label></td></tr>";
+		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Download</button></td></tr></table>";
+		content += "<div class='download-link' id='wells-link'></div>";
+		content += '</div>';	// end download div.
+
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Time Graphs</span></div>';
+		content += '<div class="data-body hide" id="data-grph">';
+		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Plot</label></td></tr>";
+		content += "<tr><td></td><td><button class='find-button' onclick='makeGraph()'>Create Graph</button></td></tr></table>";
+		content += '</div>';	// end graph div.
+
+		// content += '<div class="data-header esri-icon-right-triangle-arrow" id="list"><span class="find-hdr-txt"> List</span></div>';
+		// content += '<div class="data-body hide" id="data-list">';
+		// content += "FooBar";
+		// content += '</div>';	// end list div.
+
+        content += '</div>';	// end data panel div.
+
+		// Initialize chart:
+		$("#chart-container").dialog( {
+            autoOpen: false,
+            dialogClass: "dialog",
+			title: ""
+        } );
 
         menuObj = {
             label: '<div class="esri-icon-table"></div><div class="icon-text">Data</div>',
@@ -1908,7 +2168,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Find <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Find</div>';
         content += '<div class="panel-padding">';
 
 		// api:
@@ -1994,7 +2254,7 @@ function(
 		// Legend panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Legend <span class="esri-icon-erase" title="Clear Filter & Graphics"></span><span class="esri-icon-filter" title="Filter Features"></span></div>';
+        content += '<div class="panel-header">Legend</div>';
         content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
 		// content += '<div class="panel-header">Links</div>';
@@ -2014,6 +2274,27 @@ function(
     }
 
 
+	dataDownload = function() {
+		// Which download options are checked:
+		var downloadOptions = [];
+		if ( $("#chk-dwn-evts").is(":checked") ) {
+			downloadOptions.push("events");
+		}
+		if ( $("#chk-dwn-wells").is(":checked") ) {
+			downloadOptions.push("wells");
+		}
+		var downloadOptions = downloadOptions.join(",");
+
+		var packet = { "what": downloadOptions, "evtwhere": comboWhere, "wellwhere": wellsComboWhere };
+
+		$("#loader").show();
+		$.post( "downloadPoints.cfm", packet, function(response) {
+			$("#wells-link").html(response);
+			$("#loader").hide();
+		} );
+	}
+
+
     function showFullInfo() {
         var popupTitle = $(".esri-popup__header-title").html();
         if (popupTitle.indexOf("Field:") > -1) {
@@ -2029,79 +2310,104 @@ function(
     }
 
 
-	showList = function(list) {
-		if (list === 'co') {
-			$("#lstCounty2").attr("size","4");
-			$("#sca").attr("size","1");
-			$('[name=loc-type][value="co"]').prop('checked',true);
-		} else {
-			$("#sca").attr("size","4");
-			$("#lstCounty2").attr("size","1");
-			$('[name=loc-type][value="sca"]').prop('checked',true);
-		}
-	}
-
-
-	hideList = function(list) {
-		if (list === 'co') {
-			$("#lstCounty2").attr("size","1");
-		} else {
-			$("#sca").attr("size","1");
-		}
-	}
-
-
 	function createDashboard() {
 		// var units = ["miles","kilometers","meters","yards","feet"];
-		var seismicAreas = ["Seismic Concern Areas","Anthony","Freeport","Bluff City","Milan","Caldwell","2016 Specified Area"];
+		var seismicAreas = ["Anthony","Bluff City","Caldwell","Freeport","Milan","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<table class='db-table'><tr><th>Location</th><th>Time</th><th>Magnitude/SAS</th><th>Wells</th></tr>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
 
 		// Location:
-		dbCon += "<tr><td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked> Statewide</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' value='buf'> <input type='text' id='loc-buff' size='2' oninput='checkLocRadio()'> mile(s) around selected feature</td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='co' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'> <select id='lstCounty2' multiple size='1' onfocus='showList(&quot;co&quot;)' onblur='hideList(&quot;co&quot;)'></select></td></tr>";
-		dbCon += "<tr><td><input class='sel-rad' type='radio' name='loc-type' value='sca' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'> <select id='sca' multiple size='1' onfocus='showList(&quot;sca&quot;)' onblur='hideList(&quot;sca&quot;)'>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
+		dbCon += "<table class='db-sub-table' id='location-body'>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' value='state' checked></td><td>Statewide</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='buf' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='co'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
+		for (var k = 0; k < cntyArr.length; k++) {
+		 	dbCon += "<option value='" + cntyArr[k] + "'>" + cntyArr[k] + "</option>";
+		}
+		dbCon += "</select></td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' value='sca' ></td><td> <select class='loc-select' id='sca' multiple>";
 		for (var j = 0; j < seismicAreas.length; j++) {
 		 	dbCon += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
 		dbCon += "</select></td></tr>";
-		dbCon += "</table></td>";
+		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked> Past week</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='month'> Past month</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='year'> This year</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='date'> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Origin Time</span>";
+		dbCon += "<table class='db-sub-table' id='time-body'>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past 7 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past 30 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' value='date'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
-		dbCon += "</table></td>";
-
-		// Mag/SAS:
-		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt35'> M &ge; 3.5</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'> M <input type='text' size='4' id='low-mag' oninput='checkMagRadio()'> to <input type='text' size='4' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='sas17' checked>SAS &ge; 17</td></tr>";
-		dbCon += "</table></td>";
+		// Mag-SAS:
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='magsas'>Magnitude/SAS</span>";
+		dbCon += "<table class='db-sub-table' id='magsas-body'>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text'  class='txt-input' id='low-mag' oninput='checkMagRadio()'> to <input type='text'  class='txt-input' id='high-mag' oninput='checkMagRadio()'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' ></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
+		dbCon += "</table></div>";
+		dbCon += "<div class='vertical-line'></div>";
 
 		// Wells:
-		dbCon += "<td><table class='db-sub-table'>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='all'> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-disp' checked> Within <input type='text' id='buff-disp' size='2' value='6' oninput='checkWellRadio(&quot;buff-disp&quot;)'> mile(s) of displayed earthquakes</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='buff-feat'> <input type='text' id='buff-feat' size='2' oninput='checkWellRadio(&quot;buff-feat&quot;)'> mile(s) around selected feature</td></tr>";
-		dbCon += "<tr><td><input type='checkbox' id='chk-bbls'>BBLS/day &ge; <input type='text' size='4' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
-		dbCon += "</table></td>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
+		dbCon += "<table class='db-sub-table' id='wells-body'>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "</table></div>";
 
-		dbCon += "</tr></table>";
-		dbCon += "</div>";
+		dbCon += "</div>";	// end main dashboard div.
 
 		$("#dashboard").html(dbCon);
 
 		$("#from-date").datepicker();
         $("#to-date").datepicker();
+
+		$("#close-db").click(function() {
+			$(".dashboard").hide();
+			$("#dashboard-btn").show();
+		} );
+
+		$("#reset-db").click(function() {
+			resetDefaults();
+		} );
+
+		$("#deselect-icon").click(function() {
+			$(".esri-icon-checkbox-checked").hide();
+			graphicsLayer.remove(hilite);
+			view.popup.clear();
+			view.popup.visible = false;
+		} );
+
+		$("#erase-graphics").click(function() {
+			graphicsLayer.remove(bufferGraphic);
+			$(".esri-icon-erase").hide();
+	    } );
+
+		$("#lstCounty2").multiselect( {
+			showCheckbox: false,
+		    texts: {
+		        placeholder: "Counties"
+		    },
+			onOptionClick: function(e) {
+				$('[name=loc-type][value="co"]').prop('checked',true);
+			}
+		} );
+		$("#sca").multiselect( {
+			// selectAll: true,
+			showCheckbox: false,
+		    texts: {
+		        placeholder: "Seismic Concern Areas"
+		    },
+			onOptionClick: function(e) {
+				$('[name=loc-type][value="sca"]').prop('checked',true);
+			}
+		} );
 	}
 
 
@@ -2112,9 +2418,12 @@ function(
 		var wellsTocContent = "";
 		var boundariesTocContent = "";
 		var basemapTocContent = "";
+		var otherEqContent = '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
+		otherEqContent += '<div class="find-body hide" id="other-group-body">';
 
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
-		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events","NEIC-Cataloged-Events"];
+		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
+		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
 		var wellsGroup = ["Salt-Water-Disposal-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Topo","Aerial-Imagery"];
@@ -2137,18 +2446,15 @@ function(
 			var htmlID = layerID.replace(/ /g, "-");
 
 			if (earthquakeGroup.indexOf(htmlID) > -1) {
-				if (htmlID !== "NEIC-Cataloged-Events") {
-					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
-				} else {
-					eqTocContent += '<div class="toc-sub-item esri-icon-right-triangle-arrow group-hdr" id="other-group"><span class="find-hdr-txt">&nbsp;&nbsp;Other</span></div>';
-					eqTocContent += '<div class="find-body hide" id="other-group-body">';
-					eqTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label>";
-					eqTocContent += '</div>';
-				}
+				eqTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+			}
+
+			if (otherEarthquakeGroup.indexOf(htmlID) > -1) {
+				otherEqContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (wellsGroup.indexOf(htmlID) > -1) {
-				wellsTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				wellsTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (boundariesGroup.indexOf(htmlID) > -1) {
@@ -2159,6 +2465,8 @@ function(
 				basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='" + layerID + "' onclick='toggleBasemapLayer();'" + chkd + "> " + layerID + "</label></div>";
 			}
         }
+
+		eqTocContent += otherEqContent;
 
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
@@ -2173,17 +2481,11 @@ function(
 			var group = $(this).attr("id");
 			if ( $(this).hasClass("esri-icon-down-arrow") ) {
 				$("#" + group + "-body").fadeOut("fast");
-
 			} else {
 				$("#" + group + "-body").fadeIn("fast");
 			}
 			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
 		} );
-    }
-
-
-    labelWells = function(type) {
-        // TODO:
     }
 
 
@@ -2195,6 +2497,33 @@ function(
 
 
     function executeIdTask(event) {
+		var idLayers = [];
+		var visLayers = $(".toc-sub-item :checked").map(function() {
+			return $(this).val();
+		} ).get();
+
+		for (var i = 0; i < visLayers.length; i++) {
+			switch (visLayers[i]) {
+				case "KGS Cataloged Events":
+					idLayers.push(14);
+					break;
+				case "KGS Preliminary Events":
+					idLayers.push(15);
+					break;
+				case "Historic Events":
+					idLayers.push(20);
+					break;
+				case "NEIC Cataloged Events":
+					idLayers.push(16);
+					break;
+				case "Salt Water Disposal Wells":
+					idLayers.push(19);
+					break;
+			}
+		}
+		var layerids = idLayers.join(",");
+
+		identifyParams.layerIds = [layerids];
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
 		identifyParams.layerDefinitions = idDef;
@@ -2207,16 +2536,16 @@ function(
             	openPopup(feature);
 
 				// Highlight row in wells list table:
-				var fAtts = feature[0].attributes;
-				if (fAtts.hasOwnProperty('INPUT_SEQ_NUMBER')) {
-					var ptID = fAtts.INPUT_SEQ_NUMBER;
-				} else if (fAtts.hasOwnProperty('KID')) {
-					var ptID = fAtts.KID;
-				} else if (fAtts.hasOwnProperty('EVENT_ID')) {
-					var ptID = fAtts.EVENT_ID;
-				}
-				$(".well-list-tbl tr").removeClass("highlighted");
-				$(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
+				// var fAtts = feature[0].attributes;
+				// if (fAtts.hasOwnProperty('INPUT_SEQ_NUMBER')) {
+				// 	var ptID = fAtts.INPUT_SEQ_NUMBER;
+				// } else if (fAtts.hasOwnProperty('KID')) {
+				// 	var ptID = fAtts.KID;
+				// } else if (fAtts.hasOwnProperty('EVENT_ID')) {
+				// 	var ptID = fAtts.EVENT_ID;
+				// }
+				// $(".well-list-tbl tr").removeClass("highlighted");
+				// $(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
 
             	highlightFeature(feature);
 			} else {
@@ -2252,9 +2581,9 @@ function(
 				} );
 				feature.popupTemplate = wwc5Template;
 			}
-			else if (layerName === 'KGS Cataloged Events' || layerName === 'KGS Preliminary Events' || layerName === 'NEIC Cataloged Events' || layerName === 'OGS Cataloged Events') {
+			else if (layerName.indexOf("Events") > -1) {
 				var earthquakeTemplate = new PopupTemplate( {
-					title: layerName.replace("s", ""),
+					title: layerName.replace("Events", "Event"),
 					content: earthquakeContent(feature)
 				} );
 				feature.popupTemplate = earthquakeTemplate;
@@ -2276,7 +2605,7 @@ function(
 		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
 		var m = f.MC !== "Null" ? f.MC + " mc" : "";
 		var sas = f.SAS !== "Null" ? f.SAS : "";
-		var co = f.COUNTY !== "Null" ? f.COUNTY : "";
+		var co = f.COUNTY_NAME !== "Null" ? f.COUNTY_NAME : "";
 
 		if (f.LAYER === 'USGS') {
 			var m = f.ML !== "Null" ? parseFloat(f.ML).toFixed(1) + " ml" : "";
@@ -2298,7 +2627,7 @@ function(
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
-		content += "<tr><td>Origin Time (UTC): </td><td>{ORIGIN_TIME}</td></tr>";
+		content += "<tr><td>Origin Time (CST): </td><td>{ORIGIN_TIME_CST}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";

@@ -25,9 +25,10 @@
     <script src="Highcharts-4.2.6/js/highcharts.js"></script>
     <script src="Highcharts-4.2.6/js/modules/exporting.js"></script>
     <script src="Highcharts-4.2.6/js/modules/offline-exporting.js"></script>
+    <script src="js/jquery.multiselect.js"></script>
 
     <!--Use protocol relative urls that way if the browser is viewing the page via HTTPS the js/css file will be requested using the HTTPS protocol-->
-    <link rel="stylesheet" href="https://js.arcgis.com/4.2/esri/css/main.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.3/esri/css/main.css">
 
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
     <!--Load any application specific styles-->
@@ -35,6 +36,7 @@
     <link rel="stylesheet" type="text/css" href="css/fontello.css" />
   	<link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="css/jquery.multiselect.css">
     <link rel="stylesheet" href="css/kgs.css">
     <!--[if IE 7]><link rel="stylesheet" type="text/css" href="css/fontello-ie7.css" /><![endif]-->
 </head>
@@ -77,9 +79,9 @@
             </div>
 
             <!-- Chart div: -->
-            <div id="chart" class="hide" style="width:75%; height:400px;"></div>
-            <div id="chart-x" class="esri-icon-close hide"></div>
-
+            <div id="chart-container" class="hide">
+                <div id="chart"></div>
+            </div>
 
             <div id="mapButtons" class="map-buttons">
                 <div id="LocateButton"></div>
@@ -87,6 +89,7 @@
             </div>
             <div id="BasemapToggle"></div>
             <div id="dashboard"></div>
+            <div id="dashboard-btn"><button class="find-button">Open Dashboard</button></div>
             <div id="mapDiv" dir="ltr">
                 <!-- <div id="swipeDiv"></div> -->
             </div>
@@ -111,7 +114,7 @@
         };
     </script>
 
-    <script src="https://js.arcgis.com/4.2/"></script>
+    <script src="https://js.arcgis.com/4.3/"></script>
 
     <script src="//wurfl.io/wurfl.js"></script>
 
