@@ -39,6 +39,8 @@ require([
 	"esri/tasks/QueryTask",
 	"esri/tasks/support/Query",
 	"esri/widgets/Legend",
+	"esri/layers/FeatureLayer",
+	"esri/renderers/SimpleRenderer",
     "dojo/domReady!"
 ],
 function(
@@ -80,7 +82,9 @@ function(
 	Polygon,
 	QueryTask,
 	Query,
-	Legend
+	Legend,
+	FeatureLayer,
+	SimpleRenderer
 ) {
     var isMobile = WURFL.is_mobile;
 	var idDef = [];
@@ -144,10 +148,7 @@ function(
 	findParams.returnGeometry = true;
 
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Topo", visible:true} );
-    // var fieldsLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/oilgas/oilgas_fields/MapServer", id:"Oil and Gas Fields", visible:false} );
-    // var wellsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:0}], id:"Oil and Gas Wells",  visible:false} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
-    // var usgsEventsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:13}], id:"Earthquakes", visible:false} );
 	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
 	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:true} );
 	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:true} );
@@ -157,12 +158,21 @@ function(
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
-	// var countiesLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:2}], id:"Counties", visible:true} );
-	var countiesLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis5/rest/services/admin_boundaries/KS_County_Boundaries/MapServer", id:"Counties", visible:true} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 
+	var countyRenderer = new SimpleRenderer( {
+  		symbol: new SimpleFillSymbol( {
+  			style: "none",
+  			outline: {
+    			color: "gray",
+    			width: 2
+  			}
+		} )
+  	} );
+	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
+
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, countiesLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer]
+		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
