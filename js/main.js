@@ -41,6 +41,8 @@ require([
 	"esri/widgets/Legend",
 	"esri/layers/FeatureLayer",
 	"esri/renderers/SimpleRenderer",
+	"esri/renderers/ClassBreaksRenderer",
+	"esri/symbols/SimpleMarkerSymbol",
     "dojo/domReady!"
 ],
 function(
@@ -84,7 +86,9 @@ function(
 	Query,
 	Legend,
 	FeatureLayer,
-	SimpleRenderer
+	SimpleRenderer,
+	ClassBreaksRenderer,
+	SimpleMarkerSymbol
 ) {
     var isMobile = WURFL.is_mobile;
 	var idDef = [];
@@ -126,20 +130,6 @@ function(
 
     createMenus();
 
-    // Combo boxes:
-    var autocomplete =  (isMobile) ? false : true; // auto-complete doesn't work properly on mobile (gets stuck on a name and won't allow further typing), so turn it off.
-    $.get("fields_json.txt", function(response) {
-		// fields_json.txt is updated as part of the og fields update process.
-        var fieldNames = JSON.parse(response).items;
-        var fieldStore = new Memory( {data: fieldNames} );
-        var comboBox = new ComboBox( {
-            id: "field-select",
-            store: fieldStore,
-            searchAttr: "name",
-            autoComplete: autocomplete
-        }, "field-select").startup();
-    } );
-
     // Create map, layers, and widgets:
     var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general/MapServer";
     var identifyTask, identifyParams;
@@ -157,8 +147,33 @@ function(
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
-	var swdLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:19}], id:"Salt Water Disposal Wells", visible:false} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
+
+	var swdRenderer = new ClassBreaksRenderer( {
+		field: "MOST_RECENT_TOTAL_FLUID"
+	} );
+	swdRenderer.addClassBreakInfo( {
+  		minValue: 1,
+  		maxValue: 200000,
+		label: "Fewer than 200,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 15,
+    		color: [115, 178, 255, 0.80]
+		} )
+	} );
+	swdRenderer.legendOptions = {
+  		title: "2015 Total Fluid Volume (bbls)"
+	};
+	var swdLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 19,
+		 	renderer: swdRenderer
+		} ],
+		id:"Salt Water Disposal Wells",
+		visible:false
+	} );
 
 	var countyRenderer = new SimpleRenderer( {
   		symbol: new SimpleFillSymbol( {
@@ -1249,7 +1264,7 @@ function(
 
 
 	function filterBuff() {
-		graphicsLayer.removeAll();
+		/// graphicsLayer.removeAll();
 		openToolsPanel();
 
 		var returnType = $('input[name=return-type]:checked').val();
@@ -1628,6 +1643,7 @@ function(
 			symbol: sym
 		} );
 		graphicsLayer.add(hilite);
+		// $(".esri-icon-erase").show();
     }
 
 
@@ -2396,6 +2412,7 @@ function(
 
 		$("#erase-graphics").click(function() {
 			graphicsLayer.remove(bufferGraphic);
+			/// graphicsLayer.removeAll();
 			$(".esri-icon-erase").hide();
 	    } );
 
@@ -2706,8 +2723,10 @@ function(
         var f = feature.attributes;
         var dpth = f.ROTARY_TOTAL_DEPTH !== "Null" ? f.ROTARY_TOTAL_DEPTH.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
         var elev = f.ELEVATION_KB !== "Null" ? f.ELEVATION_KB.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
+		var vol = f.MOST_RECENT_TOTAL_FLUID !== "Null" ? f.MOST_RECENT_TOTAL_FLUID.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
 
-        var content = "<table id='popup-tbl'><tr><td>API:</td><td>{API_NUMBER}</td></tr>";
+        var content = "<table id='popup-tbl'><tr><td>2015 Injection (bbls):</td><td>" + vol + "</td></tr>";
+		content += "<tr><td>API:</td><td>{API_NUMBER}</td></tr>";
 		content += "<tr><td>Original Operator:</td><td>{OPERATOR_NAME}</td></tr>";
         content += "<tr><td>Current Operator:</td><td>{CURR_OPERATOR}</td></tr>";
         content += "<tr><td>Well Type:</td><td>{STATUS_TXT}</td></tr>";
