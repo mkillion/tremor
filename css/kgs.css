@@ -321,7 +321,7 @@ input[type=checkbox] {
 	width: 400px !important;
 }
 
-.esri-popup-content {
+.esri-popup__content {
 	max-height: 240px !important;
 }
 
@@ -433,8 +433,8 @@ input[type=checkbox] {
 }
 
 @media screen and (min-width: 1281px) {
-	.esri-popup-content {
-		max-height: 615px !important;
+	.esri-popup__content {
+		max-height: 500px !important;
 	}
 }
 
@@ -453,8 +453,8 @@ input[type=checkbox] {
 		padding-left: 5px;
 	}
 
-	.esri-popup-content {
-		max-height: 85px !important;
+	.esri-popup__content {
+		max-height: 100px !important;
 	}
 }
 

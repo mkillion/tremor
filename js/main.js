@@ -163,7 +163,7 @@ function(
 		} )
 	} );
 	swdRenderer.legendOptions = {
-  		title: "2015 Total Fluid Volume (bbls)"
+  		title: "2015 Total Fluid Injection (bbls)"
 	};
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
@@ -199,7 +199,7 @@ function(
         center: [-98, 39.1],
         zoom: 7,
         ui: { components: ["zoom"] },
-		constraints: { rotationEnabled: false }
+		constraints: { rotationEnabled: true }
     } );
 
     view.then(function() {
