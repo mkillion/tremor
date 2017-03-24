@@ -188,7 +188,7 @@ function(
 		label: "2,000,000 to 5,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
-    		size: 18,
+    		size: 16,
     		color: [115, 178, 255, 0.80]
 		} )
 	} );
@@ -198,7 +198,7 @@ function(
 		label: "Greater than 5,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
-    		size: 22,
+    		size: 20,
     		color: [115, 178, 255, 0.80]
 		} )
 	} );
@@ -430,17 +430,9 @@ function(
 
 	checkWellRadio = function(box) {
 		if (box === 'bbls') {
-			$("#chk-bbls").prop("checked", true);
+			$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
 		} else {
 			$("[name=well-type]").prop("checked", false);
-			if (box === 'buff-disp') {
-				$("[name=well-type]").filter("[value='buff-disp']").prop("checked", true);
-			} else {
-				if (!view.popup.selectedFeature) {
-					alert("Please select a feature to buffer.")
-				}
-				$("[name=well-type]").filter("[value='buff-feat']").prop("checked", true);
-			}
 		}
 	}
 
@@ -819,10 +811,9 @@ function(
 				// blank in this case.
 				break;
 			case "bbls":
-				var bbls = $("#bbls").val();
-				// TODO: rework when real injection wishes are know:
-				wellsWhere = "has_injection_data = 1";
-				break
+				var bbls = $("#bbls").val().replace(/,/g, "");
+				wellsWhere = "most_recent_total_fluid >= " + bbls;
+				break;
 		}
 
 		// Put where clauses together (excluding wells clause which is created separately):
@@ -2424,7 +2415,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='4' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='10' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
