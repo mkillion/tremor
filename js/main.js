@@ -444,14 +444,16 @@ function(
 
 		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
 		$("[name=time-type]").filter("[value='week']").prop("checked", true);
+
 		// TODO: reset next 2 lines when done testing:
 		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
-		$("[name=mag-type]").filter("[value='all']").prop("checked", true)
+		$("[name=mag-type]").filter("[value='all']").prop("checked", true);
+
 		$('select[multiple]').multiselect("reset");
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
-		$("[name=well-type]").filter("[value='bbls']").prop("checked", false);
-		$("#bbls").val("5000");
+		$("[name=well-type]").filter("[value='all']").prop("checked", true);
+		$("#bbls").val("");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
 
@@ -816,7 +818,7 @@ function(
 				break;
 		}
 
-		// Put where clauses together (excluding wells clause which is created separately):
+		// Put where clauses together (excluding wells clause which is created below):
 		if (locWhere !== "") {
 			attrWhere += locWhere + " and ";
 		}
@@ -831,7 +833,8 @@ function(
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		// Put wells clause together w/ location where:
+		// Put wells clause together w/ location where (note - location where really only includes
+		// counties, others are handled through geomWhere):
 		if (wellsWhere !== "") {
 			wellsAttrWhere += wellsWhere + " and ";
 		}
@@ -2415,7 +2418,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='10' id='bbls' value='5000' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='10' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
