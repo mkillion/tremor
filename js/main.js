@@ -1976,7 +1976,7 @@ function(
 	}
 
 
-	makeGraph = function() {
+	makeChart = function() {
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
 		} ).get();
@@ -2014,10 +2014,15 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					// graphWhere is some kind of attribute where on wells
+					var graphTitle = "Total Injection Volume for Selected Wells";
+					var yAxisText = "BBLS";
+					var pointFormatText = "Total: <b>{point.y}</b>";
+					var showDecimals = false;
+					var graphWhere = wellsComboWhere;
+					var chartType = "column";
 					break;
 				case "joint":
-					// have to create some kind of custom where here?
+					// TODO: clarify w/ SP what a joint graph is.
 					break;
 			}
 
@@ -2037,48 +2042,105 @@ function(
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
 
 			$("#loader").show();
-			$.post("createChartData.cfm", packet, function(response) {
-				var data = JSON.parse(response);
 
-			    $('#chart').highcharts( {
-			        chart: {
-			            type: chartType,
-						borderColor: '#A9A9A9',
-	            		borderWidth: 3,
-						borderRadius: 8,
-						zoomType: 'xy'
-			        },
-					title: {
-						text: graphTitle
-					},
-					subtitle: {
-						text: graphSubTitle
-					},
-					tooltip: {
-						crosshairs: {
-					        color: 'green',
-					        dashStyle: 'solid'
-					    },
-			        	// enabled: false
-						headerFormat: '<b>{point.key}</b><br/>',
-						pointFormat: pointFormatText,
-						xDateFormat: '%b %e, %Y'
-			        },
-					xAxis: {
-			            type: 'datetime',
-						endOnTick: true,
-						startOnTick: true
-			        },
-					yAxis: {
-						allowDecimals: showDecimals,
+			if (graphType === "injvol") {
+				$.post("createInjectionChartData.cfm", packet, function(response) {
+					var data = JSON.parse(response);
+
+					$('#chart').highcharts( {
+				        chart: {
+				            type: chartType,
+							borderColor: '#A9A9A9',
+		            		borderWidth: 3,
+							borderRadius: 8,
+							zoomType: 'xy'
+				        },
 						title: {
-							text: yAxisText
-						}
-					},
-					series: data
-			    } );
-				$("#loader").hide();
-			} );
+							text: graphTitle
+						},
+						subtitle: {
+							text: graphSubTitle
+						},
+						tooltip: {
+							crosshairs: {
+						        color: 'green',
+						        dashStyle: 'solid'
+						    },
+				        	// enabled: false
+							headerFormat: '<b>{point.key}</b><br/>',
+							pointFormat: pointFormatText,
+							xDateFormat: '%b %e, %Y'
+				        },
+						xAxis: {
+					        categories: [
+					            'Jan',
+					            'Feb',
+					            'Mar',
+					            'Apr',
+					            'May',
+					            'Jun',
+					            'Jul',
+					            'Aug',
+					            'Sep',
+					            'Oct',
+					            'Nov',
+					            'Dec'
+					        ],
+					        crosshair: true
+					    },
+						yAxis: {
+					        min: 0,
+					        title: {
+					            text: yAxisText
+					        }
+					    },
+						series: data
+				    } );
+				} );
+			} else {
+				$.post("createChartData.cfm", packet, function(response) {
+					var data = JSON.parse(response);
+
+				    $('#chart').highcharts( {
+				        chart: {
+				            type: chartType,
+							borderColor: '#A9A9A9',
+		            		borderWidth: 3,
+							borderRadius: 8,
+							zoomType: 'xy'
+				        },
+						title: {
+							text: graphTitle
+						},
+						subtitle: {
+							text: graphSubTitle
+						},
+						tooltip: {
+							crosshairs: {
+						        color: 'green',
+						        dashStyle: 'solid'
+						    },
+				        	// enabled: false
+							headerFormat: '<b>{point.key}</b><br/>',
+							pointFormat: pointFormatText,
+							xDateFormat: '%b %e, %Y'
+				        },
+						xAxis: {
+				            type: 'datetime',
+							endOnTick: true,
+							startOnTick: true
+				        },
+						yAxis: {
+							allowDecimals: showDecimals,
+							title: {
+								text: yAxisText
+							}
+						},
+						series: data
+				    } );
+				} );
+			}
+			$("#loader").hide();
 		}
 	}
 
@@ -2196,14 +2258,14 @@ function(
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
 
-		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Time Graphs</span></div>';
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Charts</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
 		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Plot</label></td></tr>";
-		content += "<tr><td></td><td><button class='find-button' onclick='makeGraph()'>Create Graph</button></td></tr></table>";
+		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Graph</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 
 		// content += '<div class="data-header esri-icon-right-triangle-arrow" id="list"><span class="find-hdr-txt"> List</span></div>';
