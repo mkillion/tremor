@@ -153,12 +153,52 @@ function(
 		field: "MOST_RECENT_TOTAL_FLUID"
 	} );
 	swdRenderer.addClassBreakInfo( {
-  		minValue: 1,
-  		maxValue: 200000,
-		label: "Fewer than 200,000",
+  		minValue: 0,
+  		maxValue: 500000,
+		label: "Fewer than 500,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
-    		size: 15,
+    		size: 5,
+    		color: [115, 178, 255, 0.80]
+		} )
+	} );
+	swdRenderer.addClassBreakInfo( {
+  		minValue: 500000,
+  		maxValue: 1000000,
+		label: "500,000 to 1,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 8,
+    		color: [115, 178, 255, 0.80]
+		} )
+	} );
+	swdRenderer.addClassBreakInfo( {
+  		minValue: 1000000,
+  		maxValue: 2000000,
+		label: "1,000,000 to 2,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 13,
+    		color: [115, 178, 255, 0.80]
+		} )
+	} );
+	swdRenderer.addClassBreakInfo( {
+  		minValue: 2000000,
+  		maxValue: 5000000,
+		label: "2,000,000 to 5,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 18,
+    		color: [115, 178, 255, 0.80]
+		} )
+	} );
+	swdRenderer.addClassBreakInfo( {
+  		minValue: 5000000,
+		maxValue: 1000000000000,
+		label: "Greater than 5,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 22,
     		color: [115, 178, 255, 0.80]
 		} )
 	} );
