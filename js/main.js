@@ -723,6 +723,10 @@ function(
 		$(".download-link").html("");
 		graphicsLayer.removeAll();
 
+		// TODO: add a check for saved preferences
+		// console.log(localStorage.getItem("name"));
+		// line 1833, savePrefs()
+
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
@@ -814,7 +818,7 @@ function(
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
-				wellsWhere = "most_recent_total_fluid >= " + bbls;
+				wellsWhere = "most_recent_total_fluid/365 >= " + bbls;
 				break;
 		}
 
@@ -1827,6 +1831,11 @@ function(
     }
 
 
+	function savePrefs(name) {
+		localStorage.setItem("name", name);
+	}
+
+
 	function sortList(a, b) {
 		if (a.feature.attributes.API_NUMBER) {
 			// oil wells.
@@ -2014,15 +2023,19 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					var graphTitle = "Total Injection Volume for Selected Wells";
+					var graphTitle = "Total Injection Volume for Selected Wells - 2015";
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
 					var graphWhere = wellsComboWhere;
 					var chartType = "column";
+					// If just a single well is selected, use that:
+					if (view.popup.selectedFeature) {
+						graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
+					}
 					break;
 				case "joint":
-					// TODO: clarify w/ SP what a joint graph is.
+					// TODO: waiting on examples from SP.
 					break;
 			}
 
@@ -2035,9 +2048,6 @@ function(
 			var wWidth = $(window).width();
 			var dWidth = wWidth * 0.75;
 			$("#chart-container").dialog("option", "width", dWidth);
-
-			$("#chart-container").dialog("open");
-			$("#chart").show();
 
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
 
@@ -2139,6 +2149,16 @@ function(
 						series: data
 				    } );
 				} );
+			}
+
+			if (graphWhere !== "") {
+				$(".ui-dialog").show();
+				$("#chart-container").dialog("open");
+				$("#chart").show();
+			} else {
+				$("#chart").hide();
+				$(".ui-dialog").hide();
+				alert("No features selected.");
 			}
 			$("#loader").hide();
 		}
@@ -2258,14 +2278,14 @@ function(
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
 
-		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Charts</span></div>';
+		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Plots</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
 		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Plot</label></td></tr>";
-		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Graph</button></td></tr></table>";
+		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Plot</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 
 		// content += '<div class="data-header esri-icon-right-triangle-arrow" id="list"><span class="find-hdr-txt"> List</span></div>';
@@ -2481,7 +2501,11 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>BBLS/day &ge; <input type='text' size='10' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Avg. bbls/day &ge; <input type='text' size='6' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year' disabled>";
+		for (var a=2015; a<2016; a++) {
+            dbCon += '<option value="' + a + '"">' + a + '</option>';
+        }
+		dbCon += "</select></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
