@@ -24,7 +24,7 @@
 	<!--- GET DATA: --->
 	<cfquery name="qWellData" datasource="plss">
 		select kid, api_number, lease_name, well_name, operator_name, curr_operator, field_name, township, township_direction, range, range_direction, section, spot, subdivision_4_smallest, subdivision_3, subdivision_2, subdivision_1_largest, feet_north_from_reference, feet_east_from_reference, reference_corner, nad27_longitude, nad27_latitude, county, permit_date_txt, spud_date_txt, completion_date_txt, plug_date_txt, status_txt, well_class, rotary_total_depth, elevation_kb, elevation_gl, elevation_df, producing_formation,most_recent_total_fluid
-		from swd_wells_test
+		from swd_wells
 		<cfif #form.wellwhere# neq "">
 			where #PreserveSingleQuotes(form.wellwhere)#
 		</cfif>

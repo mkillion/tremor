@@ -453,7 +453,8 @@ function(
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
 		$("[name=well-type]").filter("[value='all']").prop("checked", true);
-		$("#bbls").val("");
+		$("#bbls").val("150000");
+		$("#inj-year").val("2015");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
 
@@ -724,7 +725,7 @@ function(
 		graphicsLayer.removeAll();
 
 		// TODO: add a check for saved preferences
-		// console.log(localStorage.getItem("name"));
+		// localStorage.getItem("name")
 		// line 1833, savePrefs()
 
 		// Create location clause:
@@ -819,8 +820,7 @@ function(
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
 				var injYear = $("#inj-year").val();
-				console.log("foo: "+injYear);
-				wellsWhere = "most_recent_total_fluid/365 >= " + bbls;
+				wellsWhere = "kid in (select well_header_kid from mk_inj where year = " + injYear + " and fluid_injected >= " + bbls + ")";
 				break;
 		}
 
@@ -1988,6 +1988,8 @@ function(
 
 
 	makeChart = function() {
+		var theYear = $("#inj-year").val();
+
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
 		} ).get();
@@ -2025,7 +2027,7 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					var graphTitle = "Total Injection Volume for Selected Wells - 2015";
+					var graphTitle = "Total Injection Volume for Selected Wells - " + theYear;
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2051,7 +2053,7 @@ function(
 			var dWidth = wWidth * 0.75;
 			$("#chart-container").dialog("option", "width", dWidth);
 
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear };
 
 			$("#loader").show();
 
@@ -2503,8 +2505,8 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Avg. bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year' disabled>";
-		for (var a=2015; a<2016; a++) {
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year'>";
+		for (var a=2015; a<2017; a++) {
             dbCon += '<option value="' + a + '"">' + a + '</option>';
         }
 		dbCon += "</select></td></tr>";
