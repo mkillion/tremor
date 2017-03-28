@@ -818,6 +818,8 @@ function(
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
+				var injYear = $("#inj-year").val();
+				console.log("foo: "+injYear);
 				wellsWhere = "most_recent_total_fluid/365 >= " + bbls;
 				break;
 		}
@@ -2501,7 +2503,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Avg. bbls/day &ge; <input type='text' size='6' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year' disabled>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Avg. bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year' disabled>";
 		for (var a=2015; a<2016; a++) {
             dbCon += '<option value="' + a + '"">' + a + '</option>';
         }
