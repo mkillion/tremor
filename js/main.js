@@ -1990,6 +1990,7 @@ function(
 
 	makeChart = function() {
 		var theYear = $("#inj-year").val();
+		var puTitle = $(".esri-popup__header-title").html();
 
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
@@ -2035,9 +2036,13 @@ function(
 					var graphWhere = wellsComboWhere;
 					var chartType = "column";
 					// If just a single well is selected, use that:
-					// if (view.popup.selectedFeature) {
-					// 	graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
-					// }
+					if (view.popup.selectedFeature && puTitle.indexOf("Well:") > -1) {
+						if (graphWhere.indexOf("objectid") === -1) {
+							// Crude test to make sure selected well is not being used as a buffer point.
+							// If not, just graph data for the one selected point.
+							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
+						}
+					}
 					break;
 				case "joint":
 					// TODO: waiting on examples from SP.
@@ -2061,56 +2066,60 @@ function(
 			if (graphType === "injvol") {
 				$.post("createInjectionChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
-
-					$('#chart').highcharts( {
-				        chart: {
-				            type: chartType,
-							borderColor: '#A9A9A9',
-		            		borderWidth: 3,
-							borderRadius: 8,
-							zoomType: 'xy'
-				        },
-						title: {
-							text: graphTitle
-						},
-						subtitle: {
-							text: graphSubTitle
-						},
-						tooltip: {
-							crosshairs: {
-						        color: 'green',
-						        dashStyle: 'solid'
+					if (data[0].data.length !== 0) {
+						$('#chart').highcharts( {
+					        chart: {
+					            type: chartType,
+								borderColor: '#A9A9A9',
+			            		borderWidth: 3,
+								borderRadius: 8,
+								zoomType: 'xy'
+					        },
+							title: {
+								text: graphTitle
+							},
+							subtitle: {
+								text: graphSubTitle
+							},
+							tooltip: {
+								crosshairs: {
+							        color: 'green',
+							        dashStyle: 'solid'
+							    },
+					        	// enabled: false
+								headerFormat: '<b>{point.key}</b><br/>',
+								pointFormat: pointFormatText,
+								xDateFormat: '%b %e, %Y'
+					        },
+							xAxis: {
+						        categories: [
+						            'Jan',
+						            'Feb',
+						            'Mar',
+						            'Apr',
+						            'May',
+						            'Jun',
+						            'Jul',
+						            'Aug',
+						            'Sep',
+						            'Oct',
+						            'Nov',
+						            'Dec'
+						        ],
+						        crosshair: true
 						    },
-				        	// enabled: false
-							headerFormat: '<b>{point.key}</b><br/>',
-							pointFormat: pointFormatText,
-							xDateFormat: '%b %e, %Y'
-				        },
-						xAxis: {
-					        categories: [
-					            'Jan',
-					            'Feb',
-					            'Mar',
-					            'Apr',
-					            'May',
-					            'Jun',
-					            'Jul',
-					            'Aug',
-					            'Sep',
-					            'Oct',
-					            'Nov',
-					            'Dec'
-					        ],
-					        crosshair: true
-					    },
-						yAxis: {
-					        min: 0,
-					        title: {
-					            text: yAxisText
-					        }
-					    },
-						series: data
-				    } );
+							yAxis: {
+						        min: 0,
+						        title: {
+						            text: yAxisText
+						        }
+						    },
+							series: data
+					    } );
+					} else {
+						$(".ui-dialog").hide();
+						alert("No data returned for these search criteria.");
+					}
 				} );
 			} else {
 				$.post("createChartData.cfm", packet, function(response) {
@@ -2463,7 +2472,7 @@ function(
 		var seismicAreas = ["Anthony","Bluff City","Caldwell","Freeport","Milan","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' onclick='deselectPoint()' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
@@ -2529,12 +2538,12 @@ function(
 			resetDefaults();
 		} );
 
-		$("#deselect-icon").click(function() {
-			$(".esri-icon-checkbox-checked").hide();
-			graphicsLayer.remove(hilite);
-			view.popup.clear();
-			view.popup.visible = false;
-		} );
+		// $("#deselect-icon").click(function() {
+		// 	$(".esri-icon-checkbox-checked").hide();
+		// 	graphicsLayer.remove(hilite);
+		// 	view.popup.clear();
+		// 	view.popup.visible = false;
+		// } );
 
 		$("#erase-graphics").click(function() {
 			graphicsLayer.remove(bufferGraphic);
@@ -2561,6 +2570,14 @@ function(
 				$('[name=loc-type][value="sca"]').prop('checked',true);
 			}
 		} );
+	}
+
+
+	deselectPoint = function() {
+		$(".esri-icon-checkbox-checked").hide();
+		graphicsLayer.remove(hilite);
+		view.popup.clear();
+		view.popup.visible = false;
 	}
 
 

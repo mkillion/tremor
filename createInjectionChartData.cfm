@@ -10,6 +10,7 @@
 </cfquery>
 
 <cfquery name="qMonthlyVols" datasource="plss">
+    <!--- this could be simplified - form.where probably duplicates - but it works so, eh --->
     select
         distinct month, sum(fluid_injected) over (partition by month) as monthly_volume
     from
