@@ -239,7 +239,7 @@ function(
         center: [-98, 39.1],
         zoom: 7,
         ui: { components: ["zoom"] },
-		constraints: { rotationEnabled: true }
+		constraints: { rotationEnabled: false }
     } );
 
     view.then(function() {
@@ -1145,6 +1145,7 @@ function(
 				wellsGeomWhere = wellsGeomWhere.slice(0,wellsGeomWhere.length - 15);
 			}
 		} );
+
 		return wellsGeomWhere;
 	}
 
@@ -2034,9 +2035,9 @@ function(
 					var graphWhere = wellsComboWhere;
 					var chartType = "column";
 					// If just a single well is selected, use that:
-					if (view.popup.selectedFeature) {
-						graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
-					}
+					// if (view.popup.selectedFeature) {
+					// 	graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
+					// }
 					break;
 				case "joint":
 					// TODO: waiting on examples from SP.
