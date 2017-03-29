@@ -2118,7 +2118,7 @@ function(
 					    } );
 					} else {
 						$(".ui-dialog").hide();
-						alert("No data returned for these search criteria.");
+						alert("No data returned for this will for these search criteria.");
 					}
 				} );
 			} else {
@@ -2863,12 +2863,19 @@ function(
 
 
     function wellContent(feature) {
-        var f = feature.attributes;
+		var f = feature.attributes;
         var dpth = f.ROTARY_TOTAL_DEPTH !== "Null" ? f.ROTARY_TOTAL_DEPTH.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
         var elev = f.ELEVATION_KB !== "Null" ? f.ELEVATION_KB.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
-		var vol = f.MOST_RECENT_TOTAL_FLUID !== "Null" ? f.MOST_RECENT_TOTAL_FLUID.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
+		// var avgVol = f.MOST_RECENT_TOTAL_FLUID !== "Null" ? f.MOST_RECENT_TOTAL_FLUID : "";
+		// avgVol = avgVol.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		if (f.MOST_RECENT_TOTAL_FLUID !== "Null") {
+			var avg = parseInt(f.MOST_RECENT_TOTAL_FLUID/12);
+			var avgVol = avg.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		} else {
+			var avgVol = "";
+		}
 
-        var content = "<table id='popup-tbl'><tr><td>2015 Injection (bbls):</td><td>" + vol + "</td></tr>";
+        var content = "<table id='popup-tbl'><tr><td>Most Recent Average Monthly Injection (bbls):</td><td>" + avgVol + "</td></tr>";
 		content += "<tr><td>API:</td><td>{API_NUMBER}</td></tr>";
 		content += "<tr><td>Original Operator:</td><td>{OPERATOR_NAME}</td></tr>";
         content += "<tr><td>Current Operator:</td><td>{CURR_OPERATOR}</td></tr>";
