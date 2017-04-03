@@ -212,7 +212,7 @@ function(
 		 	renderer: swdRenderer
 		} ],
 		id:"Salt Water Disposal Wells",
-		visible:false
+		visible: false
 	} );
 
 	var countyRenderer = new SimpleRenderer( {
@@ -2045,7 +2045,7 @@ function(
 					}
 					break;
 				case "joint":
-					// TODO: waiting on examples from SP.
+					var graphWhere = wellsComboWhere;
 					break;
 			}
 
@@ -2065,8 +2065,8 @@ function(
 
 			if (graphType === "injvol") {
 				$.post("createInjectionChartData.cfm", packet, function(response) {
-					var data = JSON.parse(response);
-					if (data[0].data.length !== 0) {
+					var volData = JSON.parse(response);
+					if (volData[0].data.length !== 0) {
 						$('#chart').highcharts( {
 					        chart: {
 					            type: chartType,
@@ -2092,20 +2092,7 @@ function(
 								xDateFormat: '%b %e, %Y'
 					        },
 							xAxis: {
-						        categories: [
-						            'Jan',
-						            'Feb',
-						            'Mar',
-						            'Apr',
-						            'May',
-						            'Jun',
-						            'Jul',
-						            'Aug',
-						            'Sep',
-						            'Oct',
-						            'Nov',
-						            'Dec'
-						        ],
+						        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 						        crosshair: true
 						    },
 							yAxis: {
@@ -2114,12 +2101,65 @@ function(
 						            text: yAxisText
 						        }
 						    },
-							series: data
+							series: volData
 					    } );
 					} else {
 						$(".ui-dialog").hide();
 						alert("No data returned for this will for these search criteria.");
 					}
+				} );
+			} else if (graphType === "joint") {
+				$.post("createJointPlotData.cfm", packet, function(response) {
+					var jointData = JSON.parse(response);
+					console.log(jointData);
+					// TODO: need check here for empty results?
+					$('#chart').highcharts( {
+						chart: {
+					        zoomType: 'xy'
+					    },
+					    title: {
+					        text: 'Average Monthly Temperature and Rainfall in Tokyo'
+					    },
+					    subtitle: {
+					        text: 'Source: WorldClimate.com'
+					    },
+					    // xAxis: [ {
+					    //     categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+					    //     crosshair: true
+					    // } ],
+					    yAxis: [ { // Primary yAxis
+					        labels: {
+					            format: '{value}°C',
+					            style: {
+					                color: Highcharts.getOptions().colors[1]
+					            }
+					        },
+					        title: {
+					            text: 'Magnitude',
+					            style: {
+					                color: Highcharts.getOptions().colors[1]
+					            }
+					        }
+					    }, { // Secondary yAxis
+					        title: {
+					            text: 'Monthly Injection (bbls)',
+					            style: {
+					                color: Highcharts.getOptions().colors[0]
+					            }
+					        },
+					        labels: {
+					            format: '{value} mm',
+					            style: {
+					                color: Highcharts.getOptions().colors[0]
+					            }
+					        },
+					        opposite: true
+					    } ],
+					    tooltip: {
+					        shared: true
+					    },
+					    series: jointData
+					} );
 				} );
 			} else {
 				$.post("createChartData.cfm", packet, function(response) {

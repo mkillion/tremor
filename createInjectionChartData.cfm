@@ -1,3 +1,6 @@
+
+<!--- NOTE: KEEP CHANGES TO THIS QUERY SYNCED WITH CREATEJOINTPLOTDATA.CFM --->
+
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
 <cfquery name="qCount" datasource="plss">
