@@ -1,7 +1,7 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
-<!--- INJECTION VOLS: --->
+<!--- Injection well count: --->
 <cfquery name="qCount" datasource="plss">
     select
         count(*) as cnt
@@ -11,7 +11,10 @@
         #PreserveSingleQuotes(form.where)#
 </cfquery>
 
-<!--- NOTE: KEEP CHANGES TO THIS QUERY SYNCED WITH CREATEINJECTIONCHARTDATA.CFM --->
+
+
+<!--- Injection query: --->
+<!--- NOTE: keep changes to this query synced with createInjectionChartData.cfm --->
 <cfquery name="qMonthlyVols" datasource="plss">
     <!--- this could be simplified - form.where probably duplicates - but it works so, eh --->
     select
@@ -32,10 +35,57 @@
     order by month
 </cfquery>
 
+
+
+<!--- Earthquake query: --->
+<!--- NOTE: keep changes to this query synced with createChartData.cfm --->
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'USGS'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Salt Water Disposal Wells", "'SWD'")>
+
+<cfquery name="qLayers" datasource="tremor">
+    select distinct layer
+    from quakes
+    where layer in (#PreserveSingleQuotes(Lyrs)#)
+</cfquery>
+
+<cfset DateToMS = "(trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
+
+<cfloop query="qLayers">
+    <cfif #layer# eq "USGS">
+        <cfset MagType = "ml">
+    <cfelse>
+        <cfset MagType = "mc">
+    </cfif>
+
+    <cfif #form.type# eq "mag" OR #form.type# eq "joint">
+        <cfquery name="q#layer#" datasource="tremor">
+            select
+                layer,
+                #MagType# as magnitude,
+                #PreserveSingleQuotes(DateToMS)# as ms
+            from
+                quakes
+            where
+                #MagType# is not null
+                and
+                    layer = '#layer#'
+                <cfif #form.jointeqwhere# neq "">
+        			and #PreserveSingleQuotes(form.jointeqwhere)#
+        		</cfif>
+        </cfquery>
+    </cfif>
+</cfloop>
+
+
+
+<!--- Create JSON: --->
 <cfoutput>
     [
         {
-            "name": "Total Volume (bbls) for #qCount.cnt# Wells",
+            "name": "Total Volume (#qCount.cnt# Wells)",
             "type": "area",
             "yAxis": 1,
             "data": [
@@ -52,15 +102,51 @@
                 "valueSuffix": " bbls"
             }
         },
-        {
-            "name": "mags",
-            "type": "scatter",
-            "data": [ [1421280000000,2.9], [1423958400000,2.5], [1426377600000,3.4], [1429056000000,3.2], [1431648000000,2.0], [1434326400000,3.0], [1436918400000,2.6], [1439596800000,3.5], [1442275200000,2.4], [1444867200000,3.1], [1447545600000,2.6], [1450137600000,2.4],
-            [1421539200000,3.0], [1424217600000,4.3], [1434585600000,5.5] ],
-            "tooltip": {
-                "valueSuffix": " °C"
+
+        <cfset j = 1>
+        <cfloop query="qLayers">
+            <cfset Lyr = #layer#>
+            {
+            <cfif #layer# eq "KGS">
+                "name": "KGS",
+                "type": "scatter",
+                "color": "rgba(255,85,0,0.85)",
+            <cfelseif #layer# eq "EWA">
+                "name": "KGS Prelim",
+                "type": "scatter",
+                "color": "rgba(223,115,255,0.85)",
+            <cfelseif #layer# eq "USGS">
+                "name": "NEIC",
+                "type": "scatter",
+                "color": "rgba(0,197,255,0.85)",
+            <cfelseif #layer# eq "KSNE">
+                "name": "Historic",
+                "type": "scatter",
+                "color": "rgba(76,230,0,0.85)",
+            </cfif>
+
+            "data": [
+                <cfset i = 1>
+                <cfloop query="q#layer#">
+                    <cfif #form.type# eq "mag" OR #form.type# eq "joint">
+                        [#ms#,#magnitude#]
+                    <cfelseif #form.type# eq "count">
+                        [#ms#,#cnt#]
+                    <cfelseif #form.type# eq "cumulative">
+                        [#ms#,#running_total#]
+                    </cfif>
+                    <cfif i neq Evaluate("q#Lyr#.recordcount")>
+                        ,
+                    </cfif>
+                    <cfset i = i + 1>
+                </cfloop>
+            ]
             }
-        }
+            <cfif j neq qLayers.recordcount>
+                ,
+            </cfif>
+            <cfset j = j + 1>
+        </cfloop>
     ]
 </cfoutput>
 

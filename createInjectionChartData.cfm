@@ -1,5 +1,5 @@
 
-<!--- NOTE: KEEP CHANGES TO THIS QUERY SYNCED WITH CREATEJOINTPLOTDATA.CFM --->
+<!--- NOTE: keep changes to this query synced with createJointPlotData.cfm --->
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 

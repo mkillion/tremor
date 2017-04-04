@@ -2046,8 +2046,15 @@ function(
 					break;
 				case "joint":
 					var graphWhere = wellsComboWhere;
+					var jointEqWhere = comboWhere;
 					break;
 			}
+
+			Highcharts.setOptions( {
+			    lang: {
+			        thousandsSep: ','
+			    }
+			} );
 
 			if ( $("#chart").highcharts() ) {
 				$("#chart").highcharts().destroy();
@@ -2059,7 +2066,7 @@ function(
 			var dWidth = wWidth * 0.75;
 			$("#chart-container").dialog("option", "width", dWidth);
 
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, jointeqwhere: jointEqWhere  };
 
 			$("#loader").show();
 
@@ -2110,7 +2117,6 @@ function(
 				} );
 			} else if (graphType === "joint") {
 				$.post("createJointPlotData.cfm", packet, function(response) {
-					console.log(response);
 					var jointData = JSON.parse(response);
 
 					// TODO: need check here for empty results?
@@ -2119,33 +2125,29 @@ function(
 					        zoomType: 'xy'
 					    },
 					    title: {
-					        text: 'Magnitudes / Total Monthly Injection Volumes For Selected Wells'
+					        text: 'Event Magnitudes & Total Monthly Injection Volumes For Selected Wells'
+					    },
+						xAxis: {
+					        type: 'datetime',
+					        labels: {
+					            format: '{value:%Y-%m-%d}',
+					            rotation: 45,
+					            align: 'left'
+					        }
 					    },
 					    yAxis: [ { // Primary yAxis
-					        labels: {
-					            format: '{value}FOO',
-					            style: {
-					                color: Highcharts.getOptions().colors[1]
-					            }
-					        },
 					        title: {
 					            text: 'Magnitude',
-					            style: {
-					                color: Highcharts.getOptions().colors[1]
-					            }
+					            // style: {
+					            //     color: "black"
+					            // }
 					        }
 					    }, { // Secondary yAxis
 					        title: {
-					            text: 'Monthly Injection (bbls)',
-					            style: {
-					                color: Highcharts.getOptions().colors[0]
-					            }
+					            text: 'Total Monthly Injection (bbls)',
 					        },
 					        labels: {
-					            format: '{value} mm',
-					            style: {
-					                color: Highcharts.getOptions().colors[0]
-					            }
+								format: '{value:,.0f}'
 					        },
 					        opposite: true
 					    } ],

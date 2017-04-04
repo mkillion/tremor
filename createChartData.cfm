@@ -1,3 +1,5 @@
+<!--- NOTE: keep changes to this query synced with createJointPlotData.cfm --->
+
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
 <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
@@ -21,7 +23,7 @@
         <cfset MagType = "mc">
     </cfif>
 
-    <cfif #form.type# eq "mag">
+    <cfif #form.type# eq "mag" OR #form.type# eq "joint">
         <cfquery name="q#layer#" datasource="tremor">
             select
                 layer,
@@ -97,7 +99,7 @@
             "data": [
                 <cfset i = 1>
                 <cfloop query="q#layer#">
-                    <cfif #form.type# eq "mag">
+                    <cfif #form.type# eq "mag" OR #form.type# eq "joint">
                         [#ms#,#magnitude#]
                     <cfelseif #form.type# eq "count">
                         [#ms#,#cnt#]
