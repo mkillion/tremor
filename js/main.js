@@ -452,7 +452,7 @@ function(
 		$('select[multiple]').multiselect("reset");
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
-		$("[name=well-type]").filter("[value='all']").prop("checked", true);
+		$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
 		$("#bbls").val("150000");
 		$("#inj-year").val("2015");
 		$(".esri-icon-checkbox-checked").hide();
@@ -778,6 +778,40 @@ function(
 			case "date":
 				var fromDate = dom.byId('from-date').value;
 				var toDate = dom.byId('to-date').value;
+				var fromDateIsValid = true;
+				var toDateIsValid = true;
+
+				// Check validity of dates:
+				if (fromDate !== "") {
+					var fromDateParts = fromDate.split("/");
+					var fromMonth = parseInt(fromDateParts[0]);
+					var fromDay = parseInt(fromDateParts[1]);
+					var fromYear = parseInt(fromDateParts[2]);
+					fromDateIsValid = validateDate( fromDay, fromMonth, fromYear );
+				}
+				if (toDate !== "") {
+					var toDateParts = toDate.split("/");
+					var toMonth = parseInt(toDateParts[0]);
+					var toDay = parseInt(toDateParts[1]);
+					var toYear = parseInt(toDateParts[2]);
+					toDateIsValid = validateDate( toDay, toMonth, toYear );
+				}
+				if (!fromDateIsValid || !toDateIsValid) {
+					alert("An invalid date was entered.");
+					return;
+				}
+				var d1 = new Date();
+				var d2 = new Date(fromDate);
+				if (d2 > d1) {
+					alert("From Date cannot be in the future.");
+					return;
+				}
+				var d3 = new Date(toDate);
+				if (d2 > d3) {
+					alert("From Date cannot be later than To Date");
+					return;
+				}
+
 				if (fromDate && toDate) {
 					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
 				} else if (fromDate && !toDate) {
@@ -858,6 +892,26 @@ function(
 			applyDefExp();
 		}
 	}	// end updateMap().
+
+
+	function validateDate( intDay, intMonth, intYear ) {
+	    return intMonth >= 1 && intMonth <= 12 && intDay > 0 && intDay <= daysInMonth( intMonth, intYear );
+	}
+
+	function daysInMonth( intMonth, intYear ) {
+	    switch ( intMonth )
+	    {
+	        case 2:
+	            return (intYear % 4 == 0 && intYear % 100) || intYear % 400 == 0 ? 29 : 28;
+	        case 4:
+	        case 6:
+	        case 9:
+	        case 11:
+	            return 30;
+	        default :
+	            return 31
+	    }
+	}
 
 
 	function createBufferGeom(buffDist) {
@@ -2127,7 +2181,6 @@ function(
 				$.post("createJointPlotData.cfm", packet, function(response) {
 					var jointData = JSON.parse(response);
 
-					// TODO: need check here for empty results?
 					$('#chart').highcharts( {
 						chart: {
 					        zoomType: 'xy'
