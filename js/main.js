@@ -212,7 +212,7 @@ function(
 		 	renderer: swdRenderer
 		} ],
 		id:"Salt Water Disposal Wells",
-		visible: false
+		visible: true
 	} );
 
 	var countyRenderer = new SimpleRenderer( {
@@ -2047,6 +2047,14 @@ function(
 				case "joint":
 					var graphWhere = wellsComboWhere;
 					var jointEqWhere = comboWhere;
+					// If just a single well is selected, use that:
+					if (view.popup.selectedFeature && puTitle.indexOf("Well:") > -1) {
+						if (graphWhere.indexOf("objectid") === -1) {
+							// Crude test to make sure selected well is not being used as a buffer point.
+							// If not, just graph data for the one selected point.
+							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
+						}
+					}
 					break;
 			}
 
@@ -2151,9 +2159,13 @@ function(
 					        },
 					        opposite: true
 					    } ],
-					    tooltip: {
-					        shared: true
-					    },
+						tooltip: {
+							crosshairs: {
+						        color: 'green',
+						        dashStyle: 'solid'
+						    }
+				        	// enabled: false
+				        },
 					    series: jointData
 					} );
 				} );
@@ -2550,8 +2562,8 @@ function(
 		// Wells:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year'>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls' checked></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year'>";
 		for (var a=2015; a<2017; a++) {
             dbCon += '<option value="' + a + '"">' + a + '</option>';
         }

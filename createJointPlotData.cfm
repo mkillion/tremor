@@ -99,7 +99,9 @@
                 </cfloop>
             ],
             "tooltip": {
-                "valueSuffix": " bbls"
+                "headerFormat": "<b>{point.key}</b><br>",
+                "pointFormat": "Total BBLS: <b>{point.y}</b>",
+                "xDateFormat": "%b %Y"
             }
         },
 
@@ -141,6 +143,12 @@
                     <cfset i = i + 1>
                 </cfloop>
             ]
+            ,
+            "tooltip": {
+                "headerFormat": "<b>{point.key}</b><br>",
+                "pointFormat": "Magnitude: <b>{point.y}</b>",
+                "xDateFormat": "%b %e, %Y"
+            }
             }
             <cfif j neq qLayers.recordcount>
                 ,
