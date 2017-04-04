@@ -2110,26 +2110,20 @@ function(
 				} );
 			} else if (graphType === "joint") {
 				$.post("createJointPlotData.cfm", packet, function(response) {
+					console.log(response);
 					var jointData = JSON.parse(response);
-					console.log(jointData);
+
 					// TODO: need check here for empty results?
 					$('#chart').highcharts( {
 						chart: {
 					        zoomType: 'xy'
 					    },
 					    title: {
-					        text: 'Average Monthly Temperature and Rainfall in Tokyo'
+					        text: 'Magnitudes / Total Monthly Injection Volumes For Selected Wells'
 					    },
-					    subtitle: {
-					        text: 'Source: WorldClimate.com'
-					    },
-					    // xAxis: [ {
-					    //     categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-					    //     crosshair: true
-					    // } ],
 					    yAxis: [ { // Primary yAxis
 					        labels: {
-					            format: '{value}°C',
+					            format: '{value}FOO',
 					            style: {
 					                color: Highcharts.getOptions().colors[1]
 					            }
@@ -2338,7 +2332,7 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Plot</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Magnitude/Volume Plot</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Plot</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 
