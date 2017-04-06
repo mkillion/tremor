@@ -2685,11 +2685,19 @@ function(
 			// max_selected_options: 4,
 			placeholder_text_multiple: "Counties"
 		} );
+		$("#lstCounty2").on("change", function(evt, params) {
+			$('[name=loc-type][value="co"]').prop('checked',true);
+			saveRadioPrefs("loc-co");
+		 } );
 
 		$("#sca").chosen( {
 			width: "60%",
 			placeholder_text_multiple: "Seismic Areas"
 		} );
+		$("#sca").on("change", function(evt, params) {
+			$('[name=loc-type][value="sca"]').prop('checked',true);
+			saveRadioPrefs("loc-sca");
+		 } );
 	}
 
 
