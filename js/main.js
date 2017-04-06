@@ -1903,10 +1903,6 @@ function(
 		$("#loc-" + locOpt).prop("checked", true);
 	}
 
-	// TODO: save/set dropdowns function.
-	// var junk = ["Clark","Ellis"];
-	// $("#lstCounty2").val(junk).trigger("chosen:updated");
-
 
 	saveTextboxPrefs = function(name) {
 		var key = name;
@@ -1915,9 +1911,12 @@ function(
 	}
 
 	function setTextboxPrefs() {
-		// punt, just hardcode them
 		$("#loc-buff").val( localStorage.getItem("loc-buff") );
-		// repeat for other dashboard groups
+
+		var selectedCounties = localStorage.getItem("lstCounty2").split(",");
+		$("#lstCounty2").val(selectedCounties).trigger("chosen:updated");
+		var selectedSca = localStorage.getItem("sca").split(",");
+		$("#sca").val(selectedSca).trigger("chosen:updated");
 	}
 
 
@@ -2688,6 +2687,7 @@ function(
 		$("#lstCounty2").on("change", function(evt, params) {
 			$('[name=loc-type][value="co"]').prop('checked',true);
 			saveRadioPrefs("loc-co");
+			saveTextboxPrefs("lstCounty2");
 		 } );
 
 		$("#sca").chosen( {
@@ -2697,6 +2697,7 @@ function(
 		$("#sca").on("change", function(evt, params) {
 			$('[name=loc-type][value="sca"]').prop('checked',true);
 			saveRadioPrefs("loc-sca");
+			saveTextboxPrefs("sca");
 		 } );
 	}
 
