@@ -481,6 +481,15 @@ function(
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
 		wellsGeomWhere = "clear";	// ditto.
+
+		// Save default settings to local storage:
+		saveRadioPrefs("loc-state");
+		saveTextboxPrefs("loc-buff");
+		saveTextboxPrefs("lstCounty2");
+		saveTextboxPrefs("sca");
+
+		// TODO: add other dashboard panels
+
 		updateMap();
 	}
 
