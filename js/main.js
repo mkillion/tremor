@@ -451,7 +451,9 @@ function(
 		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
 		$("[name=mag-type]").filter("[value='all']").prop("checked", true);
 
-		$('select[multiple]').multiselect("reset");
+		$("#lstCounty2").val("").trigger("chosen:updated");
+		$("#sca").val("").trigger("chosen:updated");
+
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
 		$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
@@ -1901,6 +1903,10 @@ function(
 		$("#loc-" + locOpt).prop("checked", true);
 	}
 
+	// TODO: save/set dropdowns function.
+	// var junk = ["Clark","Ellis"];
+	// $("#lstCounty2").val(junk).trigger("chosen:updated");
+
 
 	saveTextboxPrefs = function(name) {
 		var key = name;
@@ -2674,27 +2680,15 @@ function(
 			$(".esri-icon-erase").hide();
 	    } );
 
-		$("#lstCounty2").multiselect( {
-			showCheckbox: false,
-		    texts: {
-		        placeholder: "Counties"
-		    },
-			onOptionClick: function(e) {
-				$('[name=loc-type][value="co"]').prop('checked',true);
-				saveRadioPrefs("loc-co");
-			}
+		$("#lstCounty2").chosen( {
+			width: "60%",
+			// max_selected_options: 4,
+			placeholder_text_multiple: "Counties"
 		} );
 
-		$("#sca").multiselect( {
-			// selectAll: true,
-			showCheckbox: false,
-		    texts: {
-		        placeholder: "Seismic Concern Areas"
-		    },
-			onOptionClick: function(e) {
-				$('[name=loc-type][value="sca"]').prop('checked',true);
-				saveRadioPrefs("loc-sca");
-			}
+		$("#sca").chosen( {
+			width: "60%",
+			placeholder_text_multiple: "Seismic Areas"
 		} );
 	}
 
