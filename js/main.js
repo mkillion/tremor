@@ -91,6 +91,7 @@ function(
 	SimpleMarkerSymbol
 ) {
     var isMobile = WURFL.is_mobile;
+	var firstUpdatePass = true;
 	var idDef = [];
 	var wmSR = new SpatialReference(3857);
 	var urlParams, hilite, bufferGraphic;
@@ -739,7 +740,9 @@ function(
 				if (view.popup.selectedFeature) {
 					createBufferGeom(locBuff);
 				} else {
-					alert("Please select an event or well to buffer.");
+					if (!firstUpdatePass) {
+						alert("Please select an event or well to buffer.");
+					}
 				}
 				break;
 			case "co":
@@ -891,6 +894,7 @@ function(
 		} else {
 			applyDefExp();
 		}
+		firstUpdatePass = false;
 	}	// end updateMap().
 
 
@@ -1917,6 +1921,7 @@ function(
 		$("#lstCounty2").val(selectedCounties).trigger("chosen:updated");
 		var selectedSca = localStorage.getItem("sca").split(",");
 		$("#sca").val(selectedSca).trigger("chosen:updated");
+
 	}
 
 
