@@ -246,7 +246,8 @@ function(
 		createTOC();
 		createDashboard();
 		popCountyDropdown();
-		setPrefs();
+		setRadioPrefs();
+		setTextboxPrefs();
 
         on(view, "click", executeIdTask);
 
@@ -1885,7 +1886,7 @@ function(
     }
 
 
-	savePrefs = function(name) {
+	saveRadioPrefs = function(name) {
 		// Create a storage key for each dashboard group (loc, tim, mag, wel), then set its
 		// value to the particular radio button that's checked:
 		var key = name.substring(0,3);
@@ -1894,10 +1895,23 @@ function(
 	}
 
 
-	function setPrefs() {
-		// repeat this code block for each dashboard group.
+	function setRadioPrefs() {
+		// add similar block for each dashboard group
 		var locOpt = localStorage.getItem("loc");
 		$("#loc-" + locOpt).prop("checked", true);
+	}
+
+
+	saveTextboxPrefs = function(name) {
+		var key = name;
+		var val = $("#" + name).val();
+		localStorage.setItem(key, val);
+	}
+
+	function setTextboxPrefs() {
+		// punt, just hardcode them
+		$("#loc-buff").val( localStorage.getItem("loc-buff") );
+		// repeat for other dashboard groups
 	}
 
 
@@ -2586,14 +2600,14 @@ function(
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' onchange='savePrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='savePrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()'> mi of selected feature</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-co' value='co' onchange='savePrefs(&quot;loc-co&quot;)'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-co' value='co' onchange='saveRadioPrefs(&quot;loc-co&quot;)'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
 		for (var k = 0; k < cntyArr.length; k++) {
 		 	dbCon += "<option value='" + cntyArr[k] + "'>" + cntyArr[k] + "</option>";
 		}
 		dbCon += "</select></td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-sca' value='sca'  onchange='savePrefs(&quot;loc-sca&quot;)'></td><td> <select class='loc-select' id='sca' multiple>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-sca' value='sca'  onchange='saveRadioPrefs(&quot;loc-sca&quot;)'></td><td> <select class='loc-select' id='sca' multiple>";
 		for (var j = 0; j < seismicAreas.length; j++) {
 		 	dbCon += "<option value='" + seismicAreas[j] + "'>" + seismicAreas[j] + "</option>";
 		}
@@ -2667,8 +2681,10 @@ function(
 		    },
 			onOptionClick: function(e) {
 				$('[name=loc-type][value="co"]').prop('checked',true);
+				saveRadioPrefs("loc-co");
 			}
 		} );
+
 		$("#sca").multiselect( {
 			// selectAll: true,
 			showCheckbox: false,
@@ -2677,6 +2693,7 @@ function(
 		    },
 			onOptionClick: function(e) {
 				$('[name=loc-type][value="sca"]').prop('checked',true);
+				saveRadioPrefs("loc-sca");
 			}
 		} );
 	}
