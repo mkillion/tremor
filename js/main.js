@@ -487,6 +487,7 @@ function(
 		saveTextboxPrefs("loc-buff");
 		saveTextboxPrefs("lstCounty2");
 		saveTextboxPrefs("sca");
+		saveRadioPrefs("tim-week");
 
 		// TODO: add other dashboard panels
 
@@ -1911,9 +1912,13 @@ function(
 
 
 	function setRadioPrefs() {
-		// add similar block for each dashboard group
-		var locOpt = localStorage.getItem("loc");
-		$("#loc-" + locOpt).prop("checked", true);
+		var radioGroups = ["loc", "tim"];
+		for (var i = 0; i < radioGroups.length; i++) {
+			var opt = localStorage.getItem( radioGroups[i] );
+			$("#" + radioGroups[i] + "-" + opt).prop("checked", true);
+		}
+		// var locOpt = localStorage.getItem("loc");
+		// $("#loc-" + locOpt).prop("checked", true);
 	}
 
 
@@ -1931,6 +1936,8 @@ function(
 		var selectedSca = localStorage.getItem("sca").split(",");
 		$("#sca").val(selectedSca).trigger("chosen:updated");
 
+		$("#from-date").val( localStorage.getItem("from-date") );
+		$("#to-date").val( localStorage.getItem("to-date") );
 	}
 
 
@@ -2619,7 +2626,7 @@ function(
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
-		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' checked onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected feature</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-co' value='co' onchange='saveRadioPrefs(&quot;loc-co&quot;)'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
 		for (var k = 0; k < cntyArr.length; k++) {
@@ -2637,10 +2644,10 @@ function(
 		// Time:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Origin Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='week' checked></td><td> Past 7 days</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='month'></td><td> Past 30 days</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='year'></td><td> This year</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' value='date'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio()' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
