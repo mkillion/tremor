@@ -488,6 +488,14 @@ function(
 		saveTextboxPrefs("lstCounty2");
 		saveTextboxPrefs("sca");
 		saveRadioPrefs("tim-week");
+		saveTextboxPrefs("from-date");
+		saveTextboxPrefs("to-date");
+		saveRadioPrefs("mag-all");	// TODO: reset this to 3517 when in production (see SP first).
+		saveTextboxPrefs("low-mag");
+		saveTextboxPrefs("high-mag");
+		saveRadioPrefs("wel-bbl");
+		saveTextboxPrefs("bbls");
+		saveTextboxPrefs("inj-year");
 
 		// TODO: add other dashboard panels
 
@@ -1912,13 +1920,11 @@ function(
 
 
 	function setRadioPrefs() {
-		var radioGroups = ["loc", "tim"];
+		var radioGroups = ["loc", "tim", "mag", "wel"];
 		for (var i = 0; i < radioGroups.length; i++) {
 			var opt = localStorage.getItem( radioGroups[i] );
 			$("#" + radioGroups[i] + "-" + opt).prop("checked", true);
 		}
-		// var locOpt = localStorage.getItem("loc");
-		// $("#loc-" + locOpt).prop("checked", true);
 	}
 
 
@@ -1938,6 +1944,13 @@ function(
 
 		$("#from-date").val( localStorage.getItem("from-date") );
 		$("#to-date").val( localStorage.getItem("to-date") );
+
+		$("#low-mag").val( localStorage.getItem("low-mag") );
+		$("#high-mag").val( localStorage.getItem("high-mag") );
+
+		$("#bbls").val( localStorage.getItem("bbls") );
+
+		$("#inj-year").val( localStorage.getItem("inj-year") );
 	}
 
 
@@ -2654,17 +2667,17 @@ function(
 		// Mag-SAS:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='magsas'>Magnitude/SAS</span>";
 		dbCon += "<table class='db-sub-table' id='magsas-body'>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='all' checked></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='magrange'></td><td> M <input type='text'  class='txt-input' id='low-mag' oninput='checkMagRadio()'> to <input type='text'  class='txt-input' id='high-mag' oninput='checkMagRadio()'></td></tr>";
-		dbCon += "<tr><td><input type='radio' name='mag-type' value='gt3517' ></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' id='mag-all' value='all' checked onchange='saveRadioPrefs(&quot;mag-all&quot;)'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' id='mag-range' value='magrange' onchange='saveRadioPrefs(&quot;mag-range&quot;)'></td><td> M <input type='text' class='txt-input' id='low-mag' oninput='checkMagRadio(); saveTextboxPrefs(&quot;low-mag&quot;)' onfocus='saveRadioPrefs(&quot;mag-range&quot;)'> to <input type='text'  class='txt-input' id='high-mag' oninput='checkMagRadio(); saveTextboxPrefs(&quot;high-mag&quot;)' onfocus='saveRadioPrefs(&quot;mag-range&quot;)'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='mag-type' id='mag-sas' value='gt3517' onchange='saveRadioPrefs(&quot;mag-sas&quot;)'></td><td> M &ge; 3.5 or SAS &ge; 17</td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Wells:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='all'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' value='bbls' checked></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;)'> for <select name='injyear' id='inj-year'>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)''> for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
 		for (var a=2015; a<2017; a++) {
             dbCon += '<option value="' + a + '"">' + a + '</option>';
         }
@@ -2701,7 +2714,7 @@ function(
 	    } );
 
 		$("#lstCounty2").chosen( {
-			width: "60%",
+			width: "200px",
 			// max_selected_options: 4,
 			placeholder_text_multiple: "Counties"
 		} );
@@ -2712,7 +2725,7 @@ function(
 		 } );
 
 		$("#sca").chosen( {
-			width: "60%",
+			width: "200px",
 			placeholder_text_multiple: "Seismic Areas"
 		} );
 		$("#sca").on("change", function(evt, params) {
