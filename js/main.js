@@ -133,7 +133,10 @@ function(
 
     // Create map, layers, and widgets:
     var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general/MapServer";
-    var identifyTask, identifyParams;
+	identifyTask = new IdentifyTask(tremorGeneralServiceURL);
+	identifyParams = new IdentifyParameters();
+	identifyParams.returnGeometry = true;
+	identifyParams.tolerance = (isMobile) ? 9 : 4;
     var findTask = new FindTask(tremorGeneralServiceURL);
     var findParams = new FindParameters();
 	findParams.returnGeometry = true;
@@ -252,12 +255,8 @@ function(
 
         on(view, "click", executeIdTask);
 
-        identifyTask = new IdentifyTask(tremorGeneralServiceURL);
-        identifyParams = new IdentifyParameters();
-		identifyParams.returnGeometry = true;
-        identifyParams.tolerance = (isMobile) ? 9 : 4;
-        identifyParams.width = view.width;
-        identifyParams.height = view.height;
+		identifyParams.width = view.width;
+		identifyParams.height = view.height;
 
         // Define additional popup actions:
         var fullInfoAction = {
@@ -874,7 +873,10 @@ function(
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
-				var injYear = $("#inj-year").val();
+				// NOTE: temporarily hardcoding year pending descision by SP on wells and years:
+				// var injYear = $("#inj-year").val();
+				var injYear = "2015";
+
 				wellsWhere = "kid in (select well_header_kid from mk_inj where year = " + injYear + " and fluid_injected >= " + bbls + ")";
 				break;
 		}
