@@ -2677,11 +2677,12 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)''> for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
-		for (var a=2015; a<2017; a++) {
-            dbCon += '<option value="' + a + '"">' + a + '</option>';
-        }
-		dbCon += "</select></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'>";
+		// dbCon += "for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
+		// for (var a=2015; a<2017; a++) {
+        //     dbCon += '<option value="' + a + '"">' + a + '</option>';
+        // }
+		// dbCon += "</select></td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
@@ -2714,7 +2715,7 @@ function(
 	    } );
 
 		$("#lstCounty2").chosen( {
-			width: "200px",
+			width: "150px",
 			// max_selected_options: 4,
 			placeholder_text_multiple: "Counties"
 		} );
@@ -2725,7 +2726,7 @@ function(
 		 } );
 
 		$("#sca").chosen( {
-			width: "200px",
+			width: "150px",
 			placeholder_text_multiple: "Seismic Areas"
 		} );
 		$("#sca").on("change", function(evt, params) {
