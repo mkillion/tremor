@@ -496,8 +496,6 @@ function(
 		saveTextboxPrefs("bbls");
 		saveTextboxPrefs("inj-year");
 
-		// TODO: add other dashboard panels
-
 		updateMap();
 	}
 
