@@ -256,13 +256,11 @@ function(
 		popCountyDropdown();
 		// setRadioPrefs();
 		// setTextboxPrefs();
-		// setTocPrefs();
-
+		setTocPrefs();
 		if ( localStorage.getItem("center-x") ) {
 			view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
 			view.zoom = localStorage.getItem("zoom");
 		}
-
 
         on(view, "click", executeIdTask);
 
@@ -1990,13 +1988,16 @@ function(
 
 
 	function setTocPrefs () {
-		// TODO: wtf!
-		// $.each(localStorage, function(key, val){
-		// 	if ( key.startsWith("tcb-3") ) {
-		// 		// $("#" + key).attr("checked", val);
-		// 	}
-		// } );
-		// console.log(localStorage.getItem("tcb-3"));
+		$.each(localStorage, function(key, val){
+			if ( key.startsWith("tcb-") ) {
+				if (val === "true") {
+					$("#" + key).prop("checked", true);
+				} else {
+					$("#" + key).prop("checked", false);
+				}
+			}
+		} );
+
 		// var junk = localStorage.getItem("tcb-3");
 		// if (junk) {
 		// 	$("#tcb-3").attr( "checked");
