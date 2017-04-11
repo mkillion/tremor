@@ -43,6 +43,7 @@ require([
 	"esri/renderers/SimpleRenderer",
 	"esri/renderers/ClassBreaksRenderer",
 	"esri/symbols/SimpleMarkerSymbol",
+	"esri/geometry/support/webMercatorUtils",
     "dojo/domReady!"
 ],
 function(
@@ -88,7 +89,8 @@ function(
 	FeatureLayer,
 	SimpleRenderer,
 	ClassBreaksRenderer,
-	SimpleMarkerSymbol
+	SimpleMarkerSymbol,
+	webMercatorUtils
 ) {
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
@@ -250,8 +252,15 @@ function(
 		createTOC();
 		createDashboard();
 		popCountyDropdown();
-		setRadioPrefs();
-		setTextboxPrefs();
+		// setRadioPrefs();
+		// setTextboxPrefs();
+		// setTocPrefs();
+
+		if ( localStorage.getItem("center-x") ) {
+			view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
+			view.zoom = localStorage.getItem("zoom");
+		}
+
 
         on(view, "click", executeIdTask);
 
@@ -282,6 +291,14 @@ function(
                 $("#prob-dia").dialog("open");
             }
         } );
+
+		view.watch("extent", function() {
+			var center = webMercatorUtils.webMercatorToGeographic(view.center);
+			localStorage.setItem("center-x", center.x);
+			localStorage.setItem("center-y", center.y);
+			localStorage.setItem("zoom", view.zoom);
+		} );
+
 		updateMap();
     } );
 
@@ -1934,6 +1951,7 @@ function(
 		localStorage.setItem(key, val);
 	}
 
+
 	function setTextboxPrefs() {
 		$("#loc-buff").val( localStorage.getItem("loc-buff") );
 
@@ -1951,6 +1969,30 @@ function(
 		$("#bbls").val( localStorage.getItem("bbls") );
 
 		$("#inj-year").val( localStorage.getItem("inj-year") );
+	}
+
+
+	saveTocPrefs = function(tocItem) {
+		var chkd = $("#"+tocItem).prop("checked");
+		localStorage.setItem(tocItem, chkd);
+	}
+
+
+	function setTocPrefs () {
+		// TODO: wtf!
+		// $.each(localStorage, function(key, val){
+		// 	if ( key.startsWith("tcb-3") ) {
+		// 		// $("#" + key).attr("checked", val);
+		// 	}
+		// } );
+		// console.log(localStorage.getItem("tcb-3"));
+		// var junk = localStorage.getItem("tcb-3");
+		// if (junk) {
+		// 	$("#tcb-3").attr( "checked");
+		// } else {
+		// 	$("#tcb-3").prop( "");
+		// }
+
 	}
 
 
@@ -2819,6 +2861,11 @@ function(
 				$("#" + group + "-body").fadeIn("fast");
 			}
 			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
+		} );
+
+		// Click handler for TOC items:
+		$("[id^='tcb-']").change(function() {
+			saveTocPrefs(this.id);
 		} );
     }
 
