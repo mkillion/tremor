@@ -44,6 +44,7 @@ require([
 	"esri/renderers/ClassBreaksRenderer",
 	"esri/symbols/SimpleMarkerSymbol",
 	"esri/geometry/support/webMercatorUtils",
+	"esri/Viewpoint",
     "dojo/domReady!"
 ],
 function(
@@ -90,7 +91,8 @@ function(
 	SimpleRenderer,
 	ClassBreaksRenderer,
 	SimpleMarkerSymbol,
-	webMercatorUtils
+	webMercatorUtils,
+	Viewpoint
 ) {
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
@@ -307,7 +309,15 @@ function(
 		popupEnabled: false
 	}, "srch" );
 
-	var homeBtn = new Home({
+	var stateVp = new Viewpoint( {
+		scale: 2750000,
+		targetGeometry: new Point ( {
+			x: -98,
+			y: 39.1
+		} )
+	} );
+
+	var homeBtn = new Home( {
         view: view
 	} );
     homeBtn.startup();
@@ -315,6 +325,7 @@ function(
     	position: "top-left",
         index: 1
      } );
+	 homeBtn.viewpoint = stateVp;
 
 	// var locateBtn = new Locate( {
     //     view: view
