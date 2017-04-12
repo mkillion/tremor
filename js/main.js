@@ -254,9 +254,17 @@ function(
 		createTOC();
 		createDashboard();
 		popCountyDropdown();
-		// setRadioPrefs();
-		// setTextboxPrefs();
-		setTocPrefs();
+
+		if ( localStorage.getItem("saved") === "true" ) {
+			$("#save-prefs-chk").prop("checked", true);
+			setRadioPrefs();
+			setTextboxPrefs();
+			setTocPrefs();
+		} else {
+			$("#save-prefs-chk").prop("checked", false);
+		}
+
+
 		if ( localStorage.getItem("center-x") ) {
 			view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
 			view.zoom = localStorage.getItem("zoom");
@@ -1936,6 +1944,12 @@ function(
     }
 
 
+	saveSettings = function() {
+		var saveEm =$("#save-prefs-chk").is(":checked");
+		localStorage.setItem("saved", saveEm);
+	}
+
+
 	saveRadioPrefs = function(name) {
 		// Create a storage key for each dashboard group (loc, tim, mag, wel), then set its
 		// value to the particular radio button that's checked:
@@ -2686,7 +2700,7 @@ function(
 		var seismicAreas = ["Anthony","Bluff City","Caldwell","Freeport","Milan","2016 Specified Area"];
 
 		dbCon = "<div class='dashboard'>";
-		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' onclick='deselectPoint()' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
+		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Update Map</button><span class='esri-icon-checkbox-checked hide' id='deselect-icon' onclick='deselectPoint()' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span><span class='note' id='save-prefs'><input type='checkbox' id='save-prefs-chk' onclick='saveSettings()'>Save Settings</span></div>";
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
