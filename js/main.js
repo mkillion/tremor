@@ -1995,16 +1995,14 @@ function(
 				} else {
 					$("#" + key).prop("checked", false);
 				}
+
+				var j = key.slice(-1);
+				var l = map.findLayerById(map.layers._items[j].id);
+				if (l.id !== "Topo") {
+					l.visible = $("#tcb-" + j).is(":checked") ? true : false;
+				}
 			}
 		} );
-
-		// var junk = localStorage.getItem("tcb-3");
-		// if (junk) {
-		// 	$("#tcb-3").attr( "checked");
-		// } else {
-		// 	$("#tcb-3").prop( "");
-		// }
-
 	}
 
 
