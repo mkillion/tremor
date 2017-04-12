@@ -260,14 +260,12 @@ function(
 			setRadioPrefs();
 			setTextboxPrefs();
 			setTocPrefs();
+			if ( localStorage.getItem("center-x") ) {
+				view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
+				view.zoom = localStorage.getItem("zoom");
+			}
 		} else {
 			$("#save-prefs-chk").prop("checked", false);
-		}
-
-
-		if ( localStorage.getItem("center-x") ) {
-			view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
-			view.zoom = localStorage.getItem("zoom");
 		}
 
         on(view, "click", executeIdTask);
@@ -1952,7 +1950,7 @@ function(
 
 	saveRadioPrefs = function(name) {
 		// Create a storage key for each dashboard group (loc, tim, mag, wel), then set its
-		// value to the particular radio button that's checked:
+		// value to the particular radio button that's checked. Also applies to TOC basemap group:
 		var key = name.substring(0,3);
 		var val = name.substring(4);
 		localStorage.setItem(key, val);
@@ -1960,10 +1958,14 @@ function(
 
 
 	function setRadioPrefs() {
-		var radioGroups = ["loc", "tim", "mag", "wel"];
+		var radioGroups = ["loc", "tim", "mag", "wel", "bas"];
 		for (var i = 0; i < radioGroups.length; i++) {
 			var opt = localStorage.getItem( radioGroups[i] );
-			$("#" + radioGroups[i] + "-" + opt).prop("checked", true);
+			if (radioGroups[i] === "bas") {
+				$("[value='" + opt + "']").prop("checked", true);
+			} else {
+				$("#" + radioGroups[i] + "-" + opt).prop("checked", true);
+			}
 		}
 	}
 
@@ -2002,19 +2004,29 @@ function(
 
 
 	function setTocPrefs () {
-		$.each(localStorage, function(key, val){
+		$.each(localStorage, function(key, val) {
 			if ( key.startsWith("tcb-") ) {
+				// Layer checkbox prefs.
 				if (val === "true") {
 					$("#" + key).prop("checked", true);
 				} else {
 					$("#" + key).prop("checked", false);
 				}
 
-				var j = key.slice(-1);
+				var j = key.substr(key.indexOf("-") + 1);
 				var l = map.findLayerById(map.layers._items[j].id);
 				if (l.id !== "Topo") {
 					l.visible = $("#tcb-" + j).is(":checked") ? true : false;
 				}
+			}
+
+			if ( key.startsWith("bas") ) {
+				// Basemap radio pref.
+				if (val === "none") {
+					val = "Topo";
+				}
+				var l = map.findLayerById(val);
+				l.visible = true;
 			}
 		} );
 	}
@@ -2858,7 +2870,7 @@ function(
 			}
 
 			if (boundariesGroup.indexOf(htmlID) > -1) {
-				boundariesTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				boundariesTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (basemapGroup.indexOf(htmlID) > -1) {
@@ -2887,9 +2899,14 @@ function(
 			$(this).toggleClass("esri-icon-down-arrow esri-icon-right-triangle-arrow no-border");
 		} );
 
-		// Click handler for TOC items:
+		// Click handler for TOC checkboxes:
 		$("[id^='tcb-']").change(function() {
 			saveTocPrefs(this.id);
+		} );
+
+		// Click handler for TOC basemap radios:
+		$("[name='bm']").change(function() {
+			saveRadioPrefs("bas-" + this.value);
 		} );
     }
 
