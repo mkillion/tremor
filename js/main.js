@@ -783,9 +783,17 @@ function(
 				// blank in this case, events already limited by definition query in mxd.
 				break;
 			case "buf":
-				locBuff = $("#loc-buff").val();
+				buffDist = $("#loc-buff").val();
+
+				if ( localStorage.getItem("saved") === "true" ) {
+					//need check for saved xy here?
+					var selX = localStorage.getItem("sel-feat-x");
+					var selY = localStorage.getItem("sel-feat-y");
+					createBufferGeom(buffDist, selX, selY);
+				}
+
 				if (view.popup.selectedFeature) {
-					createBufferGeom(locBuff);
+					createBufferGeom(buffDist);
 				} else {
 					if (!firstUpdatePass) {
 						alert("Please select an event or well to buffer.");
@@ -968,50 +976,62 @@ function(
 	}
 
 
-	function createBufferGeom(buffDist) {
+	function createBufferGeom(buffDist, x, y) {
 		graphicsLayer.remove(bufferGraphic);
 
-		if (view.popup.selectedFeature) {
-			var f = view.popup.selectedFeature;
-			if (f.geometry.type === "point") {
-				var buffFeature = new Point( {
-				    x: f.geometry.x,
-				    y: f.geometry.y,
-				    spatialReference: wmSR
-				 } );
+		if (x) {
+			var theX = x;
+			var theY = y;
+			var g = "point";
+		} else if (view.popup.selectedFeature) {
+			var theX = view.popup.selectedFeature.geometry.x;
+			var theY = view.popup.selectedFeature.geometry.y;
+			if (view.popup.selectedFeature.geometry.type === "point") {
+				var g = "point";
 			} else {
-				var buffFeature = new Polygon( {
-				    rings: f.geometry.rings,
-				    spatialReference: wmSR
-				 } );
+				var g = "polygon";
 			}
-
-			var buffPoly = geometryEngine.geodesicBuffer(buffFeature, buffDist, "miles");
-			var fillSymbol = new SimpleFillSymbol( {
-				color: [102, 205, 170, 0.25],
-				outline: new SimpleLineSymbol( {
-					color: [0, 0, 0],
-				  	width: 1
-				} )
-			} );
-			bufferGraphic = new Graphic( {
-				geometry: buffPoly,
-				symbol: fillSymbol
-			} );
-			graphicsLayer.add(bufferGraphic);
-
-			$(".esri-icon-erase").show();
-
-			view.goTo( {
-				target: buffPoly.extent,
-				scale: 200000
-			}, {duration: 500} );
-
-			createGeomWhere(buffPoly);
-			createwellsGeomWhere(buffPoly);
 		} else {
 			alert("Please select a feature to buffer");
+			return;
 		}
+
+		if (g === "point") {
+			var buffFeature = new Point( {
+				x: theX,
+				y: theY,
+				spatialReference: wmSR
+			 } );
+		} else {
+			var buffFeature = new Polygon( {
+				rings: f.geometry.rings,
+				spatialReference: wmSR
+			 } );
+		}
+
+		var buffPoly = geometryEngine.geodesicBuffer(buffFeature, buffDist, "miles");
+		var fillSymbol = new SimpleFillSymbol( {
+			color: [102, 205, 170, 0.25],
+			outline: new SimpleLineSymbol( {
+				color: [0, 0, 0],
+				width: 1
+			} )
+		} );
+		bufferGraphic = new Graphic( {
+			geometry: buffPoly,
+			symbol: fillSymbol
+		} );
+		graphicsLayer.add(bufferGraphic);
+
+		$(".esri-icon-erase").show();
+
+		view.goTo( {
+			target: buffPoly.extent,
+			scale: 200000
+		}, {duration: 500} );
+
+		createGeomWhere(buffPoly);
+		createwellsGeomWhere(buffPoly);
 	}
 
 
@@ -1704,6 +1724,9 @@ function(
 		view.popup.visible = true;
 
 		$(".esri-icon-checkbox-checked").show();
+
+		localStorage.setItem("sel-feat-x", view.popup.selectedFeature.geometry.x);
+		localStorage.setItem("sel-feat-y", view.popup.selectedFeature.geometry.y);
     }
 
 
@@ -2956,19 +2979,6 @@ function(
         } ).then(function(feature) {
 			if (feature.length > 0) {
             	openPopup(feature);
-
-				// Highlight row in wells list table:
-				// var fAtts = feature[0].attributes;
-				// if (fAtts.hasOwnProperty('INPUT_SEQ_NUMBER')) {
-				// 	var ptID = fAtts.INPUT_SEQ_NUMBER;
-				// } else if (fAtts.hasOwnProperty('KID')) {
-				// 	var ptID = fAtts.KID;
-				// } else if (fAtts.hasOwnProperty('EVENT_ID')) {
-				// 	var ptID = fAtts.EVENT_ID;
-				// }
-				// $(".well-list-tbl tr").removeClass("highlighted");
-				// $(".well-list-tbl tr:contains(" + ptID + ")").toggleClass("highlighted");
-
             	highlightFeature(feature);
 			} else {
 				dom.byId("mapDiv").style.cursor = "auto";
