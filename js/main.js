@@ -2444,7 +2444,7 @@ function(
 			} else {
 				$("#chart").hide();
 				$(".ui-dialog").hide();
-				alert("No features selected.");
+				alert("Select a location other than 'Statewide'.");
 			}
 			$("#loader").hide();
 		}
