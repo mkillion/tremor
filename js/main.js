@@ -211,7 +211,7 @@ function(
 		} )
 	} );
 	swdRenderer.legendOptions = {
-  		title: "2015 Total Fluid Injection (bbls)"
+  		title: "2016 Total Fluid Injection (bbls)"
 	};
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
@@ -497,7 +497,7 @@ function(
 		$("#loc-buff").val("6");
 		$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
 		$("#bbls").val("150000");
-		$("#inj-year").val("2015");
+		$("#inj-year").val("2016");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
 
@@ -920,7 +920,7 @@ function(
 				var bbls = $("#bbls").val().replace(/,/g, "");
 				// NOTE: temporarily hardcoding year pending descision by SP on wells and years:
 				// var injYear = $("#inj-year").val();
-				var injYear = "2015";
+				var injYear = "2016";
 
 				wellsWhere = "kid in (select well_header_kid from mk_inj where year = " + injYear + " and fluid_injected >= " + bbls + ")";
 				break;
@@ -2212,7 +2212,9 @@ function(
 
 
 	makeChart = function() {
-		var theYear = $("#inj-year").val();
+		// var theYear = $("#inj-year").val();
+		var theYear = 2016;	// TODO: correct when SP decides how years are to be handled.
+
 		var puTitle = $(".esri-popup__header-title").html();
 
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
@@ -2763,7 +2765,7 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Origin Time</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
