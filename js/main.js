@@ -255,17 +255,24 @@ function(
 		createDashboard();
 		popCountyDropdown();
 
-		if ( localStorage.getItem("saved") === "true" ) {
-			$("#save-prefs-chk").prop("checked", true);
-			setRadioPrefs();
-			setTextboxPrefs();
-			setTocPrefs();
-			if ( localStorage.getItem("center-x") ) {
-				view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
-				view.zoom = localStorage.getItem("zoom");
+		var isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g);
+
+		if (!isIE) {
+			// TODO: save prefs not working in IE as of 20170417, disabling it until I can revisit it down the road.
+			if ( localStorage.getItem("saved") === "true" ) {
+				$("#save-prefs-chk").prop("checked", true);
+				setRadioPrefs();
+				setTextboxPrefs();
+				setTocPrefs();
+				if ( localStorage.getItem("center-x") ) {
+					view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
+					view.zoom = localStorage.getItem("zoom");
+				}
+			} else {
+				$("#save-prefs-chk").prop("checked", false);
 			}
 		} else {
-			$("#save-prefs-chk").prop("checked", false);
+			$("#save-prefs").html("");
 		}
 
         on(view, "click", executeIdTask);
