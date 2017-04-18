@@ -12,6 +12,11 @@
         #PreserveSingleQuotes(form.where)#
 </cfquery>
 
+<cfset FromYear = Right(#form.fromdate#, 4)>
+<cfset ToYear = Right(#form.todate#, 4)>
+<cfset FromMonth = Left(#form.fromdate#, 2)>
+<cfset ToMonth = Left(#form.todate#, 2)>
+
 <cfquery name="qMonthlyVols" datasource="plss">
     <!--- this could be simplified - form.where probably duplicates - but it works so, eh --->
     select
@@ -24,9 +29,11 @@
             qualified.injections_months
         where
             injection_kid in
-            (select kid from qualified.injections where year = #form.year# and well_header_kid in
+            (select kid from qualified.injections where year >= #FromYear# and year <= #ToYear# and well_header_kid in
                 (select kid from swd_wells where #PreserveSingleQuotes(form.where)#)
             )
+        and
+            month >= #FromMonth# and month <= #ToMonth#
         )
     order by month
 </cfquery>

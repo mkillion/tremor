@@ -2213,7 +2213,10 @@ function(
 
 	makeChart = function() {
 		// var theYear = $("#inj-year").val();
-		var theYear = 2016;	// TODO: correct when SP decides how years are to be handled.
+		var theYear = 2016;	// TODO: default here for now, think this will be superceded by actual date ranges.
+
+		var fromDate = dom.byId('from-date').value;
+		var toDate = dom.byId('to-date').value;
 
 		var puTitle = $(".esri-popup__header-title").html();
 
@@ -2254,7 +2257,6 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					var graphTitle = "Total Injection Volume for Selected Wells - " + theYear;
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2299,11 +2301,22 @@ function(
 			var dWidth = wWidth * 0.75;
 			$("#chart-container").dialog("option", "width", dWidth);
 
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, jointeqwhere: jointEqWhere  };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate  };
 
 			$("#loader").show();
 
 			if (graphType === "injvol") {
+				var allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				var months = [];
+				var fromMonth = parseInt( fromDate.split("/")[0] ) - 1;
+				var toMonth = parseInt( toDate.split("/")[0] ) - 1;
+				for (var i = fromMonth; i <= toMonth; i++) {
+					months.push( allMonths[i] );
+				}
+
+
+				// var graphTitle = "Total Injection Volume for Selected Wells - " + theYear;
+
 				$.post("createInjectionChartData.cfm", packet, function(response) {
 					var volData = JSON.parse(response);
 					if (volData[0].data.length !== 0) {
@@ -2332,7 +2345,7 @@ function(
 								xDateFormat: '%b %e, %Y'
 					        },
 							xAxis: {
-						        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+						        categories: months,
 						        crosshair: true
 						    },
 							yAxis: {
