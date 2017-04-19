@@ -104,6 +104,7 @@ function(
 	var wellsComboWhere = "";
 	var wellsGeomWhere;
 	var attrWhere = "";
+	var locWhere = "";
 	var wellsAttrWhere = "";
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
@@ -770,7 +771,7 @@ function(
 
 
 	updateMap = function() {
-		var locWhere = "";
+		locWhere = "";
 		var timeWhere = "";
 		var magWhere = "";
 		wellsWhere = "";
@@ -2301,7 +2302,22 @@ function(
 			var dWidth = wWidth * 0.75;
 			$("#chart-container").dialog("option", "width", dWidth);
 
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate  };
+			var bbl = "";
+			var w = $("input[name=well-type]:checked").val();
+			if (w !== "all") {
+				bbl = $("#bbls").val().replace(/,/g, "");
+			}
+
+			var injvolWhere = "";
+			if (locWhere) {
+				injvolWhere = locWhere;
+			}
+			if (wellsGeomWhere) {
+				injvolWhere = wellsGeomWhere;
+			}
+
+			// Note, it may be that not everything in packet is used in each cfm, but keeping it all there is easiest:
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
 
 			$("#loader").show();
 
@@ -2313,7 +2329,6 @@ function(
 				for (var i = fromMonth; i <= toMonth; i++) {
 					months.push( allMonths[i] );
 				}
-
 
 				// var graphTitle = "Total Injection Volume for Selected Wells - " + theYear;
 
@@ -2358,7 +2373,7 @@ function(
 					    } );
 					} else {
 						$(".ui-dialog").hide();
-						alert("No data returned for this will for these search criteria.");
+						alert("No data returned for this well for these search criteria.");
 					}
 				} );
 			} else if (graphType === "joint") {
