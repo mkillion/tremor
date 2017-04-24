@@ -830,6 +830,9 @@ function(
 		}
 
 		// Create time clause:
+		// Disable injection graphs:
+		$(".inj-graph-text").css("color", "#808080");
+		$(".inj-graph").attr("disabled", true);
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
