@@ -9,13 +9,17 @@
     from
         swd_wells
     where
-        #PreserveSingleQuotes(form.where)#
+        #PreserveSingleQuotes(form.injvolwhere)#
 </cfquery>
 
-<cfset FromYear = Right(#form.fromdate#, 4)>
-<cfset ToYear = Right(#form.todate#, 4)>
-<cfset FromMonth = Left(#form.fromdate#, 2)>
-<cfset ToMonth = Left(#form.todate#, 2)>
+<cfif #form.fromdate# neq "">
+    <cfset FromYear = Right(#form.fromdate#, 4)>
+    <cfset FromMonth = Left(#form.fromdate#, 2)>
+</cfif>
+<cfif #form.todate# neq "">
+    <cfset ToYear = Right(#form.todate#, 4)>
+    <cfset ToMonth = Left(#form.todate#, 2)>
+</cfif>
 
 <cfquery name="qMonthlyVols" datasource="plss">
     select
@@ -24,8 +28,10 @@
         mk_injections_months
     where
         well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+        ###### PICK UP HERE W/ A CHECK FOR DATE VARS BEING DEFINED #####
         and
         month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+
         and
         fluid_injected >= #form.bbl#
     order by month_year

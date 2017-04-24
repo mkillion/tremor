@@ -842,6 +842,10 @@ function(
 				timeWhere = "to_char(origin_time_cst,'YYYY') = to_char(sysdate, 'YYYY')";
 				break;
 			case "date":
+				// Enable injection graphs:
+				$(".inj-graph-text").css("color", "#000");
+				$(".inj-graph").attr("disabled", false);
+
 				var fromDate = dom.byId('from-date').value;
 				var toDate = dom.byId('to-date').value;
 				var fromDateIsValid = true;
@@ -2597,8 +2601,8 @@ function(
 		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='injvol'> Injection Volume</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='joint'> Joint Magnitude/Volume Plot</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='injvol' disabled> <span class='inj-graph-text'>Injection Volume</span></label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Plot</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 
