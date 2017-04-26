@@ -2329,55 +2329,44 @@ function(
 			$("#loader").show();
 
 			if (graphType === "injvol") {
-				var allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-				var months = [];
-				var fromMonth = parseInt( fromDate.split("/")[0] ) - 1;
-				var toMonth = parseInt( toDate.split("/")[0] ) - 1;
-				for (var i = fromMonth; i <= toMonth; i++) {
-					months.push( allMonths[i] );
-				}
-
-				// var graphTitle = "Total Injection Volume for Selected Wells - " + theYear;
-
 				$.post("createInjectionChartData.cfm", packet, function(response) {
 					var volData = JSON.parse(response);
 					if (volData[0].data.length !== 0) {
 						$('#chart').highcharts( {
-					        chart: {
-					            type: chartType,
-								borderColor: '#A9A9A9',
-			            		borderWidth: 3,
-								borderRadius: 8,
-								zoomType: 'xy'
-					        },
-							title: {
-								text: graphTitle
-							},
-							subtitle: {
-								text: graphSubTitle
-							},
+							chart: {
+						        zoomType: 'xy'
+						    },
+						    title: {
+						        text: 'Total Injection Volume'
+						    },
+							xAxis: {
+						        type: 'datetime',
+						        labels: {
+						            format: '{value:%Y-%m}',
+						            rotation: 45,
+						            align: 'left'
+						        }
+						    },
+							yAxis: [ { // Primary yAxis
+								title: ""
+						    }, { // Secondary yAxi
+						        title: {
+						            text: 'Total Monthly Injection (bbls)',
+						        },
+						        labels: {
+									format: '{value:,.0f}'
+						        },
+						        opposite: false
+						    } ],
 							tooltip: {
 								crosshairs: {
 							        color: 'green',
 							        dashStyle: 'solid'
-							    },
+							    }
 					        	// enabled: false
-								headerFormat: '<b>{point.key}</b><br/>',
-								pointFormat: pointFormatText,
-								xDateFormat: '%b %e, %Y'
 					        },
-							xAxis: {
-						        categories: months,
-						        crosshair: true
-						    },
-							yAxis: {
-						        min: 0,
-						        title: {
-						            text: yAxisText
-						        }
-						    },
-							series: volData
-					    } );
+						    series: volData
+						} );
 					} else {
 						$(".ui-dialog").hide();
 						alert("No data returned for this well for these search criteria.");

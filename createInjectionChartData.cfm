@@ -23,32 +23,40 @@
 
 <cfquery name="qMonthlyVols" datasource="plss">
     select
-        distinct month_year, sum(fluid_injected) over (partition by month_year) as monthly_volume
+        distinct (trunc( month_year ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
+        sum(fluid_injected) over (partition by month_year) as monthly_volume
     from
         mk_injections_months
     where
         well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
-        ###### PICK UP HERE W/ A CHECK FOR DATE VARS BEING DEFINED #####
         and
         month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
-
         and
         fluid_injected >= #form.bbl#
-    order by month_year
+    order by ms
 </cfquery>
 
 <cfoutput>
-    [{
-        "name": "Total Volume (bbls) for #qCount.cnt# Wells",
-        "data": [#ValueList(qMonthlyVols.monthly_volume)#]
-    }]
+    [
+        {
+            "name": "Total Volume (bbls) for #qCount.cnt# Wells",
+            "type": "column",
+            "yAxis": 1,
+            "data": [
+                <cfset i = 1>
+                <cfloop query="qMonthlyVols">
+                    [#ms#,#monthly_volume#]
+                    <cfif i neq qMonthlyVols.recordcount>
+                        ,
+                    </cfif>
+                    <cfset i = i + 1>
+                </cfloop>
+            ],
+            "tooltip": {
+                "headerFormat": "<b>{point.key}</b><br>",
+                "pointFormat": "Total BBLS: <b>{point.y}</b>",
+                "xDateFormat": "%b %Y"
+            }
+        }
+    ]
 </cfoutput>
-
-<!---
-Should look like this (series name, data for each month in order. month names are set up in chart js code):
-[{
-    name: 'Tokyo',
-    data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-}]
-
---->
