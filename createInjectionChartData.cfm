@@ -9,7 +9,7 @@
     from
         swd_wells
     where
-        #PreserveSingleQuotes(form.injvolwhere)#
+        #PreserveSingleQuotes(form.where)#
 </cfquery>
 
 <cfif #form.fromdate# neq "">
