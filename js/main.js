@@ -788,7 +788,8 @@ function(
 		var location = $("input[name=loc-type]:checked").val();
 		switch (location) {
 			case "state":
-				// blank in this case, events already limited by definition query in mxd.
+				// Dummy clause to select all:
+				locWhere = "objectid > 0";
 				break;
 			case "buf":
 				buffDist = $("#loc-buff").val();
@@ -830,9 +831,6 @@ function(
 		}
 
 		// Create time clause:
-		// Disable injection graphs:
-		$(".inj-graph-text").css("color", "#808080");
-		$(".inj-graph").attr("disabled", true);
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
@@ -2370,7 +2368,7 @@ function(
 						} );
 					} else {
 						$(".ui-dialog").hide();
-						alert("No data returned for this well for these search criteria.");
+						alert("No data returned for these search criteria.");
 					}
 				} );
 			} else if (graphType === "joint") {
@@ -2551,11 +2549,6 @@ function(
 		$("[name=welltype]").filter("[value='none']").prop("checked",true);
 		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select, #eventid").val("");
 	}
-
-
-	// originalLocation = function() {
-	// 	urlZoom(urlParams);
-	// }
 
 
     function createMenus() {
@@ -2868,6 +2861,17 @@ function(
 			$('[name=loc-type][value="sca"]').prop('checked',true);
 			saveRadioPrefs("loc-sca");
 			saveTextboxPrefs("sca");
+		 } );
+
+		 $("[name=time-type]").click(function() {
+			 if (this.id !== "tim-date") {
+				 // Disable injection graphs:
+ 				$(".inj-graph-text").css("color", "#808080");
+ 				$(".inj-graph").attr("disabled", true);
+			} else {
+				$(".inj-graph-text").css("color", "#000");
+				$(".inj-graph").attr("disabled", false);
+			}
 		 } );
 	}
 

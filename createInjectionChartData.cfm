@@ -30,9 +30,19 @@
     where
         well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
         and
-        month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
-        and
-        fluid_injected >= #form.bbl#
+        <cfif isDefined("FromYear") and isDefined("ToYear")>
+            month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif isDefined("FromYear") and not isDefined("ToYear")>
+            month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+        </cfif>
+        <cfif not isDefined("FromYear") and isDefined("ToYear")>
+            month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif isDefined("form.bbl")>
+            and
+            fluid_injected >= #form.bbl#
+        </cfif>
     order by ms
 </cfquery>
 
