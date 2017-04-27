@@ -920,12 +920,12 @@ function(
 		var well = $("input[name=well-type]:checked").val();
 		switch (well) {
 			case "all":
-				// blank in this case.
+				// Dummy clause to return all:
+				wellsWhere = "objectid > 0";
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
-				// NOTE: temporarily hardcoding year pending descision by SP on wells and years:
-				// var injYear = $("#inj-year").val();
+				// TODO: fix this!
 				var injYear = "2016";
 
 				wellsWhere = "kid in (select well_header_kid from mk_inj where year = " + injYear + " and fluid_injected >= " + bbls + ")";

@@ -39,7 +39,7 @@
         <cfif not isDefined("FromYear") and isDefined("ToYear")>
             month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
         </cfif>
-        <cfif isDefined("form.bbl")>
+        <cfif #form.bbl# neq "">
             and
             fluid_injected >= #form.bbl#
         </cfif>
