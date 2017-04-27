@@ -106,7 +106,7 @@ function(
 	var attrWhere = "";
 	var locWhere = "";
 	var wellsAttrWhere = "";
-	var fYear, tYear;
+	var fromYear, toYear;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
@@ -537,6 +537,10 @@ function(
 		saveTextboxPrefs("bbls");
 		saveTextboxPrefs("inj-year");
 
+		// Disable injection graphs:
+		$(".inj-graph-text").css("color", "#808080");
+		$(".inj-graph").attr("disabled", true);
+
 		updateMap();
 	}
 
@@ -858,14 +862,14 @@ function(
 					var fromDateParts = fromDate.split("/");
 					var fromMonth = parseInt(fromDateParts[0]);
 					var fromDay = parseInt(fromDateParts[1]);
-					var fromYear = parseInt(fromDateParts[2]);
+					fromYear = parseInt(fromDateParts[2]);
 					fromDateIsValid = validateDate( fromDay, fromMonth, fromYear );
 				}
 				if (toDate !== "") {
 					var toDateParts = toDate.split("/");
 					var toMonth = parseInt(toDateParts[0]);
 					var toDay = parseInt(toDateParts[1]);
-					var toYear = parseInt(toDateParts[2]);
+					toYear = parseInt(toDateParts[2]);
 					toDateIsValid = validateDate( toDay, toMonth, toYear );
 				}
 				if (!fromDateIsValid || !toDateIsValid) {
@@ -931,16 +935,12 @@ function(
 
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
-					// TODO: this is all based on using year only. modify to filter wells where any month WITHIN the date range
-					// has a bbl over the entered value.
-					fYear = parseInt( fromDate.slice(-4) );
-					tYear = parseInt( toDate.slice(-4) );
-					if (fYear && tYear) {
-						var dateClause = "year >= " + fYear + " and year <= " + tYear;
-					} else if (fYear && !tYear) {
-						var dateClause = "year >= " + fYear;
-					} else if (!fYear && tYear) {
-						var dateClause = "year <= " + tYear;
+					if (fromYear && toYear) {
+						var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
+					} else if (fromYear && !toYear) {
+						var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+					} else if (!fromYear && toYear) {
+						var dateClause = "year <= " + toYear + " and month <= " + toMonth;
 					}
 				} else {
 					// Date presets, use most recent year data is available.
@@ -2287,7 +2287,7 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					if ( (fYear < 2015) || (tYear < 2015) ) {
+					if ( (fromYear < 2015) || (toYear < 2015) ) {
 						alert("For years prior to 2015 annual injection volume data will be used.");
 					}
 					var yAxisText = "BBLS";
@@ -2305,7 +2305,7 @@ function(
 					}
 					break;
 				case "joint":
-					if ( (fYear < 2015) || (tYear < 2015) ) {
+					if ( (fromYear < 2015) || (toYear < 2015) ) {
 						alert("For years prior to 2015 annual injection volume data will be used.");
 					}
 					var graphWhere = wellsComboWhere;
@@ -2895,7 +2895,7 @@ function(
 
 		 $("[name=time-type]").click(function() {
 			 if (this.id !== "tim-date") {
-				 // Disable injection graphs:
+				// Disable injection graphs:
  				$(".inj-graph-text").css("color", "#808080");
  				$(".inj-graph").attr("disabled", true);
 			} else {
