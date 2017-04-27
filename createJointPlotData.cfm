@@ -11,7 +11,7 @@
         #PreserveSingleQuotes(form.where)#
 </cfquery>
 
-
+********** Removed form.year from packet, rework query to use date ranges **********
 
 <!--- Injection query: --->
 <!--- NOTE: keep changes to this query synced with createInjectionChartData.cfm --->

@@ -106,6 +106,7 @@ function(
 	var attrWhere = "";
 	var locWhere = "";
 	var wellsAttrWhere = "";
+	var fYear, tYear;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
@@ -922,13 +923,39 @@ function(
 			case "all":
 				// Dummy clause to return all:
 				wellsWhere = "objectid > 0";
+
+				// TODO: need a year check here too?
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
-				// TODO: fix this!
-				var injYear = "2016";
 
-				wellsWhere = "kid in (select well_header_kid from mk_inj where year = " + injYear + " and fluid_injected >= " + bbls + ")";
+				if ( $("#tim-date").prop("checked") ) {
+					// Use date range.
+					// TODO: this is all based on using year only. modify to filter wells where any month WITHIN the date range
+					// has a bbl over the entered value.
+					fYear = parseInt( fromDate.slice(-4) );
+					tYear = parseInt( toDate.slice(-4) );
+					if (fYear && tYear) {
+						var dateClause = "year >= " + fYear + " and year <= " + tYear;
+					} else if (fYear && !tYear) {
+						var dateClause = "year >= " + fYear;
+					} else if (!fYear && tYear) {
+						var dateClause = "year <= " + tYear;
+					}
+				} else {
+					// Date presets, use most recent year data is available.
+					var today = new Date();
+					var thisYear = today.getFullYear();
+					var mostRecentDataDate = new Date("April 1, " + thisYear);
+					if (today > mostRecentDataDate) {
+						var y = thisYear - 1;
+						var dateClause = "year = " + y;
+					} else {
+						var y = thisYear - 2;
+						var dateClause = "year = " + y;
+					}
+				}
+				wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 				break;
 		}
 
@@ -2218,9 +2245,6 @@ function(
 
 
 	makeChart = function() {
-		// var theYear = $("#inj-year").val();
-		var theYear = 2016;	// TODO: default here for now, think this will be superceded by actual date ranges.
-
 		var fromDate = dom.byId('from-date').value;
 		var toDate = dom.byId('to-date').value;
 
@@ -2263,6 +2287,9 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
+					if ( (fYear < 2015) || (tYear < 2015) ) {
+						alert("For years prior to 2015 annual injection volume data will be used.");
+					}
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2278,6 +2305,9 @@ function(
 					}
 					break;
 				case "joint":
+					if ( (fYear < 2015) || (tYear < 2015) ) {
+						alert("For years prior to 2015 annual injection volume data will be used.");
+					}
 					var graphWhere = wellsComboWhere;
 					var jointEqWhere = comboWhere;
 					// If just a single well is selected, use that:
@@ -2322,7 +2352,7 @@ function(
 			}
 
 			// Note, it may be that not everything in packet is used in each cfm, but keeping it all there is easiest:
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "year": theYear, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
 
 			$("#loader").show();
 
