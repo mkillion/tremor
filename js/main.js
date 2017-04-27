@@ -2342,7 +2342,8 @@ function(
 							xAxis: {
 						        type: 'datetime',
 						        labels: {
-						            format: '{value:%Y-%m}',
+						            // format: '{value:%Y-%m}',
+									format: '{value:%b %Y}',
 						            rotation: 45,
 						            align: 'left'
 						        }
