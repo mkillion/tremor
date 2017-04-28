@@ -922,42 +922,40 @@ function(
 		}
 
 		// Create wells clause:
+		if ( $("#tim-date").prop("checked") ) {
+			// Use date range.
+			if (fromYear && toYear) {
+				var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
+			} else if (fromYear && !toYear) {
+				var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+			} else if (!fromYear && toYear) {
+				var dateClause = "year <= " + toYear + " and month <= " + toMonth;
+			}
+		} else {
+			// Preset dates, use most recent year data is available.
+			var today = new Date();
+			var thisYear = today.getFullYear();
+			var mostRecentDataDate = new Date("April 1, " + thisYear);
+			if (today > mostRecentDataDate) {
+				var y = thisYear - 1;
+				var dateClause = "year = " + y;
+			} else {
+				var y = thisYear - 2;
+				var dateClause = "year = " + y;
+			}
+		}
+
 		var well = $("input[name=well-type]:checked").val();
 		switch (well) {
 			case "all":
-				// Dummy clause to return all:
-				wellsWhere = "objectid > 0";
-
-				// TODO: need a year check here too?
+				var bblsClause = "";
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
-
-				if ( $("#tim-date").prop("checked") ) {
-					// Use date range.
-					if (fromYear && toYear) {
-						var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
-					} else if (fromYear && !toYear) {
-						var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
-					} else if (!fromYear && toYear) {
-						var dateClause = "year <= " + toYear + " and month <= " + toMonth;
-					}
-				} else {
-					// Date presets, use most recent year data is available.
-					var today = new Date();
-					var thisYear = today.getFullYear();
-					var mostRecentDataDate = new Date("April 1, " + thisYear);
-					if (today > mostRecentDataDate) {
-						var y = thisYear - 1;
-						var dateClause = "year = " + y;
-					} else {
-						var y = thisYear - 2;
-						var dateClause = "year = " + y;
-					}
-				}
-				wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+				bblsClause = " and fluid_injected >= " + bbls;
 				break;
 		}
+		wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + bblsClause + ")";
 
 		// Put where clauses together (excluding wells clause which is created below):
 		if (locWhere !== "") {
