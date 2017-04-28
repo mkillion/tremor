@@ -927,8 +927,6 @@ function(
 			case "all":
 				// Dummy clause to return all:
 				wellsWhere = "objectid > 0";
-
-				// TODO: need a year check here too?
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
@@ -936,7 +934,37 @@ function(
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
 					if (fromYear && toYear) {
-						var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
+						var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
+
+						var dt1 = new Date(fromMonth + "/15/" + fromYear);
+						var dt2 = new Date(toMonth + "/15/" + toYear);
+						var numMonths = diff_months(dt2, dt1);
+
+						if (numMonths < 12) {
+							if (toMonth > fromMonth) {
+								var arrNums = [];
+								for (var i = fromMonth; i < toMonth + 1; i++) {
+									arrNums.push(i);
+								}
+								var nums = arrNums.join();
+								monthsClause = "in (" + nums + ")";
+							} else {
+								var arrNums1 = [];
+								var arrNums2 = [];
+								for (var i = fromMonth; i < 13; i++) {
+									arrNums1.push(i);
+								}
+								for (var j = 1; j < toMonth + 1; j++) {
+									arrNums2.push(j);
+								}
+								var nums1 = arrNums1.join();
+								var nums2 = arrNums2.join();
+								monthsClause = "in (" + nums1 + "," + nums2 + ")";
+							}
+						}
+
+						var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
+
 					} else if (fromYear && !toYear) {
 						var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
 					} else if (!fromYear && toYear) {
@@ -994,6 +1022,14 @@ function(
 		}
 		firstUpdatePass = false;
 	}	// end updateMap().
+
+
+	function diff_months(dt2, dt1) {
+		var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+		diff /= (60 * 60 * 24 * 7 * 4);
+		// return Math.abs(Math.round(diff));
+		return Math.ceil(diff);	// Want total number of months not number between.
+	}
 
 
 	function validateDate( intDay, intMonth, intYear ) {
