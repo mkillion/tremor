@@ -933,10 +933,8 @@ function(
 
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
-					if ( parseInt(fromYear) < 2015 ) {
+					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
 						// Use annual volumes.
-						// TODO: format a separate wellsWhere clause to use annual data, filter for
-						// any year with a value greater than entered. modify makeChart (add to packet?), and createInjectionChartData.cfm.
 						wellsWhere = "kid in (select well_header_kid from qualified.injections where year >= " + fromYear + " and year <= " + toYear + " and total_fluid_volume >= " + bbls + ")";
 					} else {
 						// Use monthly volumes.
@@ -971,12 +969,13 @@ function(
 							}
 
 							var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
-							wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+
 						} else if (fromYear && !toYear) {
 							var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
 						} else if (!fromYear && toYear) {
 							var dateClause = "year <= " + toYear + " and month <= " + toMonth;
 						}
+						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					}
 				} else {
 					// Date presets, use most recent year data is available.
@@ -2325,7 +2324,7 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					if ( (fromYear < 2015) || (toYear < 2015) ) {
+					if ( parseInt(fromYear) < 2015) || parseInt(toYear) < 2015 ) {
 						alert("For years prior to 2015 annual injection volume data will be used.");
 					}
 					var yAxisText = "BBLS";
@@ -3262,7 +3261,7 @@ function(
         content += "<tr><td>Plug Date:</td><td>{PLUG_DATE_TXT}</td></tr>";
         content += "<tr><td>Total Depth (ft):</td><td>" + dpth + "</td></tr>";
         content += "<tr><td>Elevation (KB, ft):</td><td>" + elev + "</td></tr>";
-        content += "<tr><td>Producing Formation:</td><td>{PRODUCING_FORMATION}</td></tr>";
+        // content += "<tr><td>Producing Formation:</td><td>{PRODUCING_FORMATION}</td></tr>";
         content += "<span id='well-kid' class='hide'>{KID}</span></table>";
 
         return content;
