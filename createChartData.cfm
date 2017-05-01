@@ -17,22 +17,17 @@
 <cfset DateToMS = "(trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
 
 <cfloop query="qLayers">
-    <cfif #layer# eq "USGS">
-        <cfset MagType = "ml">
-    <cfelse>
-        <cfset MagType = "mc">
-    </cfif>
 
     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
         <cfquery name="q#layer#" datasource="tremor">
             select
                 layer,
-                #MagType# as magnitude,
+                magnitude,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
                 quakes
             where
-                #MagType# is not null
+                magnitude is not null
                 and
                     layer = '#layer#'
                 <cfif #form.where# neq "">
@@ -48,7 +43,7 @@
             from
                 quakes
             where
-                #MagType# is not null
+                magnitude is not null
                 and
                     layer = '#layer#'
                 <cfif #form.where# neq "">

@@ -909,15 +909,15 @@ function(
 				break;
 			case "magrange":
 				if (lMag && uMag) {
-					magWhere = "mc >= " + lMag + " and mc <= " + uMag;
+					magWhere = "magnitude >= " + lMag + " and magnitude <= " + uMag;
 				} else if (lMag && !uMag) {
-					magWhere = "mc >= " + lMag;
+					magWhere = "magnitude >= " + lMag;
 				} else if (!lMag && uMag) {
-					magWhere = "mc <= " + uMag;
+					magWhere = "magnitude <= " + uMag;
 				}
 				break
 			case "gt3517":
-				magWhere = "(mc >= 3.5 or sas >= 17)";
+				magWhere = "(magnitude >= 3.5 or sas >= 17)";
 				break;
 		}
 
@@ -933,42 +933,50 @@ function(
 
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
-					if (fromYear && toYear) {
-						var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
+					if ( parseInt(fromYear) < 2015 ) {
+						// Use annual volumes.
+						// TODO: format a separate wellsWhere clause to use annual data, filter for
+						// any year with a value greater than entered. modify makeChart (add to packet?), and createInjectionChartData.cfm.
+						wellsWhere = "kid in (select well_header_kid from qualified.injections where year >= " + fromYear + " and year <= " + toYear + " and total_fluid_volume >= " + bbls + ")";
+					} else {
+						// Use monthly volumes.
+						if (fromYear && toYear) {
+							var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
 
-						var dt1 = new Date(fromMonth + "/15/" + fromYear);
-						var dt2 = new Date(toMonth + "/15/" + toYear);
-						var numMonths = diff_months(dt2, dt1);
+							var dt1 = new Date(fromMonth + "/15/" + fromYear);
+							var dt2 = new Date(toMonth + "/15/" + toYear);
+							var numMonths = diff_months(dt2, dt1);
 
-						if (numMonths < 12) {
-							if (toMonth > fromMonth) {
-								var arrNums = [];
-								for (var i = fromMonth; i < toMonth + 1; i++) {
-									arrNums.push(i);
+							if (numMonths < 12) {
+								if (toMonth > fromMonth) {
+									var arrNums = [];
+									for (var i = fromMonth; i < toMonth + 1; i++) {
+										arrNums.push(i);
+									}
+									var nums = arrNums.join();
+									monthsClause = "in (" + nums + ")";
+								} else {
+									var arrNums1 = [];
+									var arrNums2 = [];
+									for (var i = fromMonth; i < 13; i++) {
+										arrNums1.push(i);
+									}
+									for (var j = 1; j < toMonth + 1; j++) {
+										arrNums2.push(j);
+									}
+									var nums1 = arrNums1.join();
+									var nums2 = arrNums2.join();
+									monthsClause = "in (" + nums1 + "," + nums2 + ")";
 								}
-								var nums = arrNums.join();
-								monthsClause = "in (" + nums + ")";
-							} else {
-								var arrNums1 = [];
-								var arrNums2 = [];
-								for (var i = fromMonth; i < 13; i++) {
-									arrNums1.push(i);
-								}
-								for (var j = 1; j < toMonth + 1; j++) {
-									arrNums2.push(j);
-								}
-								var nums1 = arrNums1.join();
-								var nums2 = arrNums2.join();
-								monthsClause = "in (" + nums1 + "," + nums2 + ")";
 							}
+
+							var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
+							wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						} else if (fromYear && !toYear) {
+							var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+						} else if (!fromYear && toYear) {
+							var dateClause = "year <= " + toYear + " and month <= " + toMonth;
 						}
-
-						var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
-
-					} else if (fromYear && !toYear) {
-						var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
-					} else if (!fromYear && toYear) {
-						var dateClause = "year <= " + toYear + " and month <= " + toMonth;
 					}
 				} else {
 					// Date presets, use most recent year data is available.
@@ -982,8 +990,8 @@ function(
 						var y = thisYear - 2;
 						var dateClause = "year = " + y;
 					}
+					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 				}
-				wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 				break;
 		}
 
@@ -1738,11 +1746,6 @@ function(
 		var lMag = dom.byId('low-mag').value;
 		var uMag = dom.byId('high-mag').value;
 		var county = dom.byId("lstCounty2").value;
-		var magtype = "mc";
-
-		if (lyrID[0] == 16) {
-			magtype = "ml";
-		}
 
 		if (fromDate && toDate) {
 			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
@@ -2307,7 +2310,6 @@ function(
 					break;
 				case "mag":
 					var graphTitle = "Magnitude / Date";
-					var graphSubTitle = "(KGS magnitudes are type MC, USGS NEIC magnitudes are type ML)";
 					var yAxisText = "Magnitude";
 					var pointFormatText = "Magnitude: <b>{point.y}</b>";
 					var showDecimals = true;
@@ -2497,9 +2499,9 @@ function(
 						title: {
 							text: graphTitle
 						},
-						subtitle: {
-							text: graphSubTitle
-						},
+						// subtitle: {
+						// 	text: graphSubTitle
+						// },
 						tooltip: {
 							crosshairs: {
 						        color: 'green',
@@ -3139,7 +3141,8 @@ function(
 		var lonErr = f.LONGITUDE_ERR !== "Null" ? f.LONGITUDE_ERR : "";
 		var dep = f.DEPTH !== "Null" ? f.DEPTH : "";
 		var de = f.DEPTH_ERR !== "Null" ? f.DEPTH_ERR : "";
-		var m = f.MC !== "Null" ? f.MC + " mc" : "";
+		var m = f.MAGNITUDE !== "Null" ? f.MAGNITUDE : "";
+		var mt = f.MAGNITUDE_TYPE !== "Null" ? f.MAGNITUDE_TYPE : "";
 		var sas = f.SAS !== "Null" ? f.SAS : "";
 		var co = f.COUNTY_NAME !== "Null" ? f.COUNTY_NAME : "";
 
@@ -3170,7 +3173,7 @@ function(
 		content += "<tr><td>Horizontal Uncertainty: </td><td>" + hu + "</td></tr>";
 		content += "<tr><td>Depth: </td><td>" + dep + "</td></tr>";
 		content += "<tr><td>Vertical Uncertainty: </td><td>" + de + "</td></tr>";
-        content += "<tr><td>Magnitude: </td><td>" + m + "</td></tr>";
+        content += "<tr><td>Magnitude (" + mt + "): </td><td>" + m + "</td></tr>";
 		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
 		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
         content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";
