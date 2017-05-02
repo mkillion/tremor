@@ -2300,7 +2300,7 @@ function(
 			var graphType = $('input[name=graph-type]:checked').val();
 			switch (graphType) {
 				case "count":
-					var graphTitle = "Count / Date";
+					var graphTitle = "Count";
 					var yAxisText = "Count";
 					var pointFormatText = "Count: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2308,7 +2308,7 @@ function(
 					var chartType = "scatter";
 					break;
 				case "mag":
-					var graphTitle = "Magnitude / Date";
+					var graphTitle = "Magnitude";
 					var yAxisText = "Magnitude";
 					var pointFormatText = "Magnitude: <b>{point.y}</b>";
 					var showDecimals = true;
@@ -2324,7 +2324,7 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					if ( parseInt(fromYear) < 2015) || parseInt(toYear) < 2015 ) {
+					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
 						alert("For years prior to 2015 annual injection volume data will be used.");
 					}
 					var yAxisText = "BBLS";
@@ -2393,6 +2393,12 @@ function(
 
 			$("#loader").show();
 
+			if (fromYear < 2015) {
+				var xDate = "{value:%Y}";
+			} else {
+				var xDate = "{value:%b %Y}";
+			}
+
 			if (graphType === "injvol") {
 				$.post("createInjectionChartData.cfm", packet, function(response) {
 					var volData = JSON.parse(response);
@@ -2408,7 +2414,7 @@ function(
 						        type: 'datetime',
 						        labels: {
 						            // format: '{value:%Y-%m}',
-									format: '{value:%b %Y}',
+									format: xDate,
 						            rotation: 45,
 						            align: 'left'
 						        }
