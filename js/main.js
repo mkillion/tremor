@@ -935,7 +935,14 @@ function(
 					// Use date range.
 					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
 						// Use annual volumes.
-						wellsWhere = "kid in (select well_header_kid from qualified.injections where year >= " + fromYear + " and year <= " + toYear + " and total_fluid_volume >= " + bbls + ")";
+						if (fromYear && toYear) {
+							var yearClause = "year >= " + fromYear + " and year <= " + toYear;
+						} else if (fromYear && !toYear) {
+							var yearClause = "year >= " + fromYear;
+						} else if (!fromYear && toYear) {
+							var yearClause = "year <= " + toYear;
+						}
+						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume >= " + bbls + ")";
 					} else {
 						// Use monthly volumes.
 						if (fromYear && toYear) {
@@ -2324,9 +2331,9 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
-						alert("For years prior to 2015 annual injection volume data will be used.");
-					}
+					// if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
+					// 	alert("For years prior to 2015 annual injection volume data will be used.");
+					// }
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2342,9 +2349,9 @@ function(
 					}
 					break;
 				case "joint":
-					if ( (fromYear < 2015) || (toYear < 2015) ) {
-						alert("For years prior to 2015 annual injection volume data will be used.");
-					}
+					// if ( (fromYear < 2015) || (toYear < 2015) ) {
+					// 	alert("For years prior to 2015 annual injection volume data will be used.");
+					// }
 					var graphWhere = wellsComboWhere;
 					var jointEqWhere = comboWhere;
 					// If just a single well is selected, use that:
@@ -2387,16 +2394,18 @@ function(
 			if (wellsGeomWhere) {
 				injvolWhere = wellsGeomWhere;
 			}
-
+			console.log(graphWhere);
 			// Note, it may be that not everything in packet is used in each cfm, but keeping it all there is easiest:
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
 
 			$("#loader").show();
 
-			if (fromYear < 2015) {
+			if (fromYear < 2015 || toYear < 2015) {
 				var xDate = "{value:%Y}";
+				var volTitle = "Annual Total Injection Volume";
 			} else {
 				var xDate = "{value:%b %Y}";
+				var volTitle = "Monthy Total Injection Volume";
 			}
 
 			if (graphType === "injvol") {
@@ -2408,7 +2417,7 @@ function(
 						        zoomType: 'xy'
 						    },
 						    title: {
-						        text: 'Total Injection Volume'
+						        text: volTitle
 						    },
 							xAxis: {
 						        type: 'datetime',
@@ -2423,7 +2432,7 @@ function(
 								title: ""
 						    }, { // Secondary yAxi
 						        title: {
-						            text: 'Total Monthly Injection (bbls)',
+						            text: 'Total Injection (bbls)',
 						        },
 						        labels: {
 									format: '{value:,.0f}'
@@ -2878,7 +2887,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any bbls/month &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Injection &ge; <input type='text' size='8' value='150000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls";
 		// dbCon += "for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
 		// for (var a=2015; a<2017; a++) {
         //     dbCon += '<option value="' + a + '"">' + a + '</option>';

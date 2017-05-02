@@ -21,7 +21,7 @@
     <cfset ToMonth = Left(#form.todate#, 2)>
 </cfif>
 
-<cfif #FromYear# lt 2015 or #ToYear# lt 2015>
+<cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
     <cfquery name="qVolumes" datasource="plss">
         select
             distinct ( trunc( to_date('01/01/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,
@@ -31,7 +31,15 @@
         where
             well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
             and
-            year >= #FromYear# and year <= #ToYear#
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                year >= #FromYear# and year <= #ToYear#
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                year >= #fromYear#
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                year <= #toYear#
+            </cfif>
             <cfif #form.bbl# neq "">
                 and
                 total_fluid_volume >= #form.bbl#
