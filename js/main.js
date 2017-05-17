@@ -2424,7 +2424,12 @@ function(
 					if (volData[0].data.length !== 0) {
 						$('#chart').highcharts( {
 							chart: {
-						        zoomType: 'xy'
+						        zoomType: 'xy',
+								events: {
+									load: function() {
+										$("#loader").hide();
+									}
+								}
 						    },
 						    title: {
 						        text: volTitle
@@ -2520,7 +2525,12 @@ function(
 							borderColor: '#A9A9A9',
 		            		borderWidth: 3,
 							borderRadius: 8,
-							zoomType: 'xy'
+							zoomType: 'xy',
+							events: {
+								load: function() {
+									$("#loader").hide();
+								}
+							}
 				        },
 						title: {
 							text: graphTitle
