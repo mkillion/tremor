@@ -11,30 +11,71 @@
         #PreserveSingleQuotes(form.where)#
 </cfquery>
 
-********** Removed form.year from packet, rework query to use date ranges **********
 
 <!--- Injection query: --->
 <!--- NOTE: keep changes to this query synced with createInjectionChartData.cfm --->
-<cfquery name="qMonthlyVols" datasource="plss">
-    <!--- this could be simplified - form.where probably duplicates - but it works so, eh --->
-    select
-        distinct month, sum(fluid_injected) over (partition by month) as monthly_volume,
-        (trunc( to_date(month || '/15/#form.year#','mm/dd/yyyy') ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms
-    from
-        (
-        select
-            injection_kid, month, fluid_injected
-        from
-            qualified.injections_months
-        where
-            injection_kid in
-            (select kid from qualified.injections where year = #form.year# and well_header_kid in
-                (select kid from swd_wells where #PreserveSingleQuotes(form.where)#)
-            )
-        )
-    order by month
-</cfquery>
+<cfif #form.fromdate# neq "">
+    <cfset FromYear = Right(#form.fromdate#, 4)>
+    <cfset FromMonth = Left(#form.fromdate#, 2)>
+</cfif>
+<cfif #form.todate# neq "">
+    <cfset ToYear = Right(#form.todate#, 4)>
+    <cfset ToMonth = Left(#form.todate#, 2)>
+</cfif>
 
+<cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
+    <cfquery name="qVolumes" datasource="plss">
+        select
+            distinct ( trunc( to_date('01/15/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,
+            sum(total_fluid_volume) over (partition by year) as volume
+        from
+            qualified.injections
+        where
+            well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+            and
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                year >= #FromYear# and year <= #ToYear#
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                year >= #fromYear#
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                year <= #toYear#
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                total_fluid_volume >= #form.bbl#
+            </cfif>
+        order by ms
+    </cfquery>
+    <cfset DateFormat = "%Y">
+<cfelse>
+    <cfquery name="qVolumes" datasource="plss">
+        select
+            distinct (trunc( month_year ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
+            sum(fluid_injected) over (partition by month_year) as volume
+        from
+            mk_injections_months
+        where
+            well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+            and
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                fluid_injected >= #form.bbl#
+            </cfif>
+        order by ms
+    </cfquery>
+    <cfset DateFormat = "%b %Y">
+</cfif>
 
 
 <!--- Earthquake query: --->
@@ -54,22 +95,16 @@
 <cfset DateToMS = "(trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
 
 <cfloop query="qLayers">
-    <cfif #layer# eq "USGS">
-        <cfset MagType = "ml">
-    <cfelse>
-        <cfset MagType = "mc">
-    </cfif>
-
     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
         <cfquery name="q#layer#" datasource="tremor">
             select
                 layer,
-                #MagType# as magnitude,
+                magnitude,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
                 quakes
             where
-                #MagType# is not null
+                magnitude is not null
                 and
                     layer = '#layer#'
                 <cfif #form.jointeqwhere# neq "">
@@ -85,14 +120,14 @@
 <cfoutput>
     [
         {
-            "name": "Total Volume (#qCount.cnt# Wells)",
+            "name": "Total Volume (bbls) for #qCount.cnt# Wells",
             "type": "area",
             "yAxis": 1,
             "data": [
                 <cfset i = 1>
-                <cfloop query="qMonthlyVols">
-                    [#ms#,#monthly_volume#]
-                    <cfif i neq qMonthlyVols.recordcount>
+                <cfloop query="qVolumes">
+                    [#ms#,#volume#]
+                    <cfif i neq qVolumes.recordcount>
                         ,
                     </cfif>
                     <cfset i = i + 1>
@@ -101,7 +136,7 @@
             "tooltip": {
                 "headerFormat": "<b>{point.key}</b><br>",
                 "pointFormat": "Total BBLS: <b>{point.y}</b>",
-                "xDateFormat": "%b %Y"
+                "xDateFormat": "#DateFormat#"
             }
         },
 

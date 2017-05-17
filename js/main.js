@@ -988,7 +988,7 @@ function(
 					// Date presets, use most recent year data is available.
 					var today = new Date();
 					var thisYear = today.getFullYear();
-					var mostRecentDataDate = new Date("April 1, " + thisYear);
+					var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
 					if (today > mostRecentDataDate) {
 						var y = thisYear - 1;
 						var dateClause = "year = " + y;
@@ -2331,9 +2331,6 @@ function(
 					var chartType = "line";
 					break;
 				case "injvol":
-					// if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
-					// 	alert("For years prior to 2015 annual injection volume data will be used.");
-					// }
 					var yAxisText = "BBLS";
 					var pointFormatText = "Total: <b>{point.y}</b>";
 					var showDecimals = false;
@@ -2349,9 +2346,6 @@ function(
 					}
 					break;
 				case "joint":
-					// if ( (fromYear < 2015) || (toYear < 2015) ) {
-					// 	alert("For years prior to 2015 annual injection volume data will be used.");
-					// }
 					var graphWhere = wellsComboWhere;
 					var jointEqWhere = comboWhere;
 					// If just a single well is selected, use that:
@@ -2394,8 +2388,8 @@ function(
 			if (wellsGeomWhere) {
 				injvolWhere = wellsGeomWhere;
 			}
-			console.log(graphWhere);
-			// Note, it may be that not everything in packet is used in each cfm, but keeping it all there is easiest:
+
+			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
 
 			$("#loader").show();
@@ -2462,12 +2456,12 @@ function(
 					        zoomType: 'xy'
 					    },
 					    title: {
-					        text: 'Event Magnitudes & Total Monthly Injection Volumes For Selected Wells'
+					        text: 'Event Magnitudes & Total Injection Volumes For Selected Wells'
 					    },
 						xAxis: {
 					        type: 'datetime',
 					        labels: {
-					            format: '{value:%Y-%m-%d}',
+					            format: xDate,
 					            rotation: 45,
 					            align: 'left'
 					        }
@@ -2475,13 +2469,10 @@ function(
 					    yAxis: [ { // Primary yAxis
 					        title: {
 					            text: 'Magnitude',
-					            // style: {
-					            //     color: "black"
-					            // }
 					        }
 					    }, { // Secondary yAxis
 					        title: {
-					            text: 'Total Monthly Injection (bbls)',
+					            text: 'Total Injection (bbls)',
 					        },
 					        labels: {
 								format: '{value:,.0f}'
@@ -2529,7 +2520,12 @@ function(
 						xAxis: {
 				            type: 'datetime',
 							endOnTick: true,
-							startOnTick: true
+							startOnTick: true,
+							labels: {
+								format: xDate,
+								rotation: 45,
+								align: 'left'
+							}
 				        },
 						yAxis: {
 							allowDecimals: showDecimals,
