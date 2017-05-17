@@ -2469,7 +2469,12 @@ function(
 
 					$('#chart').highcharts( {
 						chart: {
-					        zoomType: 'xy'
+					        zoomType: 'xy',
+							events: {
+								load: function() {
+									$("#loader").hide();
+								}
+							}
 					    },
 					    title: {
 					        text: titleText
@@ -2684,7 +2689,7 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='injvol' disabled> <span class='inj-graph-text'>Injection Volume</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
-		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Plot</button></td></tr></table>";
+		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr></table>";
 		content += '</div>';	// end graph div.
 
         content += '</div>';	// end data panel div.
@@ -2808,6 +2813,10 @@ function(
             menus: drawerMenus
         }, dom.byId("drawer_menus"));
         drawerMenu.startup();
+
+		$("#chart-btn").click(function() {
+			$("#loader").show();
+		} );
     }
 
 
