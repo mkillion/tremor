@@ -2345,6 +2345,20 @@ function(
 						}
 					}
 					break;
+				case "jointcount":
+					var graphWhere = wellsComboWhere;
+					var jointEqWhere = comboWhere;
+					// If just a single well is selected, use that:
+					if (view.popup.selectedFeature && puTitle.indexOf("Well:") > -1) {
+						if (graphWhere.indexOf("objectid") === -1) {
+							// Crude test to make sure selected well is not being used as a buffer point.
+							// If not, just graph data for the one selected point.
+							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
+						}
+					}
+					var titleText = 'Event Counts & Total Injection Volumes For Selected Wells';
+					var yText = 'Count';
+					break;
 				case "joint":
 					var graphWhere = wellsComboWhere;
 					var jointEqWhere = comboWhere;
@@ -2356,6 +2370,8 @@ function(
 							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
 						}
 					}
+					var titleText = 'Event Magnitudes & Total Injection Volumes For Selected Wells';
+					var yText = 'Magnitude';
 					break;
 			}
 
@@ -2447,7 +2463,7 @@ function(
 						alert("No data returned for these search criteria.");
 					}
 				} );
-			} else if (graphType === "joint") {
+			} else if (graphType === "joint" || graphType === "jointcount") {
 				$.post("createJointPlotData.cfm", packet, function(response) {
 					var jointData = JSON.parse(response);
 
@@ -2456,7 +2472,7 @@ function(
 					        zoomType: 'xy'
 					    },
 					    title: {
-					        text: 'Event Magnitudes & Total Injection Volumes For Selected Wells'
+					        text: titleText
 					    },
 						xAxis: {
 					        type: 'datetime',
@@ -2468,7 +2484,7 @@ function(
 					    },
 					    yAxis: [ { // Primary yAxis
 					        title: {
-					            text: 'Magnitude',
+					            text: yText
 					        }
 					    }, { // Secondary yAxis
 					        title: {
@@ -2667,13 +2683,9 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='injvol' disabled> <span class='inj-graph-text'>Injection Volume</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='makeChart()'>Create Plot</button></td></tr></table>";
 		content += '</div>';	// end graph div.
-
-		// content += '<div class="data-header esri-icon-right-triangle-arrow" id="list"><span class="find-hdr-txt"> List</span></div>';
-		// content += '<div class="data-body hide" id="data-list">';
-		// content += "FooBar";
-		// content += '</div>';	// end list div.
 
         content += '</div>';	// end data panel div.
 

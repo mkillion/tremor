@@ -111,6 +111,25 @@
         			and #PreserveSingleQuotes(form.jointeqwhere)#
         		</cfif>
         </cfquery>
+    <cfelseif #form.type# eq "jointcount">
+        <cfquery name="q#layer#" datasource="tremor">
+            select
+                layer,
+                count(*) as cnt,
+                #PreserveSingleQuotes(DateToMS)# as ms
+            from
+                quakes
+            where
+                magnitude is not null
+                and
+                    layer = '#layer#'
+                <cfif #form.where# neq "">
+        			and #PreserveSingleQuotes(form.jointeqwhere)#
+        		</cfif>
+            group by
+                layer,
+                #PreserveSingleQuotes(DateToMS)#
+        </cfquery>
     </cfif>
 </cfloop>
 
@@ -167,7 +186,7 @@
                 <cfloop query="q#layer#">
                     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
                         [#ms#,#magnitude#]
-                    <cfelseif #form.type# eq "count">
+                    <cfelseif #form.type# eq "count" OR #form.type# eq "jointcount">
                         [#ms#,#cnt#]
                     <cfelseif #form.type# eq "cumulative">
                         [#ms#,#running_total#]
@@ -179,11 +198,19 @@
                 </cfloop>
             ]
             ,
-            "tooltip": {
-                "headerFormat": "<b>{point.key}</b><br>",
-                "pointFormat": "Magnitude: <b>{point.y}</b>",
-                "xDateFormat": "%b %e, %Y"
-            }
+            <cfif #form.type# eq "joint">
+                "tooltip": {
+                    "headerFormat": "<b>{point.key}</b><br>",
+                    "pointFormat": "Magnitude: <b>{point.y}</b>",
+                    "xDateFormat": "%b %e, %Y"
+                }
+            <cfelseif #form.type# eq "jointcount">
+                "tooltip": {
+                    "headerFormat": "<b>{point.key}</b><br>",
+                    "pointFormat": "Count: <b>{point.y}</b>",
+                    "xDateFormat": "%b %e, %Y"
+                }
+            </cfif>
             }
             <cfif j neq qLayers.recordcount>
                 ,
