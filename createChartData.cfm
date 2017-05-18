@@ -78,10 +78,10 @@
             <cfset Lyr = #layer#>
             {
             <cfif #layer# eq "KGS">
-                "name": "KGS",
+                "name": "KGS Cataloged",
                 "color": "rgba(255,85,0,0.85)",
             <cfelseif #layer# eq "EWA">
-                "name": "KGS Prelim",
+                "name": "KGS Preliminary",
                 "color": "rgba(223,115,255,0.85)",
             <cfelseif #layer# eq "USGS">
                 "name": "NEIC",
