@@ -45,6 +45,7 @@ require([
 	"esri/symbols/SimpleMarkerSymbol",
 	"esri/geometry/support/webMercatorUtils",
 	"esri/Viewpoint",
+	"esri/widgets/ScaleBar",
     "dojo/domReady!"
 ],
 function(
@@ -92,7 +93,8 @@ function(
 	ClassBreaksRenderer,
 	SimpleMarkerSymbol,
 	webMercatorUtils,
-	Viewpoint
+	Viewpoint,
+	ScaleBar
 ) {
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
@@ -339,6 +341,14 @@ function(
         index: 1
      } );
 	 homeBtn.viewpoint = stateVp;
+
+	 var scaleBar = new ScaleBar( {
+        view: view,
+        unit: "dual"
+      } );
+      view.ui.add(scaleBar, {
+        position: "bottom-left"
+      } );
 
 	// var locateBtn = new Locate( {
     //     view: view
