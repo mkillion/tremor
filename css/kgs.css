@@ -83,7 +83,7 @@ th {
 	position: absolute;;
 	top: 44px;
 	width: 925px;
-	z-index: 10;
+	z-index: 20;
 }
 
 #dashboard-btn {
@@ -91,7 +91,7 @@ th {
 	left: 57px;
 	position: absolute;;
 	top: 57px;
-	z-index: 10;
+	z-index: 20;
 }
 
 .esri-icon-close {
