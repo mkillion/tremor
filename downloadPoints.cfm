@@ -48,21 +48,23 @@
 	<cfset EventsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#EventsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "QUAKE_ID,EVENTS_RECORDED,EVENT_ID,AGENCY,AGENCY_ID,CATALOG,LAYER,ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,DATUM,ORIGIN_TIME_ERR,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,NST,RMS,GAP,FAULT_SOLUTION,MODEL,UPDATED_TIMESTAMP,WAVEFORM_URL,WAVEFORM_FILE,PLACE,SECONDS,FEET,SAS,COUNTY_CODE,COUNTY_NAME,FELT,SYNCHED,SYNC_ERRORS,ORIGIN_TIME_CST,MAGNITUDE,MAGNITUDE_TYPE">
+	<cfset Headers = "ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,MAGNITUDE,MAGNITUDE_TYPE,SAS,NST,GAP,RMS,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,COUNTY_NAME,ORIGIN_TIME_CST,AGENCY,AGENCY_ID">
 	<cffile action="write" file="#EventsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
 	<cfquery name="qEventData" datasource="tremor">
-		select quake_id,events_recorded,event_id,agency,agency_id,catalog,layer,origin_time,latitude,longitude,depth,datum,origin_time_err,latitude_err,longitude_err,depth_err,nst,rms,gap,fault_solution,model,updated_timestamp,waveform_url,waveform_file,place,seconds,feet,sas,county_code,county_name,felt,synched,sync_errors,origin_time_cst,magnitude,magnitude_type
+		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,origin_time_cst,agency,agency_id
 		from quakes
 		<cfif #form.evtwhere# neq "">
 			where #PreserveSingleQuotes(form.evtwhere)#
+			and layer <> 'N/A'
 		</cfif>
+		order by origin_time desc
 	</cfquery>
 
 	<!--- WRITE FILE: --->
 	<cfloop query="qEventData">
-		<cfset Data = '"#quake_id#","#events_recorded#","#event_id#","#agency#","#agency_id#","#catalog#","#layer#","#origin_time#","#latitude#","#longitude#","#depth#","#datum#","#origin_time_err#","#latitude_err#","#longitude_err#","#depth_err#","#nst#","#rms#","#gap#","#fault_solution#","#model#","#updated_timestamp#","#waveform_url#","#waveform_file#","#place#","#seconds#","#feet#","#sas#","#county_code#","#county_name#","#felt#","#synched#","#sync_errors#","#origin_time_cst#","#magnitude#","#magnitude_type#"'>
+		<cfset Data = '"#origin_time#","#latitude#","#longitude#","#depth#","#magnitude#","#magnitude_type#","#sas#","#nst#","#gap#","#rms#","#latitude_err#","#longitude_err#","#depth_err#","#county_name#","#origin_time_cst#","#agency#","#agency_id#"'>
 		<cffile action="append" file="#EventsOutputFile#" output="#Data#" addnewline="yes">
 	</cfloop>
 
