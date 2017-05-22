@@ -2055,7 +2055,24 @@ function(
 		}
 		var downloadOptions = downloadOptions.join(",");
 
-		var packet = { "what": downloadOptions, "evtwhere": comboWhere, "wellwhere": wellsComboWhere };
+		var fromDate = dom.byId('from-date').value;
+		var toDate = dom.byId('to-date').value;
+
+		var bbl = "";
+		var w = $("input[name=well-type]:checked").val();
+		if (w !== "all") {
+			bbl = $("#bbls").val().replace(/,/g, "");
+		}
+
+		var injvolWhere = "";
+		if (locWhere) {
+			injvolWhere = locWhere;
+		}
+		if (wellsGeomWhere) {
+			injvolWhere = wellsGeomWhere;
+		}
+
+		var packet = { "what": downloadOptions, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl };
 
 		$("#loader").show();
 		$.post( "downloadPoints.cfm", packet, function(response) {
