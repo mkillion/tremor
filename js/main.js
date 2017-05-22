@@ -1506,120 +1506,6 @@ function(
     }
 
 
-	function createWellsList(arrIds, returnType, areaType) {
-		var eqType = "";
-		var count = arrIds.length;
-
-		switch (areaType) {
-			case "state":
-				var areaString = "in the state:";
-				break;
-			case "co":
-				var areaString = "in " + dom.byId("lstCounty2").value + " county:";
-				break;
-			case "sca":
-				var areaString = "in the " + dom.byId("sca").value + " area:";
-				break;
-			case "buff":
-				var areaString = "in the buffer:";
-				break;
-		}
-
-		if (returnType === "Earthquakes") {
-			var chkdIDs = $("input:checked[name=evt-lay]").map(function() {
-				return $(this).val();
-			} ).get();
-			eqType = chkdIDs.join(", ");
-			eqType = eqType.replace(14, "KGS");
-			eqType = eqType.replace(15, "KGS Prelim");
-			eqType = eqType.replace(16, "NEIC");
-			// eqType = eqType.replace(17, "OGS");
-			eqType = " (" + eqType + ") ";
-			var typeString = "earthquakes ";
-		}
-		if (returnType === "Class I Injection") {
-			var typeString = "class I injection wells ";
-		}
-		if (returnType === "Oil and Gas") {
-			var typeString = "oil and gas wells ";
-		}
-		if (returnType === "Salt Water Disposal") {
-			var typeString = "salt water disposal wells ";
-		}
-
-		var wellsLst = "<div class='panel-sub-txt' id='list-txt'></div><div class='download-link'></div><div class='toc-note' id='sect-desc'>" + count + " " + typeString + eqType + areaString + "</div>";
-		$("#wells-tbl").html(wellsLst);
-
-		var lstIds = arrIds.join(",");
-		data = { "type": returnType, "lstIds": lstIds };
-
-		if (count > 500) {
-			$("#wells-tbl").append("&nbsp;&nbsp;&nbsp;(listing 500 records - download csv file to see all)");
-		}
-
-		if (count > 0) {
-			$.post( "createFeatureList.cfm?type=" + returnType, data, function(response) {
-				sharedCfTable = response.substr(0,31);
-
-				if (returnType === "Earthquakes") {
-					graphIcon = "<a class='esri-icon-line-chart' title='Graph earthquakes'></a>";
-				} else {
-					graphIcon = "";
-				}
-
-				$("#wells-tbl").append(response.replace(sharedCfTable,''));
-				$("#loader").hide();
-				$("#dwnld").html("<a class='esri-icon-download' title='Download List to CSV File'></a>" + graphIcon);
-				$(".esri-icon-line-chart").click(opengraphDia);
-				$(".esri-icon-download").click( data, downloadList);
-			} ).then(function() {
-				$('.striped-tbl').find('tr').click(function() {
-					$(this).closest("tr").siblings().removeClass("highlighted");
-		    		$(this).toggleClass("highlighted");
-
-					// Get id for that well from the table cell (KGS id numbers are in a hidden third column referenced by index = 2):
-					var kgsID =  $(this).find('td:eq(2)').text();
-					var evtID =  $(this).find('td:eq(3)').text();
-
-					if (returnType === "Oil and Gas" || returnType === "Class I Injection") {
-						findParams.layerIds = [0];
-						findParams.searchFields = ["KID"];
-				        findParams.searchText = kgsID;
-					} else if (returnType === "Salt Water Disposal") {
-						findParams.layerIds = [19];
-						findParams.searchFields = ["KID"];
-				        findParams.searchText = kgsID;
-					} else if (returnType === "Earthquakes") {
-						findParams.layerIds = [14,15,16,17];
-						findParams.searchFields = ["EVENT_ID"];
-				        findParams.searchText = evtID;
-					} else {
-						findParams.layerIds = [8];
-						findParams.searchFields = ["INPUT_SEQ_NUMBER"];
-				        findParams.searchText = kgsID;
-					}
-
-					findTask.execute(findParams).then(function(response) {
-						return addPopupTemplate(response.results);
-			        } ).then(function(feature) {
-						if (feature.length > 0) {
-							view.goTo( {
-								target: feature[0].geometry,
-								zoom: 14
-							}, {duration: 500} ).then(function() {
-								highlightFeature(feature[0]);
-					            openPopup(feature);
-							} );
-						}
-			        } );
-				} );
-			} );
-		} else {
-			$("#loader").hide();
-		}
-	}
-
-
 	function opengraphDia() {
 		$("#graph-type-dia").dialog("open");
 	}
@@ -1916,15 +1802,6 @@ function(
 			}
 			$("#loader").hide();
 		}
-	}
-
-
-	downloadList = function(evt) {
-		$("#loader").show();
-		$.post( "downloadPoints.cfm", data, function(response) {
-			$(".download-link").html(response);
-			$("#loader").hide();
-		} );
 	}
 
 
