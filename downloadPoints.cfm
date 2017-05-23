@@ -23,6 +23,8 @@
 </cfif>
 
 <cfif ListContains(#form.what#, "wells")>
+    <cfset WellsWhere = "swd." & #form.wellwhere#>
+
 	<cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
 
@@ -31,52 +33,48 @@
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
-	<!---<cfquery name="qWellData" datasource="plss">
-		select kid, api_number, lease_name, well_name, operator_name, curr_operator, field_name, township, township_direction, range, range_direction, section, spot, subdivision_4_smallest, subdivision_3, subdivision_2, subdivision_1_largest, feet_north_from_reference, feet_east_from_reference, reference_corner, nad27_longitude, nad27_latitude, county, permit_date_txt, spud_date_txt, completion_date_txt, plug_date_txt, status_txt, well_class, rotary_total_depth, elevation_kb, elevation_gl, elevation_df, producing_formation,most_recent_total_fluid
-		from swd_wells
-		<cfif #form.wellwhere# neq "">
-			where #PreserveSingleQuotes(form.wellwhere)#
-		</cfif>
-	</cfquery>--->
-
-	<cfquery name="qWellData" datasource="plss">
-		select
-		  inj.well_header_kid,
-		  qwh.api_number,
-		  qwh.api_number_kcc,
-		  qwh.nad27_latitude,
-		  qwh.nad27_longitude,
-		  inj.year,
-		  inj.total_fluid_volume as annual_volume,
-		  inj.fluid_type,
-		  inj.injection_zone,
-		  inj.max_pressure
-		from
-		  qualified.injections inj,
-		  qualified.well_headers qwh
-		where
-		  qwh.kid = inj.well_header_kid
-		  <cfif isDefined("FromYear") and isDefined("ToYear")>
-			  and
-			  year >= #FromYear# and year <= #ToYear#
-		  </cfif>
-		  <cfif isDefined("FromYear") and not isDefined("ToYear")>
-			  and
-			  year >= #fromYear#
-		  </cfif>
-		  <cfif not isDefined("FromYear") and isDefined("ToYear")>
-			  and
-			  year <= #toYear#
-		  </cfif>
-		  <cfif #form.bbl# neq "">
-			  and
-			  total_fluid_volume >= #form.bbl#
-		  </cfif>
-		  <cfif #form.injvolwhere# neq "">
-			  and
-			  inj.well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
-  		</cfif>
-	</cfquery>
+    <cfquery name="qWellData" datasource="plss">
+        select
+            inj.well_header_kid,
+            qwh.api_number,
+            qwh.api_number_kcc,
+            qwh.nad27_latitude,
+            qwh.nad27_longitude,
+            inj.year,
+            inj.total_fluid_volume as annual_volume,
+            inj.fluid_type,
+            inj.injection_zone,
+            inj.max_pressure
+        from
+            qualified.injections inj,
+            swd_wells swd,
+            qualified.well_headers qwh
+        where
+            swd.kid = inj.well_header_kid
+            and
+            swd.kid = qwh.kid
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+  			    and
+  			    year >= #FromYear# and year <= #ToYear#
+  		    </cfif>
+  		    <cfif isDefined("FromYear") and not isDefined("ToYear")>
+  			    and
+  			    year >= #fromYear#
+  		    </cfif>
+  		    <cfif not isDefined("FromYear") and isDefined("ToYear")>
+  			    and
+  			    year <= #toYear#
+  		    </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                total_fluid_volume >= #form.bbl#
+            </cfif>
+            <cfif #form.wellwhere# neq "">
+                and
+                #PreserveSingleQuotes(WellsWhere)#
+            </cfif>
+        order by well_header_kid, year
+    </cfquery>
 
 	<!--- WRITE FILE: --->
 	<cfloop query="qWellData">
