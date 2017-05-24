@@ -22,6 +22,8 @@
     <cfset ToMonth = Left(#form.todate#, 2)>
 </cfif>
 
+
+<!--- WELLS: --->
 <cfif ListContains(#form.what#, "wells")>
     <cfset WellsWhere = "swd." & #form.wellwhere#>
 
@@ -89,6 +91,8 @@
 	</cfif>
 </cfif>
 
+
+<!--- EVENTS: --->
 <cfif ListContains(#form.what#, "events")>
 	<cfset EventsFileName = "KGS-QUAKES-#TimeStamp#.csv">
 	<cfset EventsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#EventsFileName#">
