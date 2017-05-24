@@ -28,6 +28,10 @@
 	max-width: 250px;
 }
 
+.esri-popup__position-container {
+	z-index: 25;
+}
+
 div[id*='group-body'] {
 	background-color: #e4e6e4;
 	border-bottom-color: #777;
