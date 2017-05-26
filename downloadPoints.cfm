@@ -102,14 +102,23 @@
 	<cffile action="write" file="#EventsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
+    <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'US'")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Salt Water Disposal Wells", "")>
+    <cfset Lyrs = REReplace(Lyrs, ",$", "")>
+
 	<cfquery name="qEventData" datasource="tremor">
 		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,origin_time_cst,agency,agency_id,
             decode(layer,'EWA','Preliminary',
-                'KGS','Cataloged') as type
+                'KGS','Cataloged',
+                'US','NEIC',
+                'KSNE','KSNE') as type
 		from quakes
 		<cfif #form.evtwhere# neq "">
 			where #PreserveSingleQuotes(form.evtwhere)#
-			and layer <> 'N/A'
+			and layer in (#PreserveSingleQuotes(Lyrs)#)
 		</cfif>
 		order by origin_time desc
 	</cfquery>

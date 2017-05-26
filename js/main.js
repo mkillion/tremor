@@ -1900,7 +1900,7 @@ function(
 		content += '<div class="data-body hide" id="data-dwnload">';
 		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells</label></td></tr>";
-		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Download</button></td></tr></table>";
+		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Create File</button></td></tr></table>";
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
 
@@ -2072,13 +2072,23 @@ function(
 			injvolWhere = wellsGeomWhere;
 		}
 
-		var packet = { "what": downloadOptions, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl };
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
 
-		$("#loader").show();
-		$.post( "downloadPoints.cfm", packet, function(response) {
-			$("#wells-link").html(response);
-			$("#loader").hide();
-		} );
+		if (filterLyrs.length === 0) {
+			alert("At least one earthquake or well layer must be visible.")
+		} else {
+			var graphLayers = filterLyrs.join(",");
+
+			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl };
+
+			$("#loader").show();
+			$.post( "downloadPoints.cfm", packet, function(response) {
+				$("#wells-link").html(response);
+				$("#loader").hide();
+			} );
+		}
 	}
 
 
