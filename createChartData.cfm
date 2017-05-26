@@ -5,7 +5,7 @@
 <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'USGS'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'US'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Salt Water Disposal Wells", "'SWD'")>
 
 <cfquery name="qLayers" datasource="tremor">
@@ -25,7 +25,7 @@
         from
             (select #PreserveSingleQuotes(DateToMS)# as ms, count(*) as daily_total
                 from quakes
-                where layer in ('KGS', 'EWA')
+                where layer in (#PreserveSingleQuotes(Lyrs)#)
                 <cfif #form.where# neq "">
                     and #PreserveSingleQuotes(form.where)#
                 </cfif>
@@ -35,7 +35,7 @@
     <cfoutput>
         [
             {
-            "name": "Cataloged and Preliminary",
+            "name": "All Displayed Events",
             "color": "rgba(0,0,255,0.85)",
                 "data": [
                     <cfset i = 1>
@@ -102,7 +102,7 @@
                 <cfelseif #layer# eq "EWA">
                     "name": "KGS Preliminary",
                     "color": "rgba(223,115,255,0.85)",
-                <cfelseif #layer# eq "USGS">
+                <cfelseif #layer# eq "US">
                     "name": "NEIC",
                     "color": "rgba(0,197,255,0.85)",
                 <cfelseif #layer# eq "KSNE">

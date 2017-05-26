@@ -98,12 +98,14 @@
 	<cfset EventsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#EventsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,MAGNITUDE,MAGNITUDE_TYPE,SAS,NST,GAP,RMS,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,COUNTY_NAME,ORIGIN_TIME_CST,AGENCY,AGENCY_ID">
+	<cfset Headers = "ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,MAGNITUDE,MAGNITUDE_TYPE,SAS,NST,GAP,RMS,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,COUNTY_NAME,ORIGIN_TIME_CST,AGENCY,AGENCY_ID,TYPE">
 	<cffile action="write" file="#EventsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
 	<cfquery name="qEventData" datasource="tremor">
-		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,origin_time_cst,agency,agency_id
+		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,origin_time_cst,agency,agency_id,
+            decode(layer,'EWA','Preliminary',
+                'KGS','Cataloged') as type
 		from quakes
 		<cfif #form.evtwhere# neq "">
 			where #PreserveSingleQuotes(form.evtwhere)#
@@ -114,7 +116,7 @@
 
 	<!--- WRITE FILE: --->
 	<cfloop query="qEventData">
-		<cfset Data = '"#origin_time#","#latitude#","#longitude#","#depth#","#magnitude#","#magnitude_type#","#sas#","#nst#","#gap#","#rms#","#latitude_err#","#longitude_err#","#depth_err#","#county_name#","#origin_time_cst#","#agency#","#agency_id#"'>
+		<cfset Data = '"#origin_time#","#latitude#","#longitude#","#depth#","#magnitude#","#magnitude_type#","#sas#","#nst#","#gap#","#rms#","#latitude_err#","#longitude_err#","#depth_err#","#county_name#","#origin_time_cst#","#agency#","#agency_id#","#type#"'>
 		<cffile action="append" file="#EventsOutputFile#" output="#Data#" addnewline="yes">
 	</cfloop>
 
