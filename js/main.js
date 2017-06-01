@@ -1899,7 +1899,7 @@ function(
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
 		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells & Injection</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Create File</button></td></tr></table>";
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
@@ -2055,6 +2055,8 @@ function(
 		}
 		var downloadOptions = downloadOptions.join(",");
 
+		var timeOption = $("input[name=time-type]:checked").val();
+
 		var fromDate = dom.byId('from-date').value;
 		var toDate = dom.byId('to-date').value;
 
@@ -2081,7 +2083,7 @@ function(
 		} else {
 			var graphLayers = filterLyrs.join(",");
 
-			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl };
+			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption };
 
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
@@ -2133,7 +2135,7 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";

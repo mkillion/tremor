@@ -56,18 +56,23 @@
             swd.kid = inj.well_header_kid
             and
             swd.kid = qwh.kid
-            <cfif isDefined("FromYear") and isDefined("ToYear")>
-  			    and
-  			    year >= #FromYear# and year <= #ToYear#
-  		    </cfif>
-  		    <cfif isDefined("FromYear") and not isDefined("ToYear")>
-  			    and
-  			    year >= #fromYear#
-  		    </cfif>
-  		    <cfif not isDefined("FromYear") and isDefined("ToYear")>
-  			    and
-  			    year <= #toYear#
-  		    </cfif>
+            <cfif #form.time# eq "date">
+                <cfif isDefined("FromYear") and isDefined("ToYear")>
+      			    and
+      			    year >= #FromYear# and year <= #ToYear#
+      		    </cfif>
+      		    <cfif isDefined("FromYear") and not isDefined("ToYear")>
+      			    and
+      			    year >= #fromYear#
+      		    </cfif>
+      		    <cfif not isDefined("FromYear") and isDefined("ToYear")>
+      			    and
+      			    year <= #toYear#
+      		    </cfif>
+            <cfelse>
+                and
+                year = (select to_char(sysdate, 'YYYY') from dual)
+            </cfif>
             <cfif #form.bbl# neq "">
                 and
                 total_fluid_volume >= #form.bbl#
@@ -80,12 +85,11 @@
     </cfquery>
 
 	<!--- WRITE FILE: --->
-	<cfloop query="qInjData">
-		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_pressure#"'>
-		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
-	</cfloop>
-
 	<cfif #qInjData.recordcount# gt 0>
+        <cfloop query="qInjData">
+    		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_pressure#"'>
+    		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
+    	</cfloop>
 		<cfset InjFileText = "Click for Injection File">
 	<cfelse>
 		<cfset InjFileText = "No injection data for this search">
