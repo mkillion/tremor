@@ -86,9 +86,9 @@
 	</cfloop>
 
 	<cfif #qInjData.recordcount# gt 0>
-		<cfset InjFileText = "Click for Wells File">
+		<cfset InjFileText = "Click for Injection File">
 	<cfelse>
-		<cfset InjFileText = "No wells match search">
+		<cfset InjFileText = "No injection data for this search">
 	</cfif>
 </cfif>
 
