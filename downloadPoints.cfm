@@ -10,7 +10,8 @@
 <body>
 <cfset TimeStamp = "#hour(now())##minute(now())##second(now())#">
 
-<cfset WellFileText = "">
+<cfset WellsFileText = "">
+<cfset InjFileText = "">
 <cfset EventFileText = "">
 
 <cfif #form.fromdate# neq "">
@@ -23,19 +24,19 @@
 </cfif>
 
 
-<!--- WELLS: --->
+<!--- INJECTION: --->
 <cfif ListContains(#form.what#, "wells")>
-    <cfset WellsWhere = "swd." & #form.wellwhere#>
+    <cfset InjWhere = "swd." & #form.wellwhere#>
 
-	<cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
-	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
+	<cfset InjFileName = "KGS-WELLS-#TimeStamp#.csv">
+	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
 	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,ANNUAL_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_PRESSURE">
-	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
+	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
-    <cfquery name="qWellData" datasource="plss">
+    <cfquery name="qInjData" datasource="plss">
         select
             inj.well_header_kid,
             qwh.api_number,
@@ -73,21 +74,21 @@
             </cfif>
             <cfif #form.wellwhere# neq "">
                 and
-                #PreserveSingleQuotes(WellsWhere)#
+                #PreserveSingleQuotes(InjWhere)#
             </cfif>
         order by well_header_kid, year
     </cfquery>
 
 	<!--- WRITE FILE: --->
-	<cfloop query="qWellData">
+	<cfloop query="qInjData">
 		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_pressure#"'>
-		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
+		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
 	</cfloop>
 
-	<cfif #qWellData.recordcount# gt 0>
-		<cfset WellFileText = "Click for Wells File">
+	<cfif #qInjData.recordcount# gt 0>
+		<cfset InjFileText = "Click for Wells File">
 	<cfelse>
-		<cfset WellFileText = "No wells match search">
+		<cfset InjFileText = "No wells match search">
 	</cfif>
 </cfif>
 
@@ -137,10 +138,10 @@
 </cfif>
 
 <cfoutput>
-	<cfif FindNoCase("Click", #WellFileText#) neq 0>
-		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#WellsFileName#">#WellFileText#</a></div>
+	<cfif FindNoCase("Click", #InjFileText#) neq 0>
+		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#InjFileName#">#InjFileText#</a></div>
 	<cfelse>
-		<div class="download-link">#WellFileText#</div>
+		<div class="download-link">#InjFileText#</div>
 	</cfif>
 	<cfif FindNoCase("Click", #EventFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#EventsFileName#">#EventFileText#</a></div>
