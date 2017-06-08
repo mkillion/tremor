@@ -140,7 +140,7 @@ function(
     createMenus();
 
     // Create map, layers, and widgets:
-    var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general/MapServer";
+    var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general/MapServer";
 	identifyTask = new IdentifyTask(tremorGeneralServiceURL);
 	identifyParams = new IdentifyParameters();
 	identifyParams.returnGeometry = true;
@@ -156,8 +156,8 @@ function(
 	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:true} );
 	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Cataloged Events", visible:false} );
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
-	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
-	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
+	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
+	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 
@@ -957,7 +957,7 @@ function(
 		}
 
 		qry.returnGeometry = true;
-		qt.url = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
+		qt.url = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
 		qt.execute(qry).then(function(result) {
 			var f = result.features;
 			geom = (f[0].geometry);
