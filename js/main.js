@@ -1899,7 +1899,7 @@ function(
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
 		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells & Injection</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-wells' value='wells'> Wells & Injection Data</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Create File</button></td></tr></table>";
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.

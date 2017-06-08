@@ -26,9 +26,41 @@
 
 <!--- INJECTION: --->
 <cfif ListContains(#form.what#, "wells")>
+    <!--- Make a wells file even if there's no injection data: --->
+    <cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
+	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
+
+	<!--- PREPARE OUTPUT FILE: --->
+	<cfset Headers = "KID,API_NUMBER,LEASE_NAME,WELL_NAME,ORIG_OPERATOR,CURR_OPERATOR,FIELD_NAME,TOWNSHIP,TOWNSHIP_DIR,RANGE,RANGE_DIR,SECTION,SPOT,SUBDIVISION_4_SMALLEST,SUBDIVISION_3,SUBDIVISION_2,SUBDIVISION_1_LARGEST,FEET_NORTH,FEET_EAST,REFERENCE_CORNER,NAD27_LONGITUDE,NAD27_LATITUDE,COUNTY,PERMIT_DATE,SPUD_DATE,COMPLETION_DATE,PLUG_DATE,WELL_TYPE,STATUS,TOTAL_DEPTH,ELEVATION_KB,ELEVATION_GL,ELEVATION_DF,PRODUCING_FORMATION,MOST_RECENT_TOTAL_FLUID">
+	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
+
+	<!--- GET DATA: --->
+    <cfquery name="qWellData" datasource="plss">
+		select kid, api_number, lease_name, well_name, operator_name, curr_operator, field_name, township, township_direction, range, range_direction, section, spot, subdivision_4_smallest, subdivision_3, subdivision_2, subdivision_1_largest, feet_north_from_reference, feet_east_from_reference, reference_corner, nad27_longitude, nad27_latitude, county, permit_date_txt, spud_date_txt, completion_date_txt, plug_date_txt, status_txt, well_class, rotary_total_depth, elevation_kb, elevation_gl, elevation_df, producing_formation,most_recent_total_fluid
+		from swd_wells
+		<cfif #form.wellwhere# neq "">
+			where #PreserveSingleQuotes(form.wellwhere)#
+		</cfif>
+        <!--- ***** may need more where stuff here, like dates, to make file match the plots ***** --->
+	</cfquery>
+
+    <cfif #qWellData.recordcount# gt 0>
+        <cfloop query="qWellData">
+    		<cfset Data = '"#kid#","#api_number#","#lease_name#","#well_name#","#operator_name#","#curr_operator#","#field_name#","#township#","#township_direction#","#range#","#range_direction#","#section#","#spot#","#subdivision_4_smallest#","#subdivision_3#","#subdivision_2#","#subdivision_1_largest#","#feet_north_from_reference#","#feet_east_from_reference#","#reference_corner#","#nad27_longitude#","#nad27_latitude#","#county#","#permit_date_txt#","#spud_date_txt#","#completion_date_txt#","#plug_date_txt#","#status_txt#","#well_class#","#rotary_total_depth#","#elevation_kb#","#elevation_gl#","#elevation_df#","#producing_formation#","#most_recent_total_fluid#"'>
+    		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
+    	</cfloop>
+		<cfset WellsFileText = "Click for Wells File">
+	<cfelse>
+		<cfset WellsFileText = "No wells data for this search">
+	</cfif>
+
+    <!--- End wells file. --->
+
+
+    <!--- Make an injection file: --->
     <cfset InjWhere = "swd." & #form.wellwhere#>
 
-	<cfset InjFileName = "KGS-WELLS-#TimeStamp#.csv">
+	<cfset InjFileName = "KGS-INJ-#TimeStamp#.csv">
 	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
@@ -94,6 +126,7 @@
 	<cfelse>
 		<cfset InjFileText = "No injection data for this search">
 	</cfif>
+    <!--- End injection file. --->
 </cfif>
 
 
@@ -142,6 +175,11 @@
 </cfif>
 
 <cfoutput>
+    <cfif FindNoCase("Click", #WellsFileText#) neq 0>
+		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#WellsFileName#">#WellsFileText#</a></div>
+	<cfelse>
+		<div class="download-link">#WellsFileText#</div>
+	</cfif>
 	<cfif FindNoCase("Click", #InjFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#InjFileName#">#InjFileText#</a></div>
 	<cfelse>
