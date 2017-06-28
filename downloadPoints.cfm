@@ -61,8 +61,8 @@
 
 	<!--- GET DATA: --->
     <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
-        <!--- Return annual volumes. --->
-        <!--- PREPARE OUTPUT FILE: --->
+        <!--- Return ANNUAL volumes. --->
+        <!--- Prepare output file: --->
         <cfset InjFileName = "KGS-ANNUAL-INJ-#TimeStamp#.csv">
     	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
     	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,ANNUAL_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
@@ -128,8 +128,8 @@
     	</cfif>
 
     <cfelse>
-        <!--- Return monthly volumes. --->
-        <!--- PREPARE OUTPUT FILE: --->
+        <!--- Return MONTHLY volumes. --->
+        <!--- Prepare output file: --->
         <cfset InjFileName = "KGS-MONTHLY-INJ-#TimeStamp#.csv">
     	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
     	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,MONTH,MONTHLY_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
@@ -164,7 +164,14 @@
                     and
                     m.month_year >= to_date('#fromMonth#/#fromYear#','mm/yyyy') and m.month_year <= to_date('#toMonth#/#toYear#','mm/yyyy')
                 </cfif>
-                <!--- ****** WILL NEED OTHER FROM/TO DATE COMBOS HERE ***** --->
+                <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                    and
+                    m.month_year >= to_date('#fromMonth#/#fromYear#','mm/yyyy')
+                </cfif>
+                <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                    and
+                    m.month_year <= to_date('#toMonth#/#toYear#','mm/yyyy')
+                </cfif>
                 <cfif #form.bbl# neq "">
                     and
                     m.fluid_injected >= #form.bbl#

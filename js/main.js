@@ -771,9 +771,11 @@ function(
 							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 
 						} else if (fromYear && !toYear) {
-							var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+							// var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 						} else if (!fromYear && toYear) {
-							var dateClause = "year <= " + toYear + " and month <= " + toMonth;
+							// var dateClause = "year <= " + toYear + " and month <= " + toMonth;
+							var dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					}
@@ -1072,7 +1074,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-
+		console.log(wellsComboWhere);
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
 	}
@@ -2085,7 +2087,7 @@ function(
 			var graphLayers = filterLyrs.join(",");
 
 			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption };
-			
+
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
 				$("#wells-link").html(response);
