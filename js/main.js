@@ -738,36 +738,37 @@ function(
 					} else {
 						// Use monthly volumes.
 						if (fromYear && toYear) {
-							var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
-
-							var dt1 = new Date(fromMonth + "/15/" + fromYear);
-							var dt2 = new Date(toMonth + "/15/" + toYear);
-							var numMonths = diff_months(dt2, dt1);
-
-							if (numMonths < 12) {
-								if (toMonth > fromMonth) {
-									var arrNums = [];
-									for (var i = fromMonth; i < toMonth + 1; i++) {
-										arrNums.push(i);
-									}
-									var nums = arrNums.join();
-									monthsClause = "in (" + nums + ")";
-								} else {
-									var arrNums1 = [];
-									var arrNums2 = [];
-									for (var i = fromMonth; i < 13; i++) {
-										arrNums1.push(i);
-									}
-									for (var j = 1; j < toMonth + 1; j++) {
-										arrNums2.push(j);
-									}
-									var nums1 = arrNums1.join();
-									var nums2 = arrNums2.join();
-									monthsClause = "in (" + nums1 + "," + nums2 + ")";
-								}
-							}
-
-							var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
+							// var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
+							//
+							// var dt1 = new Date(fromMonth + "/15/" + fromYear);
+							// var dt2 = new Date(toMonth + "/15/" + toYear);
+							// var numMonths = diff_months(dt2, dt1);
+							//
+							// if (numMonths < 12) {
+							// 	if (toMonth > fromMonth) {
+							// 		var arrNums = [];
+							// 		for (var i = fromMonth; i < toMonth + 1; i++) {
+							// 			arrNums.push(i);
+							// 		}
+							// 		var nums = arrNums.join();
+							// 		monthsClause = "in (" + nums + ")";
+							// 	} else {
+							// 		var arrNums1 = [];
+							// 		var arrNums2 = [];
+							// 		for (var i = fromMonth; i < 13; i++) {
+							// 			arrNums1.push(i);
+							// 		}
+							// 		for (var j = 1; j < toMonth + 1; j++) {
+							// 			arrNums2.push(j);
+							// 		}
+							// 		var nums1 = arrNums1.join();
+							// 		var nums2 = arrNums2.join();
+							// 		monthsClause = "in (" + nums1 + "," + nums2 + ")";
+							// 	}
+							// }
+							//
+							// var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
+							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 
 						} else if (fromYear && !toYear) {
 							var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
@@ -2084,7 +2085,7 @@ function(
 			var graphLayers = filterLyrs.join(",");
 
 			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption };
-
+			
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
 				$("#wells-link").html(response);
@@ -2157,7 +2158,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls<br><span class='note'>average monthly volume for years < 2015</span>";
 		// dbCon += "for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
 		// for (var a=2015; a<2017; a++) {
         //     dbCon += '<option value="' + a + '"">' + a + '</option>';

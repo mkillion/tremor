@@ -24,29 +24,28 @@
 </cfif>
 
 
-<!--- INJECTION: --->
+<!--- WELLS: --->
 <cfif ListContains(#form.what#, "wells")>
     <!--- Make a wells file even if there's no injection data: --->
     <cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "KID,API_NUMBER,LEASE_NAME,WELL_NAME,ORIG_OPERATOR,CURR_OPERATOR,FIELD_NAME,TOWNSHIP,TOWNSHIP_DIR,RANGE,RANGE_DIR,SECTION,SPOT,SUBDIVISION_4_SMALLEST,SUBDIVISION_3,SUBDIVISION_2,SUBDIVISION_1_LARGEST,FEET_NORTH,FEET_EAST,REFERENCE_CORNER,NAD27_LONGITUDE,NAD27_LATITUDE,COUNTY,PERMIT_DATE,SPUD_DATE,COMPLETION_DATE,PLUG_DATE,WELL_TYPE,STATUS,TOTAL_DEPTH,ELEVATION_KB,ELEVATION_GL,ELEVATION_DF,PRODUCING_FORMATION,MOST_RECENT_TOTAL_FLUID">
+	<cfset Headers = "KID,API_NUMBER,LEASE_NAME,WELL_NAME,ORIG_OPERATOR,CURR_OPERATOR,FIELD_NAME,TOWNSHIP,TOWNSHIP_DIR,RANGE,RANGE_DIR,SECTION,SPOT,SUBDIVISION_4_SMALLEST,SUBDIVISION_3,SUBDIVISION_2,SUBDIVISION_1_LARGEST,FEET_NORTH,FEET_EAST,REFERENCE_CORNER,NAD27_LONGITUDE,NAD27_LATITUDE,COUNTY,PERMIT_DATE,SPUD_DATE,COMPLETION_DATE,PLUG_DATE,WELL_TYPE,STATUS,TOTAL_DEPTH,ELEVATION_KB,ELEVATION_GL,ELEVATION_DF,PRODUCING_FORMATION">
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
     <cfquery name="qWellData" datasource="plss">
-		select kid, api_number, lease_name, well_name, operator_name, curr_operator, field_name, township, township_direction, range, range_direction, section, spot, subdivision_4_smallest, subdivision_3, subdivision_2, subdivision_1_largest, feet_north_from_reference, feet_east_from_reference, reference_corner, nad27_longitude, nad27_latitude, county, permit_date_txt, spud_date_txt, completion_date_txt, plug_date_txt, status_txt, well_class, rotary_total_depth, elevation_kb, elevation_gl, elevation_df, producing_formation,most_recent_total_fluid
+		select kid, api_number, lease_name, well_name, operator_name, curr_operator, field_name, township, township_direction, range, range_direction, section, spot, subdivision_4_smallest, subdivision_3, subdivision_2, subdivision_1_largest, feet_north_from_reference, feet_east_from_reference, reference_corner, nad27_longitude, nad27_latitude, county, permit_date_txt, spud_date_txt, completion_date_txt, plug_date_txt, status_txt, well_class, rotary_total_depth, elevation_kb, elevation_gl, elevation_df, producing_formation
 		from swd_wells
 		<cfif #form.wellwhere# neq "">
 			where #PreserveSingleQuotes(form.wellwhere)#
 		</cfif>
-        <!--- ***** may need more where stuff here, like dates, to make file match the plots ***** --->
 	</cfquery>
 
     <cfif #qWellData.recordcount# gt 0>
         <cfloop query="qWellData">
-    		<cfset Data = '"#kid#","#api_number#","#lease_name#","#well_name#","#operator_name#","#curr_operator#","#field_name#","#township#","#township_direction#","#range#","#range_direction#","#section#","#spot#","#subdivision_4_smallest#","#subdivision_3#","#subdivision_2#","#subdivision_1_largest#","#feet_north_from_reference#","#feet_east_from_reference#","#reference_corner#","#nad27_longitude#","#nad27_latitude#","#county#","#permit_date_txt#","#spud_date_txt#","#completion_date_txt#","#plug_date_txt#","#status_txt#","#well_class#","#rotary_total_depth#","#elevation_kb#","#elevation_gl#","#elevation_df#","#producing_formation#","#most_recent_total_fluid#"'>
+    		<cfset Data = '"#kid#","#api_number#","#lease_name#","#well_name#","#operator_name#","#curr_operator#","#field_name#","#township#","#township_direction#","#range#","#range_direction#","#section#","#spot#","#subdivision_4_smallest#","#subdivision_3#","#subdivision_2#","#subdivision_1_largest#","#feet_north_from_reference#","#feet_east_from_reference#","#reference_corner#","#nad27_longitude#","#nad27_latitude#","#county#","#permit_date_txt#","#spud_date_txt#","#completion_date_txt#","#plug_date_txt#","#status_txt#","#well_class#","#rotary_total_depth#","#elevation_kb#","#elevation_gl#","#elevation_df#","#producing_formation#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
     	</cfloop>
 		<cfset WellsFileText = "Click for Wells File">
@@ -57,75 +56,134 @@
     <!--- End wells file. --->
 
 
-    <!--- Make an injection file: --->
+    <!--- INJECTION: --->
     <cfset InjWhere = "swd." & #form.wellwhere#>
 
-	<cfset InjFileName = "KGS-INJ-#TimeStamp#.csv">
-	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
-
-	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,ANNUAL_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_PRESSURE">
-	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
-
 	<!--- GET DATA: --->
-    <cfquery name="qInjData" datasource="plss">
-        select
-            inj.well_header_kid,
-            qwh.api_number,
-            qwh.api_number_kcc,
-            qwh.nad27_latitude,
-            qwh.nad27_longitude,
-            inj.year,
-            inj.total_fluid_volume as annual_volume,
-            inj.fluid_type,
-            inj.injection_zone,
-            inj.max_pressure
-        from
-            qualified.injections inj,
-            swd_wells swd,
-            qualified.well_headers qwh
-        where
-            swd.kid = inj.well_header_kid
-            and
-            swd.kid = qwh.kid
-            <cfif #form.time# eq "date">
-                <cfif isDefined("FromYear") and isDefined("ToYear")>
-      			    and
-      			    year >= #FromYear# and year <= #ToYear#
-      		    </cfif>
-      		    <cfif isDefined("FromYear") and not isDefined("ToYear")>
-      			    and
-      			    year >= #fromYear#
-      		    </cfif>
-      		    <cfif not isDefined("FromYear") and isDefined("ToYear")>
-      			    and
-      			    year <= #toYear#
-      		    </cfif>
-            <cfelse>
-                and
-                year = (select to_char(sysdate, 'YYYY') from dual)
-            </cfif>
-            <cfif #form.bbl# neq "">
-                and
-                total_fluid_volume >= #form.bbl#
-            </cfif>
-            <cfif #form.wellwhere# neq "">
-                and
-                #PreserveSingleQuotes(InjWhere)#
-            </cfif>
-        order by well_header_kid, year
-    </cfquery>
+    <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
+        <!--- Return annual volumes. --->
+        <!--- PREPARE OUTPUT FILE: --->
+        <cfset InjFileName = "KGS-ANNUAL-INJ-#TimeStamp#.csv">
+    	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
+    	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,ANNUAL_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
+    	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
 
-	<!--- WRITE FILE: --->
-	<cfif #qInjData.recordcount# gt 0>
-        <cfloop query="qInjData">
-    		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_pressure#"'>
-    		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
-    	</cfloop>
-		<cfset InjFileText = "Click for Injection File">
-	<cfelse>
-		<cfset InjFileText = "No injection data for this search">
-	</cfif>
+        <cfquery name="qInjData" datasource="plss">
+            select
+                inj.well_header_kid,
+                qwh.api_number,
+                qwh.api_number_kcc,
+                qwh.nad27_latitude,
+                qwh.nad27_longitude,
+                inj.year,
+                inj.total_fluid_volume as annual_volume,
+                inj.fluid_type,
+                inj.injection_zone,
+                inj.max_pressure
+            from
+                qualified.injections inj,
+                swd_wells swd,
+                qualified.well_headers qwh
+            where
+                swd.kid = inj.well_header_kid
+                and
+                swd.kid = qwh.kid
+                <cfif #form.time# eq "date">
+                    <cfif isDefined("FromYear") and isDefined("ToYear")>
+          			    and
+          			    year >= #FromYear# and year <= #ToYear#
+          		    </cfif>
+          		    <cfif isDefined("FromYear") and not isDefined("ToYear")>
+          			    and
+          			    year >= #fromYear#
+          		    </cfif>
+          		    <cfif not isDefined("FromYear") and isDefined("ToYear")>
+          			    and
+          			    year <= #toYear#
+          		    </cfif>
+                <cfelse>
+                    and
+                    year = (select to_char(sysdate, 'YYYY') from dual)
+                </cfif>
+                <cfif #form.bbl# neq "">
+                    and
+                    total_fluid_volume >= #form.bbl#
+                </cfif>
+                <cfif #form.wellwhere# neq "">
+                    and
+                    #PreserveSingleQuotes(InjWhere)#
+                </cfif>
+            order by well_header_kid, year
+        </cfquery>
+
+        <!--- WRITE FILE: --->
+    	<cfif #qInjData.recordcount# gt 0>
+            <cfloop query="qInjData">
+        		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_authorized_pressure#"'>
+        		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
+        	</cfloop>
+    		<cfset InjFileText = "Click for Injection File">
+    	<cfelse>
+    		<cfset InjFileText = "No injection data for this time period">
+    	</cfif>
+
+    <cfelse>
+        <!--- Return monthly volumes. --->
+        <!--- PREPARE OUTPUT FILE: --->
+        <cfset InjFileName = "KGS-MONTHLY-INJ-#TimeStamp#.csv">
+    	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
+    	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,MONTH,MONTHLY_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
+    	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
+
+        <cfquery name="qInjData" datasource="plss">
+            select
+                inj.well_header_kid,
+                qwh.api_number,
+                qwh.api_number_kcc,
+                qwh.nad27_latitude,
+                qwh.nad27_longitude,
+                m.year,
+                m.month,
+                m.fluid_injected as monthly_volume,
+                inj.fluid_type,
+                inj.injection_zone,
+                inj.max_authorized_pressure
+            from
+                qualified.injections inj,
+                qualified.well_headers qwh,
+                mk_injections_months m
+            where
+                inj.well_header_kid = qwh.kid
+                and
+                inj.kid = m.inj_kid
+                <cfif #form.injvolwhere# neq "">
+                    and
+                    inj.well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+                </cfif>
+                <cfif isDefined("FromYear") and isDefined("ToYear")>
+                    and
+                    m.month_year >= to_date('#fromMonth#/#fromYear#','mm/yyyy') and m.month_year <= to_date('#toMonth#/#toYear#','mm/yyyy')
+                </cfif>
+                <!--- ****** WILL NEED OTHER FROM/TO DATE COMBOS HERE ***** --->
+                <cfif #form.bbl# neq "">
+                    and
+                    m.fluid_injected >= #form.bbl#
+                </cfif>
+            order by m.well_header_kid, m.year, m.month
+        </cfquery>
+
+        <!--- WRITE FILE: --->
+    	<cfif #qInjData.recordcount# gt 0>
+            <cfloop query="qInjData">
+        		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#month#","#monthly_volume#","#fluid_type#","#injection_zone#","#max_authorized_pressure#"'>
+        		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
+        	</cfloop>
+    		<cfset InjFileText = "Click for Injection File">
+    	<cfelse>
+    		<cfset InjFileText = "No injection data for this time period">
+    	</cfif>
+
+    </cfif>
     <!--- End injection file. --->
 </cfif>
 
