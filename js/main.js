@@ -1074,7 +1074,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-		console.log(wellsComboWhere);
+		
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
 	}

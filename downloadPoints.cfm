@@ -79,7 +79,7 @@
                 inj.total_fluid_volume as annual_volume,
                 inj.fluid_type,
                 inj.injection_zone,
-                inj.max_pressure
+                inj.max_authorized_pressure
             from
                 qualified.injections inj,
                 swd_wells swd,

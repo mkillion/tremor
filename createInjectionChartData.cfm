@@ -13,7 +13,8 @@
 </cfif>
 
 <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
-    <!--- Return annual volumes. --->
+    <!--- Return ANNUAL volumes. --->
+    
     <cfquery name="qVolumes" datasource="plss">
         select
             distinct ( trunc( to_date('01/15/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,
@@ -38,9 +39,33 @@
             </cfif>
         order by ms
     </cfquery>
+
+    <cfquery name="qCount" datasource="plss">
+        select
+            distinct well_header_kid
+        from
+            qualified.injections
+        where
+            well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+            and
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                year >= #FromYear# and year <= #ToYear#
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                year >= #fromYear#
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                year <= #toYear#
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                total_fluid_volume/12 >= #form.bbl#
+            </cfif>
+    </cfquery>
+
     <cfset DateFormat = "%Y">
 <cfelse>
-    <!--- Return monthly volumes. --->
+    <!--- Return MONTHLY volumes. --->
     <cfquery name="qVolumes" datasource="plss">
         select
             distinct (trunc( month_year ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
