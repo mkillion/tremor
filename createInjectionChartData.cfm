@@ -14,7 +14,6 @@
 
 <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
     <!--- Return ANNUAL volumes. --->
-    
     <cfquery name="qVolumes" datasource="plss">
         select
             distinct ( trunc( to_date('01/15/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,

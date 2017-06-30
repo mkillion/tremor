@@ -1,17 +1,6 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
-<!--- Injection well count: --->
-<cfquery name="qCount" datasource="plss">
-    select
-        count(*) as cnt
-    from
-        swd_wells
-    where
-        #PreserveSingleQuotes(form.where)#
-</cfquery>
-
-
 <!--- Injection query: --->
 <!--- NOTE: keep changes to this query synced with createInjectionChartData.cfm --->
 <cfif #form.fromdate# neq "">
@@ -45,10 +34,34 @@
             </cfif>
             <cfif #form.bbl# neq "">
                 and
-                total_fluid_volume >= #form.bbl#
+                total_fluid_volume/12 >= #form.bbl#
             </cfif>
         order by ms
     </cfquery>
+
+    <cfquery name="qCount" datasource="plss">
+        select
+            distinct well_header_kid
+        from
+            qualified.injections
+        where
+            well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+            and
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                year >= #FromYear# and year <= #ToYear#
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                year >= #fromYear#
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                year <= #toYear#
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                total_fluid_volume/12 >= #form.bbl#
+            </cfif>
+    </cfquery>
+
     <cfset DateFormat = "%Y">
 <cfelse>
     <!--- Return MONTHLY volumes. --->
@@ -76,6 +89,30 @@
             </cfif>
         order by ms
     </cfquery>
+
+    <cfquery name="qCount" datasource="plss">
+        select
+            distinct well_header_kid
+        from
+            mk_injections_months
+        where
+            well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+            and
+            <cfif isDefined("FromYear") and isDefined("ToYear")>
+                month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                fluid_injected >= #form.bbl#
+            </cfif>
+    </cfquery>
+
     <cfset DateFormat = "%b %Y">
 </cfif>
 
@@ -141,7 +178,7 @@
 <cfoutput>
     [
         {
-            "name": "Total Volume (bbls) for #qCount.cnt# Wells",
+            "name": "Total Volume (bbls) for #qCount.recordcount# Wells",
             "type": "area",
             "yAxis": 1,
             "data": [
