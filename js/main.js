@@ -306,6 +306,9 @@ function(
 				$("#filter-buff-dia").dialog("open");
             } else if (evt.action.id === "report-error") {
                 $("#prob-dia").dialog("open");
+            } else if (evt.action.id === "zoom-to") {
+                // Default zoom-to action wasn't working, so I rolled my own.
+				zoomToFeature(view.popup.selectedFeature);
             }
         } );
 
@@ -1074,7 +1077,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-		
+
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
 	}
