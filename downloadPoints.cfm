@@ -127,7 +127,7 @@
     		<cfset InjFileText = "No injection data for this time period">
     	</cfif>
 
-    <cfelse>
+    <cfelseif #form.time# eq "date">
         <!--- Return MONTHLY volumes. --->
         <!--- Prepare output file: --->
         <cfset InjFileName = "KGS-MONTHLY-INJ-#TimeStamp#.csv">
@@ -189,7 +189,8 @@
     	<cfelse>
     		<cfset InjFileText = "No injection data for this time period">
     	</cfif>
-
+    <cfelse>
+        <cfset InjFileText = "No injection data for this time period">
     </cfif>
     <!--- End injection file. --->
 </cfif>
