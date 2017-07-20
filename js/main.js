@@ -409,8 +409,6 @@ function(
 
     // End map and map widgets.
 
-	// urlParams = location.search.substr(1);
-    // urlZoom(urlParams);
 
     // Miscellaneous click handlers:
 	// find section:
@@ -637,7 +635,7 @@ function(
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
-				timeWhere = "sysdate - cast(origin_time_cst as date) <= 6";
+				timeWhere = "sysdate - cast(origin_time_cst as date) <= 7";
 				break;
 			case "month":
 				timeWhere = "sysdate - cast(origin_time_cst as date) <= 29";
