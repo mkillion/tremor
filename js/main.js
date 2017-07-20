@@ -643,6 +643,9 @@ function(
 			case "year":
 				timeWhere = "to_char(origin_time_cst,'YYYY') = to_char(sysdate, 'YYYY')";
 				break;
+			case "all":
+				timeWhere = "";
+				break;
 			case "date":
 				// Enable injection graphs:
 				$(".inj-graph-text").css("color", "#000");
