@@ -319,6 +319,9 @@ function(
 			localStorage.setItem("zoom", view.zoom);
 		} );
 
+		urlParams = location.search.substr(1);
+	    urlZoom(urlParams);
+
 		updateMap();
     } );
 
@@ -406,8 +409,8 @@ function(
 
     // End map and map widgets.
 
-	urlParams = location.search.substr(1);
-    urlZoom(urlParams);
+	// urlParams = location.search.substr(1);
+    // urlZoom(urlParams);
 
     // Miscellaneous click handlers:
 	// find section:
@@ -1160,8 +1163,8 @@ function(
     function urlZoom(urlParams) {
         var items = urlParams.split("&");
         if (items.length > 1) {
-            var extType = items[0].substring(11);
-            var extValue = items[1].substring(12);
+            var extType = items[0].substring(5);
+            var extValue = items[1].substring(3);
 
             findParams.contains = false;
 
@@ -1176,6 +1179,10 @@ function(
 					fieldsLayer.visible = true;
 	                $("#Oil-and-Gas-Fields input").prop("checked", true);
                     break;
+				case "event":
+                    findParams.layerIds = [14,15];
+                    findParams.searchFields = ["quake_id"];
+                    break;
             }
 
             findParams.searchText = extValue;
@@ -1185,9 +1192,37 @@ function(
             } )
             .then(function(feature) {
 				if (feature.length > 0) {
-					openPopup(feature);
-	                zoomToFeature(feature);
+
+
+					// Set dashboard time buttons to match origin time:
+					var arrOrigTime = feature[0].attributes.ORIGIN_TIME_CST.split("/");
+					var y = arrOrigTime[2].substring(0,4);
+					var m = arrOrigTime[0] - 1;
+					var d = arrOrigTime[1];
+					var time = arrOrigTime[2].substring(5).replace(" AM", "").replace(" PM", "");
+					var arrTime = time.split(":");
+					var h = arrTime[0];
+					var min = arrTime[1];
+					var s = arrTime[2];
+					var origTime = new Date(y, m, d, h, min, s);
+					var today = new Date();
+
+					var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+					var diffDays = Math.round( Math.abs( (today.getTime() - origTime.getTime()) / (oneDay) ) );
+
+					if (diffDays <= 7) {
+						$("#tim-week").prop("checked", true);
+					} else if (diffDays > 7 && diffDays <= 30) {
+						$("#tim-month").prop("checked", true);
+					} else if (diffDays > 30 && y == today.getFullYear()) {
+						$("#tim-year").prop("checked", true);
+					} else {
+						$("#tim-all").prop("checked", true);
+					}
 				}
+				updateMap();
+				openPopup(feature);
+				zoomToFeature(feature);
             } );
         }
     }
@@ -2147,6 +2182,7 @@ function(
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
