@@ -730,6 +730,18 @@ function(
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
 
+				// Calculate most recent injection data availability:
+				var today = new Date();
+				var thisYear = today.getFullYear();
+				var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
+				if (today > mostRecentDataDate) {
+					var y = thisYear - 1;
+					var dateClause = "year = " + y;
+				} else {
+					var y = thisYear - 2;
+					var dateClause = "year = " + y;
+				}
+
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
 					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
@@ -742,62 +754,22 @@ function(
 							var yearClause = "year <= " + toYear;
 						}
 						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+					} else if (fromYear == thisYear) {
+						// essentially the same as a date preset.
+						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					} else {
 						// Use monthly volumes.
 						if (fromYear && toYear) {
-							// var monthsClause = "in (1,2,3,4,5,6,7,8,9,10,11,12)";
-							//
-							// var dt1 = new Date(fromMonth + "/15/" + fromYear);
-							// var dt2 = new Date(toMonth + "/15/" + toYear);
-							// var numMonths = diff_months(dt2, dt1);
-							//
-							// if (numMonths < 12) {
-							// 	if (toMonth > fromMonth) {
-							// 		var arrNums = [];
-							// 		for (var i = fromMonth; i < toMonth + 1; i++) {
-							// 			arrNums.push(i);
-							// 		}
-							// 		var nums = arrNums.join();
-							// 		monthsClause = "in (" + nums + ")";
-							// 	} else {
-							// 		var arrNums1 = [];
-							// 		var arrNums2 = [];
-							// 		for (var i = fromMonth; i < 13; i++) {
-							// 			arrNums1.push(i);
-							// 		}
-							// 		for (var j = 1; j < toMonth + 1; j++) {
-							// 			arrNums2.push(j);
-							// 		}
-							// 		var nums1 = arrNums1.join();
-							// 		var nums2 = arrNums2.join();
-							// 		monthsClause = "in (" + nums1 + "," + nums2 + ")";
-							// 	}
-							// }
-							//
-							// var dateClause = "year >= " + fromYear + " and year <= " + toYear + " and month " + monthsClause;
 							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-
 						} else if (fromYear && !toYear) {
-							// var dateClause = "year >= " + fromYear + " and month >= " + fromMonth;
 							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 						} else if (!fromYear && toYear) {
-							// var dateClause = "year <= " + toYear + " and month <= " + toMonth;
 							var dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					}
 				} else {
 					// Date presets, use most recent year data is available.
-					var today = new Date();
-					var thisYear = today.getFullYear();
-					var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
-					if (today > mostRecentDataDate) {
-						var y = thisYear - 1;
-						var dateClause = "year = " + y;
-					} else {
-						var y = thisYear - 2;
-						var dateClause = "year = " + y;
-					}
 					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 				}
 				break;
