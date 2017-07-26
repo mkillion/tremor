@@ -768,6 +768,9 @@ function(
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					}
+				} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
+					// Time = all, so no date clause, just volumes.
+					wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
 				} else {
 					// Date presets, use most recent year data is available.
 					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
