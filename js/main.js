@@ -2172,7 +2172,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls<br><span class='note'>average monthly volume for years < 2015</span>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls<br><span class='note'>average monthly volume for years < 2015</span>";
 		// dbCon += "for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
 		// for (var a=2015; a<2017; a++) {
         //     dbCon += '<option value="' + a + '"">' + a + '</option>';
