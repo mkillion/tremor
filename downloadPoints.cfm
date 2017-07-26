@@ -60,7 +60,7 @@
     <cfset InjWhere = "swd." & #form.wellwhere#>
 
 	<!--- GET DATA: --->
-    <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
+    <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015) or (#form.time# eq "all")>
         <!--- Return ANNUAL volumes. --->
         <!--- Prepare output file: --->
         <cfset InjFileName = "KGS-ANNUAL-INJ-#TimeStamp#.csv">
@@ -101,7 +101,7 @@
           			    and
           			    year <= #toYear#
           		    </cfif>
-                <cfelse>
+                <cfelseif #form.time# neq "all">
                     and
                     year = (select to_char(sysdate, 'YYYY') from dual)
                 </cfif>
