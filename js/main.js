@@ -1644,8 +1644,10 @@ function(
 				injvolWhere = wellsGeomWhere;
 			}
 
+			var timeOption = $("input[name=time-type]:checked").val();
+
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl  };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption  };
 
 			$("#loader").show();
 
@@ -2239,6 +2241,10 @@ function(
  				$(".inj-graph-text").css("color", "#808080");
  				$(".inj-graph").attr("disabled", true);
 			} else {
+				$(".inj-graph-text").css("color", "#000");
+				$(".inj-graph").attr("disabled", false);
+			}
+			if (this.id === "tim-all") {
 				$(".inj-graph-text").css("color", "#000");
 				$(".inj-graph").attr("disabled", false);
 			}
