@@ -477,6 +477,9 @@ function(
 	checkTimeRadio = function() {
 		$("[name=time-type]").prop("checked", false);
 		$("[name=time-type]").filter("[value='date']").prop("checked", true);
+		// Enable volume plot options if a date is entered before radio is checked:
+		$(".inj-graph-text").css("color", "#000");
+		$(".inj-graph").attr("disabled", false);
 	}
 
 
@@ -1706,7 +1709,8 @@ function(
 						} );
 					} else {
 						$(".ui-dialog").hide();
-						alert("No data returned for these search criteria.");
+						alert("No data returned for these search criteria and/or dates.");
+						$("#loader").hide();
 					}
 				} );
 			} else if (graphType === "joint" || graphType === "jointcount") {
