@@ -149,7 +149,7 @@ function(
     var findParams = new FindParameters();
 	findParams.returnGeometry = true;
 
-    var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Topo", visible:true} );
+    var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map", visible:true} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
 	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
 	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:true} );
@@ -160,6 +160,7 @@ function(
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
+	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 
 	var swdRenderer = new ClassBreaksRenderer( {
 		field: "MOST_RECENT_TOTAL_FLUID"
@@ -239,7 +240,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -2283,7 +2284,7 @@ function(
 		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
 		var wellsGroup = ["Salt-Water-Disposal-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
-		var basemapGroup = ["Topo","Aerial-Imagery"];
+		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery"];
 
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</div>';
 		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
@@ -2294,7 +2295,7 @@ function(
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="boundaries-group"><span class="find-hdr-txt"> Boundaries</span></div>';
 		tocContent += '<div class="find-body hide" id="boundaries-group-body"></div>';
 
-		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="basemap-group"><span class="find-hdr-txt"> Base Map</span></div>';
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="basemap-group"><span class="find-hdr-txt"> Other Layers</span></div>';
 		tocContent += '<div class="find-body hide" id="basemap-group-body"></div>';
 
         for (var j=lyrs.length - 1; j>-1; j--) {
@@ -2594,16 +2595,24 @@ function(
 		var chkdLyr = $("input[name=bm]:checked").val();
 		switch (chkdLyr) {
 			case "Topo":
+				usgsTopoLayer.visible = true;
+				latestAerialsLayer.visible = false;
+				basemapLayer.visible = false;
+				break;
+			case "Base Map":
 				basemapLayer.visible = true;
+				usgsTopoLayer.visible = false;
 				latestAerialsLayer.visible = false;
 				break;
 			case "Aerial Imagery":
-				basemapLayer.visible = false;
 				latestAerialsLayer.visible = true;
+				basemapLayer.visible = false;
+				usgsTopoLayer.visible = false;
 				break;
 			case "none":
 				basemapLayer.visible = false;
 				latestAerialsLayer.visible = false;
+				usgsTopoLayer.visible = false;
 				break;
 		}
 	}
