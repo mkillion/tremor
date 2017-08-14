@@ -2044,6 +2044,7 @@ function(
         content = '';
         content += '<div class="panel-container">';
         content += '<div class="panel-header">Legend</div>';
+		content += '<div class="note">Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</div>';
         content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
 		// content += '<div class="panel-header">Links</div>';
@@ -2139,7 +2140,7 @@ function(
 		dbCon = "<div class='dashboard'>";
 		// dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Apply Changes</button><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><span class='esri-icon-checkbox-checked hide' id='deselect-icon' onclick='deselectPoint()' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span><span class='note' id='save-prefs'><input type='checkbox' id='save-prefs-chk' onclick='saveSettings()'>Save Settings</span></div>";
 		dbCon += "<div id='db-ctrls'><span class='esri-icon-close' id='close-db'></span><button id='update-btn' class='find-button' onclick='updateMap()'>Apply Changes</button><span class='esri-icon-refresh' id='reset-db' title='Reset defaults'></span><span class='esri-icon-checkbox-checked hide' id='deselect-icon' onclick='deselectPoint()' title='Deselect feature'></span><span class='esri-icon-erase hide' id='erase-graphics' title='Erase graphics'></span></div>";
-
+		// dbCon += '<div class="note">Preliminary earthquakes are auto-located using the KGS Earthworm automatic earthquake detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</div><p>';
 
 		// Location:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
@@ -2269,6 +2270,7 @@ function(
     function createTOC() {
         var lyrs = map.layers;
         var chkd, tocContent = "";
+		// var eqTocContent = '<div class="note">Preliminary earthquakes are auto-located using the KGS Earthworm automatic earthquake detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</div><p>';
 		var eqTocContent = "";
 		var wellsTocContent = "";
 		var boundariesTocContent = "";
@@ -2283,7 +2285,7 @@ function(
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Topo","Aerial-Imagery"];
 
-		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</span></div>';
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</div>';
 		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
 
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="wells-group"><span class="find-hdr-txt"> Wells</span></div>';
