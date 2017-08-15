@@ -1919,24 +1919,31 @@ function(
             var wmPt = webMercatorUtils.geographicToWebMercator(pt84);
 
             var ptSymbol = new SimpleMarkerSymbol( {
-                style: "x",
-                size: 22,
+                style: "cross",
+                size: 18,
                 outline: new SimpleLineSymbol( {
                   color: [255, 0, 0],
-                  width: 4
+                  width: 2
                 } )
             } );
 
-            var pointGraphic = new Graphic( {
-                geometry: wmPt,
-                symbol: ptSymbol
-            } );
+			userDefinedPoint = new Graphic ( {
+				geometry: wmPt,
+				symbol: new SimpleMarkerSymbol( {
+					size: 18,
+    				style: "cross",
+					outline: new SimpleLineSymbol ( {
+						color: [230, 0, 0, 0.7],
+						width: 2
+					} )
+				} )
+			} );
 
 			view.goTo( {
 				target: wmPt,
-				zoom: 16
+				zoom: 14
 			}, {duration: 750} ).then(function() {
-	            graphicsLayer.add(pointGraphic);
+				graphicsLayer.add(userDefinedPoint);
 			} );
         } );
     }
