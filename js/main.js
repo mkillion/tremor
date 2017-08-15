@@ -323,6 +323,8 @@ function(
 		} );
 
 		view.on("double-click", function(event) {
+			graphicsLayer.remove(userDefinedPoint);
+
 			var p = new Point( {
 				x: event.mapPoint.x,
 				y: event.mapPoint.y,
@@ -331,10 +333,10 @@ function(
 
 			userDefinedPoint = new Graphic ( {
 				geometry: p,
-				popupTemplate: new PopupTemplate( {
-					title: "Selected Location",
-					content: "<b>Foo Bar</b>"
-				} ),
+				// popupTemplate: new PopupTemplate( {
+				// 	title: "Selected Location",
+				// 	content: "<b>Foo Bar</b>"
+				// } ),
 				symbol: new SimpleMarkerSymbol( {
 					size: 18,
     				style: "cross",
@@ -345,8 +347,9 @@ function(
 				} )
 			} );
 
-			graphicsLayer.removeAll();
 			graphicsLayer.add(userDefinedPoint);
+			highlightFeature(userDefinedPoint);
+			$(".esri-icon-checkbox-checked").show();
 		} );
 
 		urlParams = location.search.substr(1);
@@ -502,7 +505,11 @@ function(
 	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
 		if (!view.popup.selectedFeature) {
-			alert("Please select an event or well to buffer.");
+			if (!userDefinedPoint) {
+				alert("Please select an event, well, point, or address to buffer.");
+			} else if ( !userDefinedPoint.geometry) {
+				alert("Please select an event, well, point, or address to buffer.");
+			}
 		}
 		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
 	}
@@ -532,6 +539,8 @@ function(
 
 
 	resetDefaults = function() {
+		userDefinedPoint = new Graphic();
+
 		graphicsLayer.removeAll();
 		view.popup.clear();
 		view.popup.visible = false;
@@ -620,7 +629,9 @@ function(
 
 		// Remove download links and clear graphics:
 		$(".download-link").html("");
-		graphicsLayer.removeAll();
+		// graphicsLayer.removeAll();
+		graphicsLayer.remove(bufferGraphic);
+		graphicsLayer.remove(hilite);
 
 		// Create location clause:
 		var location = $("input[name=loc-type]:checked").val();
@@ -640,10 +651,20 @@ function(
 				}
 
 				if (view.popup.selectedFeature) {
-					createBufferGeom(buffDist);
+					if (userDefinedPoint.geometry) {
+						createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
+					} else {
+						createBufferGeom(buffDist);
+					}
+				} else if (userDefinedPoint.geometry) {
+					if (view.popup.selectedFeature) {
+						createBufferGeom(buffDist);
+					} else {
+						createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
+					}
 				} else {
 					if (!firstUpdatePass) {
-						alert("Please select an event or well to buffer.");
+						alert("Please select an event, well, point, or address to buffer.");
 					}
 				}
 				break;
@@ -881,13 +902,13 @@ function(
 
 
 	function createBufferGeom(buffDist, x, y) {
-		graphicsLayer.remove(bufferGraphic);
-
 		if (x) {
+			graphicsLayer.remove(bufferGraphic);
 			var theX = x;
 			var theY = y;
 			var g = "point";
 		} else if (view.popup.selectedFeature) {
+			graphicsLayer.remove(userDefinedPoint);
 			var theX = view.popup.selectedFeature.geometry.x;
 			var theY = view.popup.selectedFeature.geometry.y;
 			if (view.popup.selectedFeature.geometry.type === "point") {
@@ -2180,8 +2201,8 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' checked onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected point</td></tr>";
-		dbCon += "<tr><td></td><td><span class='note'>Double-click map to define a point</tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td></td><td><span class='note'>or double-click map to define a point</tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-co' value='co' onchange='saveRadioPrefs(&quot;loc-co&quot;)'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
 		for (var k = 0; k < cntyArr.length; k++) {
 		 	dbCon += "<option value='" + cntyArr[k] + "'>" + cntyArr[k] + "</option>";
@@ -2251,8 +2272,8 @@ function(
 		// } );
 
 		$("#erase-graphics").click(function() {
-			graphicsLayer.remove(bufferGraphic);
-			/// graphicsLayer.removeAll();
+
+			graphicsLayer.removeAll();
 			$(".esri-icon-erase").hide();
 	    } );
 
@@ -2299,6 +2320,7 @@ function(
 		graphicsLayer.remove(hilite);
 		view.popup.clear();
 		view.popup.visible = false;
+		userDefinedPoint = new Graphic();
 	}
 
 
@@ -2403,6 +2425,9 @@ function(
 
 
     function executeIdTask(event) {
+		graphicsLayer.remove(userDefinedPoint);
+		userDefinedPoint = new Graphic();
+
 		var idLayers = [];
 		var visLayers = $(".toc-sub-item :checked").map(function() {
 			return $(this).val();
