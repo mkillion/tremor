@@ -109,6 +109,7 @@ function(
 	var locWhere = "";
 	var wellsAttrWhere = "";
 	var fromYear, toYear;
+	var userDefinedPoint;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 
 
@@ -321,6 +322,33 @@ function(
 			localStorage.setItem("zoom", view.zoom);
 		} );
 
+		view.on("double-click", function(event) {
+			var p = new Point( {
+				x: event.mapPoint.x,
+				y: event.mapPoint.y,
+				spatialReference: wmSR
+			 } );
+
+			userDefinedPoint = new Graphic ( {
+				geometry: p,
+				popupTemplate: new PopupTemplate( {
+					title: "Selected Location",
+					content: "<b>Foo Bar</b>"
+				} ),
+				symbol: new SimpleMarkerSymbol( {
+					size: 18,
+    				style: "cross",
+					outline: new SimpleLineSymbol ( {
+						color: [230, 0, 0, 0.7],
+						width: 2
+					} )
+				} )
+			} );
+
+			graphicsLayer.removeAll();
+			graphicsLayer.add(userDefinedPoint);
+		} );
+
 		urlParams = location.search.substr(1);
 	    urlZoom(urlParams);
 
@@ -474,7 +502,7 @@ function(
 	checkLocRadio = function() {
 		$("[name=loc-type]").prop("checked", false);
 		if (!view.popup.selectedFeature) {
-			alert("Please select an event or well to buffer.")
+			alert("Please select an event or well to buffer.");
 		}
 		$("[name=loc-type]").filter("[value='buf']").prop("checked", true);
 	}
@@ -1140,8 +1168,8 @@ function(
 
 		$(".esri-icon-checkbox-checked").show();
 
-		localStorage.setItem("sel-feat-x", view.popup.selectedFeature.geometry.x);
-		localStorage.setItem("sel-feat-y", view.popup.selectedFeature.geometry.y);
+		// localStorage.setItem("sel-feat-x", view.popup.selectedFeature.geometry.x);
+		// localStorage.setItem("sel-feat-y", view.popup.selectedFeature.geometry.y);
     }
 
 
@@ -1963,7 +1991,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Find</div>';
+        content += '<div class="panel-header">Locate</div>';
         content += '<div class="panel-padding">';
 
 		// api:
@@ -2041,7 +2069,7 @@ function(
 		content += '<span id="reset-finds"><button onclick="resetFinds()">Reset</button></span>';
 
         menuObj = {
-            label: '<div class="icon-zoom-in"></div><div class="icon-text">Find</div>',
+            label: '<div class="icon-zoom-in"></div><div class="icon-text">Locate</div>',
             content: content
         };
         drawerMenus.push(menuObj);
@@ -2152,7 +2180,8 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' checked onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
-		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected feature</td></tr>";
+		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected point</td></tr>";
+		dbCon += "<tr><td></td><td><span class='note'>Double-click map to define a point</tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-co' value='co' onchange='saveRadioPrefs(&quot;loc-co&quot;)'></td><td> <select class='loc-select' id='lstCounty2' multiple>";
 		for (var k = 0; k < cntyArr.length; k++) {
 		 	dbCon += "<option value='" + cntyArr[k] + "'>" + cntyArr[k] + "</option>";
