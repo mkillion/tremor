@@ -104,7 +104,9 @@ function(
 	var geomWhere;
 	var comboWhere = "";
 	var wellsComboWhere = "";
+	var class1ComboWhere = "";
 	var wellsGeomWhere;
+	var class1GeomWhere;
 	var attrWhere = "";
 	var locWhere = "";
 	var wellsAttrWhere = "";
@@ -574,7 +576,6 @@ function(
 		neicLayer.findSublayerById(16).definitionExpression = "";
 		historicLayer.findSublayerById(20).definitionExpression = "";
 		swdLayer.findSublayerById(19).definitionExpression = "";
-		idDef[19] = "";
 		idDef[14] = "";
 		idDef[15] = "";
 		idDef[16] = "";
@@ -582,10 +583,12 @@ function(
 		idDef[18] = "";
 		idDef[20] = "";
 		idDef[19] = "";
+		idDef[22] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
 		wellsGeomWhere = "clear";	// ditto.
+		class1GeomWhere = "clear";
 
 		// Save default settings to local storage:
 		saveRadioPrefs("loc-state");
@@ -630,6 +633,7 @@ function(
 		attrWhere = "";
 		geomWhere = "";
 		wellsGeomWhere = "";
+		class1GeomWhere = "";
 		wellsAttrWhere = "";
 
 		// Remove download links and clear graphics:
@@ -869,7 +873,7 @@ function(
 			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
 		}
 
-		if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "") ) {
+		if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "" || class1GeomWhere == "") ) {
 			setTimeout(waitForGeomWheres(), 100);
 		} else {
 			applyDefExp();
@@ -961,12 +965,13 @@ function(
 		}, {duration: 500} );
 
 		createGeomWhere(buffPoly);
-		createwellsGeomWhere(buffPoly);
+		createWellsGeomWhere(buffPoly);
+		createClass1GeomWhere(buffPoly);
 	}
 
 
 	function waitForGeomWheres() {
-		if (geomWhere !== "" && wellsGeomWhere !== "") {
+		if (geomWhere !== "" && wellsGeomWhere !== "" && class1GeomWhere !== "") {
 			applyDefExp();
 		} else {
 			setTimeout(waitForGeomWheres, 100);
@@ -1015,7 +1020,8 @@ function(
 				}
 			}
 			geomWhere = createGeomWhere(geom);
-			wellsGeomWhere = createwellsGeomWhere(geom);
+			wellsGeomWhere = createWellsGeomWhere(geom);
+			class1GeomWhere = createClass1GeomWhere(geom);
 		} );
 	}
 
@@ -1044,7 +1050,7 @@ function(
 	}
 
 
-	function createwellsGeomWhere(geom) {
+	function createWellsGeomWhere(geom) {
 		var qt = new QueryTask();
 		var qry = new Query();
 		wellsGeomWhere = "";
@@ -1069,9 +1075,35 @@ function(
 	}
 
 
+	function createClass1GeomWhere(geom) {
+		var qt = new QueryTask();
+		var qry = new Query();
+		class1GeomWhere = "";
+
+		qt.url = tremorGeneralServiceURL + "/22";
+		qry.geometry = geom;
+		qt.executeForIds(qry).then(function(ids) {
+			var chunk;
+			class1GeomWhere = "objectid in";
+
+			while (ids.length > 0) {
+				chunk = ids.splice(0,1000);
+				chunk = " (" + chunk.join(",") + ") or objectid in";
+				class1GeomWhere += chunk;
+			}
+			if (class1GeomWhere.substr(class1GeomWhere.length - 2) === "in") {
+				class1GeomWhere = class1GeomWhere.slice(0,class1GeomWhere.length - 15);
+			}
+		} );
+
+		return class1GeomWhere;
+	}
+
+
 	function applyDefExp() {
 		comboWhere = "";
 		wellsComboWhere = "";
+		class1ComboWhere = "";
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
 		} ).get();
@@ -1083,6 +1115,9 @@ function(
 		if (wellsGeomWhere === "clear") {
 			// Means form has been reset to defaults.
 			wellsGeomWhere = "";
+		}
+		if (class1GeomWhere === "clear") {
+			class1GeomWhere = "";
 		}
 
 		if (attrWhere && geomWhere) {
@@ -1119,9 +1154,26 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
+
+		// TODO: modify this to add class1AttrWhere (as above) for volumes and formations (?).
+		// if (wellsAttrWhere && class1GeomWhere) {
+		// 	class1ComboWhere = wellsAttrWhere + " and (" + class1GeomWhere + ")";
+		// }
+		// if (wellsAttrWhere && !class1GeomWhere) {
+		// 	class1ComboWhere = wellsAttrWhere;
+		// }
+		// if (!wellsAttrWhere && class1GeomWhere) {
+		// 	class1ComboWhere = class1GeomWhere;
+		// }
+		// if (!wellsAttrWhere && !class1GeomWhere) {
+		// 	class1ComboWhere = "";
+		// }
+		// for testing only:
+		class1ComboWhere = class1GeomWhere;
+		class1Layer.findSublayerById(22).definitionExpression = class1ComboWhere;
+		idDef[22] = class1ComboWhere;
 	}
 
 
