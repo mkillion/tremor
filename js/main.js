@@ -159,7 +159,7 @@ function(
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
-	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:22}], id:"Class I Injection Wells", visible:true} );
+	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:22}], id:"Class 1 Wells", visible:true} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
@@ -2350,7 +2350,7 @@ function(
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
 		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
 		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
-		var wellsGroup = ["Salt-Water-Disposal-Wells","Class-I-Injection-Wells"];
+		var wellsGroup = ["Salt-Water-Disposal-Wells","Class-1-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures","Precambrian-Arbuckle-Faults"];
 
@@ -2462,7 +2462,7 @@ function(
 				case "Salt Water Disposal Wells":
 					idLayers.push(19);
 					break;
-				case "Class I Injection Wells":
+				case "Class 1 Wells":
 					idLayers.push(22);
 					break;
 			}
@@ -2476,7 +2476,6 @@ function(
         dom.byId("mapDiv").style.cursor = "wait";
 
         identifyTask.execute(identifyParams).then(function(response) {
-			console.log(response.results[0].feature.attributes);
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
 			if (feature.length > 0) {
@@ -2494,12 +2493,19 @@ function(
 			var feature = result.feature;
 			var layerName = result.layerName;
 
-			if (layerName === 'OG_WELLS' || layerName === 'Class I Wells' || layerName === 'Salt Water Disposal Wells') {
+			if (layerName === 'OG_WELLS' || layerName === 'Salt Water Disposal Wells') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
 					content: wellContent(feature)
 				} );
 				feature.popupTemplate = ogWellsTemplate;
+			}
+			else if (layerName === 'Class 1 Wells') {
+				var class1Template = new PopupTemplate( {
+					title: "UIC-ID: {UIC_ID}",
+					content: class1Content(feature)
+					} );
+				feature.popupTemplate = class1Template;
 			}
 			else if (layerName === 'OG_FIELDS') {
 				var ogFieldsTemplate = new PopupTemplate( {
@@ -2576,6 +2582,14 @@ function(
 
         return content;
     }
+
+
+	function class1Content(feature) {
+		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FAC_NAME_WELL}</td></tr>";
+        content += "<tr><td>County:</td><td>{COUNTY}</td></tr></table>";
+
+        return content;
+	}
 
 
     function wwc5Content(feature) {
