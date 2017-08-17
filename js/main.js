@@ -159,10 +159,11 @@ function(
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
-	// var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class I Injection Wells", visible:false} );
+	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:22}], id:"Class I Injection Wells", visible:true} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
+	var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
 
 	var swdRenderer = new ClassBreaksRenderer( {
 		field: "MOST_RECENT_TOTAL_FLUID"
@@ -242,7 +243,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, arbuckleFaultsLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -436,11 +437,15 @@ function(
 		{
 			layer: basementStructuresLayer,
 			title: " "
+		},
+		{
+			layer: class1Layer,
+			title: " "
+		},
+		{
+			layer: arbuckleFaultsLayer,
+			title: " "
 		}
-		// {
-		// 	layer: class1Layer,
-		// 	title: " "
-		// }
 		]
 	}, "legend-content" );
 
@@ -2345,9 +2350,9 @@ function(
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
 		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
 		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
-		var wellsGroup = ["Salt-Water-Disposal-Wells"];
+		var wellsGroup = ["Salt-Water-Disposal-Wells","Class-I-Injection-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
-		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures"];
+		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures","Precambrian-Arbuckle-Faults"];
 
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</div>';
 		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
@@ -2358,7 +2363,7 @@ function(
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="boundaries-group"><span class="find-hdr-txt"> Boundaries</span></div>';
 		tocContent += '<div class="find-body hide" id="boundaries-group-body"></div>';
 
-		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="basemap-group"><span class="find-hdr-txt"> Other Layers</span></div>';
+		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="basemap-group"><span class="find-hdr-txt"> Geology and Base Maps</span></div>';
 		tocContent += '<div class="find-body hide" id="basemap-group-body"></div>';
 
         for (var j=lyrs.length - 1; j>-1; j--) {
@@ -2383,7 +2388,7 @@ function(
 			}
 
 			if (basemapGroup.indexOf(htmlID) > -1) {
-				if (htmlID == "Basement-Structures") {
+				if (htmlID === "Basement-Structures" || htmlID === "Precambrian-Arbuckle-Faults") {
 					basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 				} else {
 					basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='" + layerID + "' onclick='toggleBasemapLayer();'" + chkd + "> " + layerID + "</label></div>";
@@ -2457,6 +2462,9 @@ function(
 				case "Salt Water Disposal Wells":
 					idLayers.push(19);
 					break;
+				case "Class I Injection Wells":
+					idLayers.push(22);
+					break;
 			}
 		}
 		var layerids = idLayers.join(",");
@@ -2468,6 +2476,7 @@ function(
         dom.byId("mapDiv").style.cursor = "wait";
 
         identifyTask.execute(identifyParams).then(function(response) {
+			console.log(response.results[0].feature.attributes);
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
 			if (feature.length > 0) {
