@@ -161,7 +161,7 @@ function(
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
-	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:22}], id:"Class 1 Wells", visible:true} );
+	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class 1 Wells", visible:true} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
@@ -583,7 +583,6 @@ function(
 		idDef[18] = "";
 		idDef[20] = "";
 		idDef[19] = "";
-		idDef[22] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
@@ -860,7 +859,7 @@ function(
 			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
 		}
 
-		// Put wells clause together w/ location where (note - location where really only includes
+		// Put wells clause together w/ location where (note - location-where really only includes
 		// counties, others are handled through geomWhere):
 		if (wellsWhere !== "") {
 			wellsAttrWhere += wellsWhere + " and ";
@@ -1080,7 +1079,7 @@ function(
 		var qry = new Query();
 		class1GeomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/22";
+		qt.url = tremorGeneralServiceURL + "/18";
 		qry.geometry = geom;
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
@@ -1170,10 +1169,10 @@ function(
 		// if (!wellsAttrWhere && !class1GeomWhere) {
 		// 	class1ComboWhere = "";
 		// }
-		// for testing only:
+		// TODO: next line for testing only:
 		class1ComboWhere = class1GeomWhere;
-		class1Layer.findSublayerById(22).definitionExpression = class1ComboWhere;
-		idDef[22] = class1ComboWhere;
+		class1Layer.findSublayerById(18).definitionExpression = class1ComboWhere;
+		idDef[18] = class1ComboWhere;
 	}
 
 
@@ -2305,11 +2304,10 @@ function(
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls<br><span class='note'>average monthly volume for years < 2015</span>";
-		// dbCon += "for <select name='injyear' id='inj-year' onchange='saveTextboxPrefs(&quot;inj-year&quot;)'>";
-		// for (var a=2015; a<2017; a++) {
-        //     dbCon += '<option value="' + a + '"">' + a + '</option>';
-        // }
+		// dbCon += "<tr><td></td><td>Injection Zone: <select name='injzone' id='inj-zone'><option value=''></option>";
+		// dbCon += "<option value='Arbuckle'>Arbuckle</option>";
 		// dbCon += "</select></td></tr>";
+		dbCon += "<tr><td><input type='checkbox' id='chkArb'></td><td>Injects into Arbuckle</td></tr>";
 		dbCon += "</table></div>";
 
 		dbCon += "</div>";	// end main dashboard div.
@@ -2515,7 +2513,7 @@ function(
 					idLayers.push(19);
 					break;
 				case "Class 1 Wells":
-					idLayers.push(22);
+					idLayers.push(18);
 					break;
 			}
 		}
@@ -2637,8 +2635,8 @@ function(
 
 
 	function class1Content(feature) {
-		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FAC_NAME_WELL}</td></tr>";
-        content += "<tr><td>County:</td><td>{COUNTY}</td></tr></table>";
+		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_NAME}</td></tr>";
+        content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr></table>";
 
         return content;
 	}
