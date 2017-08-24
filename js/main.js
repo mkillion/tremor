@@ -569,6 +569,7 @@ function(
 		$("#inj-year").val("2016");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
+		$("#chkArb").prop("checked", false);
 
 		swdLayer.findSublayerById(19).definitionExpression = "";
 		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
@@ -679,7 +680,8 @@ function(
 			case "co":
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
 				if (counties !== 'Counties') {
-					locWhere = "county_name in (" + counties + ")";
+					/// locWhere = "county_name in (" + counties + ")";
+					locWhere = "county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + "))";
 				}
 				break;
 			case "sca":
@@ -1157,20 +1159,19 @@ function(
 		idDef[19] = wellsComboWhere;
 
 		// TODO: modify this to add class1AttrWhere (as above) for volumes and formations (?).
-		// if (wellsAttrWhere && class1GeomWhere) {
-		// 	class1ComboWhere = wellsAttrWhere + " and (" + class1GeomWhere + ")";
-		// }
-		// if (wellsAttrWhere && !class1GeomWhere) {
-		// 	class1ComboWhere = wellsAttrWhere;
-		// }
-		// if (!wellsAttrWhere && class1GeomWhere) {
-		// 	class1ComboWhere = class1GeomWhere;
-		// }
-		// if (!wellsAttrWhere && !class1GeomWhere) {
-		// 	class1ComboWhere = "";
-		// }
-		// TODO: next line for testing only:
-		class1ComboWhere = class1GeomWhere;
+		if (wellsAttrWhere && class1GeomWhere) {
+			class1ComboWhere = wellsAttrWhere + " and (" + class1GeomWhere + ")";
+		}
+		if (wellsAttrWhere && !class1GeomWhere) {
+			class1ComboWhere = wellsAttrWhere;
+		}
+		if (!wellsAttrWhere && class1GeomWhere) {
+			class1ComboWhere = class1GeomWhere;
+		}
+		if (!wellsAttrWhere && !class1GeomWhere) {
+			class1ComboWhere = "";
+		}
+
 		class1Layer.findSublayerById(18).definitionExpression = class1ComboWhere;
 		idDef[18] = class1ComboWhere;
 	}
@@ -2303,7 +2304,7 @@ function(
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='wells'>Wells</span>";
 		dbCon += "<table class='db-sub-table' id='wells-body'>";
 		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-all' value='all' onchange='saveRadioPrefs(&quot;wel-all&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls<br><span class='note'>average monthly volume for years < 2015</span>";
+		dbCon += "<tr><td><input type='radio' name='well-type' id='wel-bbl' value='bbls' checked onchange='saveRadioPrefs(&quot;wel-bbl&quot;)'></td><td>Any Monthly Volume &ge; <input type='text' size='8' value='150,000' id='bbls' oninput='checkWellRadio(&quot;bbls&quot;); saveTextboxPrefs(&quot;bbls&quot;)' onfocus='saveRadioPrefs(&quot;wel-bbl&quot;)'> bbls";
 		// dbCon += "<tr><td></td><td>Injection Zone: <select name='injzone' id='inj-zone'><option value=''></option>";
 		// dbCon += "<option value='Arbuckle'>Arbuckle</option>";
 		// dbCon += "</select></td></tr>";
