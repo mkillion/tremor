@@ -797,17 +797,18 @@ function(
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
+				var dateClause;
 
-				// Calculate most recent injection data availability:
+				// Calculate most recent injection data availability for SWDs:
 				var today = new Date();
 				var thisYear = today.getFullYear();
 				var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
 				if (today > mostRecentDataDate) {
 					var y = thisYear - 1;
-					var dateClause = "year = " + y;
+					dateClause = "year = " + y;
 				} else {
 					var y = thisYear - 2;
-					var dateClause = "year = " + y;
+					dateClause = "year = " + y;
 				}
 
 				if ( $("#tim-date").prop("checked") ) {
@@ -823,21 +824,29 @@ function(
 						}
 						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
-						// essentially the same as a date preset.
+						// essentially the same as a date preset, use dataClause created above when "thisYear" is calculated.
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 					} else {
+						dateClause = "";
 						// Use monthly volumes.
 						if (fromYear && toYear) {
-							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						} else if (fromYear && !toYear) {
-							var dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 						} else if (!fromYear && toYear) {
-							var dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+
+						var fDate = dom.byId('from-date').value;
+						var tDate = dom.byId('to-date').value;
+						if (!fDate && !tDate) {
+							// Date pickers are blank, return all.
+							wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
+						}
 					}
 				} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
-					// Time = all, so no date clause, just volumes.
+					// Time = all, so no date clause, just volumes. NOTE "all" option is commented out as of 20170824.
 					wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
 				} else {
 					// Date presets, use most recent year data is available.
