@@ -703,6 +703,7 @@ function(
 		}
 
 		// Create time clause:
+		// This timeWhere only applies to events, dates for wells handled under "bbls" section of wells where.
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
@@ -803,6 +804,7 @@ function(
 			case "all":
 				// Dummy clause to return all:
 				wellsWhere = "objectid > 0";
+				c1WellsWhere = "objectid > 0";
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
@@ -1212,7 +1214,7 @@ function(
 		}
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
-
+		// console.log("c2: "+wellsComboWhere)
 		if (c1WellsAttrWhere && class1GeomWhere) {
 			class1ComboWhere = c1WellsAttrWhere + " and (" + class1GeomWhere + ")";
 		}
@@ -1225,7 +1227,7 @@ function(
 		if (!c1WellsAttrWhere && !class1GeomWhere) {
 			class1ComboWhere = "";
 		}
-		console.log(class1ComboWhere);
+		// console.log("c1: "+class1ComboWhere);
 		class1Layer.findSublayerById(18).definitionExpression = class1ComboWhere;
 		idDef[18] = class1ComboWhere;
 	}
@@ -2316,7 +2318,7 @@ function(
 		// dbCon += '<div class="note">Preliminary earthquakes are auto-located using the KGS Earthworm automatic earthquake detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</div><p>';
 
 		// Location:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span><span class='note'> (events and wells)</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='location'>Location</span>";
 		dbCon += "<table class='db-sub-table' id='location-body'>";
 		dbCon += "<tr><td><input type='radio' name='loc-type' id='loc-state' value='state' checked onchange='saveRadioPrefs(&quot;loc-state&quot;)'></td><td>Statewide</td></tr>";
 		dbCon += "<tr><td class='sel-rad'><input type='radio' name='loc-type' id='loc-buf' value='buf' onchange='saveRadioPrefs(&quot;loc-buf&quot;)' onclick='checkLocRadio()'></td><td> Within <input type='text' class='txt-input' id='loc-buff' value='6' oninput='checkLocRadio()' onchange='saveTextboxPrefs(&quot;loc-buff&quot;)' onfocus='saveRadioPrefs(&quot;loc-buf&quot;)'> mi of selected feature</td></tr>";
@@ -2335,7 +2337,7 @@ function(
 		dbCon += "<div class='vertical-line'></div>";
 
 		// Time:
-		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span><span class='note'> (events and wells)</span>";
+		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
