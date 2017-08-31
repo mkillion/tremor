@@ -230,7 +230,7 @@ function(
 			id: 19,
 		 	renderer: swdRenderer
 		} ],
-		id:"Salt Water Disposal Wells",
+		id:"Class 2 Wells",
 		visible: true
 	} );
 
@@ -800,10 +800,16 @@ function(
 
 		// Create wells clause:
 		var well = $("input[name=well-type]:checked").val();
+		var chkArbuckle = $("#chkArb:checked").val();
+
 		switch (well) {
 			case "all":
 				// Dummy clause to return all:
-				wellsWhere = "objectid > 0";
+				if (chkArbuckle) {
+					wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+				} else {
+					wellsWhere = "objectid > 0";
+				}
 				c1WellsWhere = "objectid > 0";
 				break;
 			case "bbls":
@@ -2457,7 +2463,7 @@ function(
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
 		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
 		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
-		var wellsGroup = ["Salt-Water-Disposal-Wells","Class-1-Wells"];
+		var wellsGroup = ["Class-2-Wells","Class-1-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures","Precambrian-Arbuckle-Faults"];
 
