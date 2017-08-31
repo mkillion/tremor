@@ -915,7 +915,11 @@ function(
 		// Put wells clauses together w/ location where (note - location-where really only includes counties, others are handled through geomWhere):
 		// Class 2:
 		if (wellsWhere !== "") {
-			wellsAttrWhere += wellsWhere + " and ";
+			if (chkArbuckle) {
+				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
+			} else {
+				wellsAttrWhere += wellsWhere + " and ";
+			}
 		}
 		if (locWhere !== "") {
 			wellsAttrWhere += locWhere + " and ";
@@ -1220,7 +1224,7 @@ function(
 		}
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
-		// console.log("c2: "+wellsComboWhere)
+
 		if (c1WellsAttrWhere && class1GeomWhere) {
 			class1ComboWhere = c1WellsAttrWhere + " and (" + class1GeomWhere + ")";
 		}
@@ -1233,7 +1237,7 @@ function(
 		if (!c1WellsAttrWhere && !class1GeomWhere) {
 			class1ComboWhere = "";
 		}
-		// console.log("c1: "+class1ComboWhere);
+
 		class1Layer.findSublayerById(18).definitionExpression = class1ComboWhere;
 		idDef[18] = class1ComboWhere;
 	}
@@ -2572,7 +2576,7 @@ function(
 				case "NEIC Cataloged Events":
 					idLayers.push(16);
 					break;
-				case "Salt Water Disposal Wells":
+				case "Class 2 Wells":
 					idLayers.push(19);
 					break;
 				case "Class 1 Wells":
