@@ -113,8 +113,8 @@ function(
 	var c1WellsAttrWhere = "";
 	var fromYear, toYear;
 	var userDefinedPoint;
+	var facilities;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
-
 
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
@@ -141,7 +141,7 @@ function(
         }
     } );
 
-    createMenus();
+	createMenus();
 
     // Create map, layers, and widgets:
     var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general/MapServer";
@@ -1506,6 +1506,13 @@ function(
 				findParams.returnGeometry = true;
 				findParams.searchText = parseInt(dom.byId("eventid").value);
 				break;
+			case "facility":
+				findParams.layerIds = [18];
+				findParams.searchFields = ["facility_name"];
+				findParams.contains = false;
+				findParams.returnGeometry = true;
+				findParams.searchText = dom.byId("fac-wells").value
+				break;
         }
         findTask.execute(findParams).then(function(response) {
 			if (what === "event" && response.results.length > 0) {
@@ -1577,7 +1584,7 @@ function(
 
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
-			if (what === "api" || what === "field" || what === "event") {
+			if (what === "api" || what === "field" || what === "event" || what === "facility") {
 				openPopup(feature);
 			}
 		} );
@@ -2145,15 +2152,16 @@ function(
         content += '<div class="panel-header">Locate</div>';
         content += '<div class="panel-padding">';
 
-		// api:
-        content += '<div class="find-header esri-icon-right-triangle-arrow" id="api"><span class="find-hdr-txt"> Well API</span></div>';
+		// well (api and c1 facility):
+        content += '<div class="find-header esri-icon-right-triangle-arrow" id="api"><span class="find-hdr-txt"> Well</span></div>';
         content += '<div class="find-body hide" id="find-api">';
         content += 'API Number (extension optional):<br>';
         content += '<input type="text" id="api_state" size="2" onKeyUp="jumpFocus(api_county, 2, this.id)"/>-';
         content += '<input type="text" id="api_county" size="3" onKeyUp="jumpFocus(api_number, 3, this.id)"/>-';
         content += '<input type="text" id="api_number" size="5" onKeyUp="jumpFocus(api_extension, 5, this.id)"/>-';
         content += '<input type="text" id="api_extension" size="4"/>';
-        content += '<button class=find-button onclick=findIt("api")>Find</button>';
+        content += '<button class=find-button onclick=findIt("api")>Find API</button>';
+		content += '<span id="facs"></span>';
         content += '</div>';
 
 		// county:
@@ -2249,6 +2257,17 @@ function(
 
 		$("#chart-btn").click(function() {
 			$("#loader").show();
+		} );
+
+		// Facilities select box for Locate panel. Putting it down here because of loading order issues.
+		$.get("getFacilities.cfm", function(response) {
+			facilities = response.split('","');
+			var con = "<p>Facility-Well<br><select id='fac-wells'>";
+			for (var y = 0; y < facilities.length; y++) {
+			 	con += "<option value='" + facilities[y].replace('"','') + "'>" + facilities[y].replace('"','') + "</option>";
+			}
+			con += "</select><p><button class=find-button onclick=findIt('facility')>Find Facility-Well</button>";
+			$("#facs").html(con);
 		} );
     }
 
