@@ -707,13 +707,13 @@ function(
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
-				timeWhere = "sysdate - cast(origin_time_cst as date) <= 7";
+				timeWhere = "sysdate - cast(local_time as date) <= 7";
 				break;
 			case "month":
-				timeWhere = "sysdate - cast(origin_time_cst as date) <= 29";
+				timeWhere = "sysdate - cast(local_time as date) <= 29";
 				break
 			case "year":
-				timeWhere = "to_char(origin_time_cst,'YYYY') = to_char(sysdate, 'YYYY')";
+				timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
 				break;
 			case "all":
 				timeWhere = "";
@@ -766,11 +766,11 @@ function(
 				}
 
 				if (fromDate && toDate) {
-					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 				} else if (fromDate && !toDate) {
-					timeWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 				} else if (!fromDate && toDate) {
-					timeWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 				}
 				break;
 		}
@@ -1264,11 +1264,11 @@ function(
 		var county = dom.byId("lstCounty2").value;
 
 		if (fromDate && toDate) {
-			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		} else if (fromDate && !toDate) {
-			dateWhere = "trunc(origin_time_cst) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
 		} else if (!fromDate && toDate) {
-			dateWhere = "trunc(origin_time_cst) <= to_date('" + toDate + "','mm/dd/yyyy')";
+			dateWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
 		}
 
 		if (lMag && uMag) {
@@ -1360,7 +1360,7 @@ function(
 
 
 					// Set dashboard time buttons to match origin time:
-					var arrOrigTime = feature[0].attributes.ORIGIN_TIME_CST.split("/");
+					var arrOrigTime = feature[0].attributes.local_time.split("/");
 					var y = arrOrigTime[2].substring(0,4);
 					var m = arrOrigTime[0] - 1;
 					var d = arrOrigTime[1];
@@ -1701,8 +1701,8 @@ function(
 			if (a.feature.attributes["LAYER"] < b.feature.attributes["LAYER"]) { return -1; }
 			if (a.feature.attributes["LAYER"] > b.feature.attributes["LAYER"]) { return 1; }
 			if (a.feature.attributes["LAYER"] === b.feature.attributes["LAYER"]) {
-				var aDate = new Date(a.feature.attributes["origin_time_cst"]);
-				var bDate = new Date(b.feature.attributes["origin_time_cst"]);
+				var aDate = new Date(a.feature.attributes["local_time"]);
+				var bDate = new Date(b.feature.attributes["local_time"]);
 				if (aDate < bDate) { return -1; }
 				if (aDate > bDate) { return 1; }
 				return 0;
@@ -2712,7 +2712,7 @@ function(
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
-		content += "<tr><td>Origin Time (CST): </td><td>{ORIGIN_TIME_CST}</td></tr>";
+		content += "<tr><td>Origin Time (CST): </td><td>{local_time}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
