@@ -883,16 +883,19 @@ function(
 					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 
 					// Class 1:
-					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
-						// Use current month and year.
-						// TODO: unable to test this (20170825) because current data only goes to 2016. Retest later.
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
-					}
-					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
-						// Use current year.
-						// TODO: unable to test this (20170825) because current data only goes to 2016. Retest later.
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and barrels >= " + bbls + ")";
-					}
+					// Figure out most recent data available date:
+					$.get("getMostRecentC1Date.cfm", function(response) {
+						var date = response.split(",");
+
+						if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
+							// Use most recent month and year available.
+							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and month = " + date[1] + " and barrels >= " + bbls + ")";
+						}
+						if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
+							// Use most recent year.
+							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and barrels >= " + bbls + ")";
+						}
+					} );
 				}
 				break;
 		}
@@ -931,7 +934,11 @@ function(
 
 		// Class 1:
 		if (c1WellsWhere !== "") {
-			c1WellsAttrWhere += c1WellsWhere + " and ";
+			if (chkArbuckle) {
+				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle') and ";
+			} else {
+				c1WellsAttrWhere += c1WellsWhere + " and ";
+			}
 		}
 		if (locWhere !== "") {
 			c1WellsAttrWhere += locWhere + " and ";
@@ -1222,6 +1229,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
+
 		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
 		idDef[19] = wellsComboWhere;
 
