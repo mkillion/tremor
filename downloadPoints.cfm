@@ -14,18 +14,17 @@
 <cfset InjFileText = "">
 <cfset EventFileText = "">
 
-<cfif #form.fromdate# neq "">
-    <cfset FromYear = Right(#form.fromdate#, 4)>
-    <cfset FromMonth = Left(#form.fromdate#, 2)>
-</cfif>
-<cfif #form.todate# neq "">
-    <cfset ToYear = Right(#form.todate#, 4)>
-    <cfset ToMonth = Left(#form.todate#, 2)>
-</cfif>
-
-
 <!--- WELLS: --->
 <cfif ListContains(#form.what#, "wells")>
+    <cfif #form.fromdate# neq "">
+        <cfset FromYear = Right(#form.fromdate#, 4)>
+        <cfset FromMonth = Left(#form.fromdate#, 2)>
+    </cfif>
+    <cfif #form.todate# neq "">
+        <cfset ToYear = Right(#form.todate#, 4)>
+        <cfset ToMonth = Left(#form.todate#, 2)>
+    </cfif>
+
     <!--- Make a wells file even if there's no injection data: --->
     <cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
@@ -48,7 +47,7 @@
     		<cfset Data = '"#kid#","#api_number#","#lease_name#","#well_name#","#operator_name#","#curr_operator#","#field_name#","#township#","#township_direction#","#range#","#range_direction#","#section#","#spot#","#subdivision_4_smallest#","#subdivision_3#","#subdivision_2#","#subdivision_1_largest#","#feet_north_from_reference#","#feet_east_from_reference#","#reference_corner#","#nad27_longitude#","#nad27_latitude#","#county#","#permit_date_txt#","#spud_date_txt#","#completion_date_txt#","#plug_date_txt#","#status_txt#","#well_class#","#rotary_total_depth#","#elevation_kb#","#elevation_gl#","#elevation_df#","#producing_formation#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
     	</cfloop>
-		<cfset WellsFileText = "Click for Wells File">
+		<cfset WellsFileText = "Click for Class 2 Wells File">
 	<cfelse>
 		<cfset WellsFileText = "No wells data for this search">
 	</cfif>
@@ -122,7 +121,7 @@
         		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#annual_volume#","#fluid_type#","#injection_zone#","#max_authorized_pressure#"'>
         		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
         	</cfloop>
-    		<cfset InjFileText = "Click for Injection File">
+    		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
     		<cfset InjFileText = "No injection data for this time period">
     	</cfif>
@@ -185,7 +184,7 @@
         		<cfset Data = '"#well_header_kid#","#api_number#","#api_number_kcc#","#nad27_latitude#","#nad27_longitude#","#year#","#month#","#monthly_volume#","#fluid_type#","#injection_zone#","#max_authorized_pressure#"'>
         		<cffile action="append" file="#InjOutputFile#" output="#Data#" addnewline="yes">
         	</cfloop>
-    		<cfset InjFileText = "Click for Injection File">
+    		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
     		<cfset InjFileText = "No injection data for this time period">
     	</cfif>
@@ -202,7 +201,7 @@
 	<cfset EventsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#EventsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,MAGNITUDE,MAGNITUDE_TYPE,SAS,NST,GAP,RMS,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,COUNTY_NAME,ORIGIN_TIME_CST,AGENCY,AGENCY_ID,TYPE">
+	<cfset Headers = "ORIGIN_TIME,LATITUDE,LONGITUDE,DEPTH,MAGNITUDE,MAGNITUDE_TYPE,SAS,NST,GAP,RMS,LATITUDE_ERR,LONGITUDE_ERR,DEPTH_ERR,COUNTY_NAME,LOCAL_TIME,AGENCY,AGENCY_ID,TYPE">
 	<cffile action="write" file="#EventsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
@@ -214,7 +213,7 @@
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
 
 	<cfquery name="qEventData" datasource="tremor">
-		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,origin_time_cst,agency,agency_id,
+		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,local_time,agency,agency_id,
             decode(layer,'EWA','Preliminary',
                 'KGS','Cataloged',
                 'US','NEIC',
@@ -229,7 +228,7 @@
 
 	<!--- WRITE FILE: --->
 	<cfloop query="qEventData">
-		<cfset Data = '"#origin_time#","#latitude#","#longitude#","#depth#","#magnitude#","#magnitude_type#","#sas#","#nst#","#gap#","#rms#","#latitude_err#","#longitude_err#","#depth_err#","#county_name#","#origin_time_cst#","#agency#","#agency_id#","#type#"'>
+		<cfset Data = '"#origin_time#","#latitude#","#longitude#","#depth#","#magnitude#","#magnitude_type#","#sas#","#nst#","#gap#","#rms#","#latitude_err#","#longitude_err#","#depth_err#","#county_name#","#local_time#","#agency#","#agency_id#","#type#"'>
 		<cffile action="append" file="#EventsOutputFile#" output="#Data#" addnewline="yes">
 	</cfloop>
 

@@ -131,7 +131,7 @@
     where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
-<cfset DateToMS = "(trunc(origin_time_cst) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
+<cfset DateToMS = "(trunc(local_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
 
 <cfloop query="qLayers">
     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
