@@ -2291,7 +2291,7 @@ function(
 			downloadOptions.push("wells");
 		}
 		if ( $("#chk-dwn-c1s").is(":checked") ) {
-			downloadOptions.push("c1wells");
+			downloadOptions.push("c1s");
 		}
 		var downloadOptions = downloadOptions.join(",");
 
@@ -2323,7 +2323,7 @@ function(
 		} else {
 			var graphLayers = filterLyrs.join(",");
 
-			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption };
+			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "c1wellwhere": class1ComboWhere };
 
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {

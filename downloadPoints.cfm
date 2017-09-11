@@ -13,20 +13,60 @@
 <cfset WellsFileText = "">
 <cfset InjFileText = "">
 <cfset EventFileText = "">
+<cfset C1WellsFileText = "">
 
-<!--- WELLS: --->
-<cfif ListContains(#form.what#, "wells")>
-    <cfif #form.fromdate# neq "">
-        <cfset FromYear = Right(#form.fromdate#, 4)>
-        <cfset FromMonth = Left(#form.fromdate#, 2)>
-    </cfif>
-    <cfif #form.todate# neq "">
-        <cfset ToYear = Right(#form.todate#, 4)>
-        <cfset ToMonth = Left(#form.todate#, 2)>
-    </cfif>
+<cfif #form.fromdate# neq "">
+    <cfset FromYear = Right(#form.fromdate#, 4)>
+    <cfset FromMonth = Left(#form.fromdate#, 2)>
+</cfif>
+<cfif #form.todate# neq "">
+    <cfset ToYear = Right(#form.todate#, 4)>
+    <cfset ToMonth = Left(#form.todate#, 2)>
+</cfif>
 
+<!--- C1 WELLS: --->
+<cfif ListContains(#form.what#, "c1s")>
     <!--- Make a wells file even if there's no injection data: --->
-    <cfset WellsFileName = "KGS-WELLS-#TimeStamp#.csv">
+    <cfset C1WellsFileName = "CLASS1-WELLS-#TimeStamp#.csv">
+	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1WellsFileName#">
+
+	<!--- PREPARE OUTPUT FILE: --->
+	<cfset Headers = "UIC_ID,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,injection_zone">
+	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
+
+    <!--- GET DATA: --->
+
+    <cfquery name="qC1WellData" datasource="plss">
+		select
+            uic_id, facility_name, county_name, latitude, longitude, injection_zone
+        from
+            class1_wells
+		<cfif #form.c1wellwhere# neq "">
+			where #PreserveSingleQuotes(form.c1wellwhere)#
+		</cfif>
+	</cfquery>
+
+    <!--- WRITE FILE: --->
+    <cfif #qC1WellData.recordcount# gt 0>
+        <cfloop query="qC1WellData">
+    		<cfset Data = '"#uic_id#","#facility_name#","#county_name#","#latitude#","#longitude#","#injection_zone#"'>
+    		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
+    	</cfloop>
+		<cfset C1WellsFileText = "Click for Class 1 Wells File">
+	<cfelse>
+		<cfset C1WellsFileText = "No Class 1 wells data for this search">
+	</cfif>
+    <!--- End C1 wells file. --->
+
+    <!--- C1 INJECTION FILE: --->
+
+</cfif>
+
+
+<!--- C2 WELLS: --->
+<cfif ListContains(#form.what#, "wells")>
+    <!--- Make a wells file even if there's no injection data: --->
+    <cfset WellsFileName = "CLASS2-WELLS-#TimeStamp#.csv">
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#WellsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
@@ -49,7 +89,7 @@
     	</cfloop>
 		<cfset WellsFileText = "Click for Class 2 Wells File">
 	<cfelse>
-		<cfset WellsFileText = "No wells data for this search">
+		<cfset WellsFileText = "No Class 2 wells data for this search">
 	</cfif>
 
     <!--- End wells file. --->
@@ -62,7 +102,7 @@
     <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015) or (#form.time# eq "all")>
         <!--- Return ANNUAL volumes. --->
         <!--- Prepare output file: --->
-        <cfset InjFileName = "KGS-ANNUAL-INJ-#TimeStamp#.csv">
+        <cfset InjFileName = "CLASS2-ANNUAL-INJ-#TimeStamp#.csv">
     	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
     	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,ANNUAL_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
     	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
@@ -123,13 +163,13 @@
         	</cfloop>
     		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
-    		<cfset InjFileText = "No injection data for this time period">
+    		<cfset InjFileText = "No Class 2 injection data for this time period">
     	</cfif>
 
     <cfelseif #form.time# eq "date">
         <!--- Return MONTHLY volumes. --->
         <!--- Prepare output file: --->
-        <cfset InjFileName = "KGS-MONTHLY-INJ-#TimeStamp#.csv">
+        <cfset InjFileName = "CLASS2-MONTHLY-INJ-#TimeStamp#.csv">
     	<cfset InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#InjFileName#">
     	<cfset Headers = "WELL_HEADER_KID,API_NUMBER,API_NUMBER_KCC,NAD27_LATITUDE,NAD27_LONGITUDE,YEAR,MONTH,MONTHLY_VOLUME,FLUID_TYPE,INJECTION_ZONE,MAX_AUTHORIZED_PRESSURE">
     	<cffile action="write" file="#InjOutputFile#" output="#Headers#" addnewline="yes">
@@ -186,10 +226,10 @@
         	</cfloop>
     		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
-    		<cfset InjFileText = "No injection data for this time period">
+    		<cfset InjFileText = "No Class 2 injection data for this time period">
     	</cfif>
     <cfelse>
-        <cfset InjFileText = "No injection data for this time period">
+        <cfset InjFileText = "No Class 2 injection data for this time period">
     </cfif>
     <!--- End injection file. --->
 </cfif>
@@ -242,6 +282,11 @@
 </cfif>
 
 <cfoutput>
+    <cfif FindNoCase("Click", #C1WellsFileText#) neq 0>
+		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#C1WellsFileName#">#C1WellsFileText#</a></div>
+	<cfelse>
+		<div class="download-link">#C1WellsFileText#</div>
+	</cfif>
     <cfif FindNoCase("Click", #WellsFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#WellsFileName#">#WellsFileText#</a></div>
 	<cfelse>
