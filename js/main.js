@@ -2716,7 +2716,7 @@ function(
 
 		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
-		content += "<tr><td>Origin Time (CST): </td><td>{local_time}</td></tr>";
+		content += "<tr><td>Origin Time (local): </td><td>{local_time}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
