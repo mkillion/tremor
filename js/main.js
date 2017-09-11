@@ -2528,7 +2528,7 @@ function(
 			}
 
 			if (wellsGroup.indexOf(htmlID) > -1) {
-				wellsTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
+				wellsTocContent += "<div class='toc-sub-item dwnld' id='" + htmlID + "'><label><input type='checkbox' class='filterable' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 			}
 
 			if (boundariesGroup.indexOf(htmlID) > -1) {

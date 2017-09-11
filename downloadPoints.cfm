@@ -209,7 +209,9 @@
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'US'")>
-    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Salt Water Disposal Wells", "")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "")>
+    <cfset Lyrs = REReplace(Lyrs, ",$", "")>
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
 
 	<cfquery name="qEventData" datasource="tremor">
