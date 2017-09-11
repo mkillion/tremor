@@ -684,7 +684,7 @@ function(
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
 				if (counties !== 'Counties') {
 					/// locWhere = "county_name in (" + counties + ")";
-					locWhere = "county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + "))";
+					locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
 				}
 				break;
 			case "sca":
