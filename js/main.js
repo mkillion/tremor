@@ -810,7 +810,11 @@ function(
 				} else {
 					wellsWhere = "objectid > 0";
 				}
-				c1WellsWhere = "objectid > 0";
+				if (chkArbuckle) {
+					c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle')";
+				} else {
+					c1WellsWhere = "objectid > 0";
+				}
 				break;
 			case "bbls":
 				var bbls = $("#bbls").val().replace(/,/g, "");
@@ -832,35 +836,36 @@ function(
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
 					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
-						// Use annual volumes.
+						// Use annual volumes for C2s.
 						if (fromYear && toYear) {
 							var yearClause = "year >= " + fromYear + " and year <= " + toYear;
-							c1DateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						} else if (fromYear && !toYear) {
 							var yearClause = "year >= " + fromYear;
-							c1DateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 						} else if (!fromYear && toYear) {
 							var yearClause = "year <= " + toYear;
-							c1DateClause = "year <= " + toYear + " and month <= " + toMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
-						// essentially the same as a date preset.
+						// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						// For C1s
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
 					} else {
 						dateClause = "";
-						// Use monthly volumes.
+						// Use monthly volumes for C2s.
 						if (fromYear && toYear) {
 							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							c1DateClause = "year >= " + fromYear + " and year <= " + toYear + " and month >= " + fromMonth + " and month <= " + toMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						} else if (fromYear && !toYear) {
 							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-							c1DateClause = "year >= " + fromYear + " and month >= " + fromMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 						} else if (!fromYear && toYear) {
 							dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							c1DateClause = "year <= " + toYear + " and month <= " + toMonth;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
@@ -876,7 +881,7 @@ function(
 					}
 				} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
 					// Time = all, so no date clause, just volumes. NOTE "all" option is commented out as of 20170824.
-					wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
+					// wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
 				} else {
 					// Date presets, use most recent year data is available.
 					// Class 2:
@@ -924,6 +929,7 @@ function(
 				wellsAttrWhere += wellsWhere + " and ";
 			}
 		}
+		console.log("2: "+wellsAttrWhere)
 		if (locWhere !== "") {
 			wellsAttrWhere += locWhere + " and ";
 		}
@@ -940,6 +946,7 @@ function(
 				c1WellsAttrWhere += c1WellsWhere + " and ";
 			}
 		}
+		console.log("1: "+c1WellsAttrWhere);
 		if (locWhere !== "") {
 			c1WellsAttrWhere += locWhere + " and ";
 		}
