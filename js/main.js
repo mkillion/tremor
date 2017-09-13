@@ -1,5 +1,4 @@
 
-
 require([
 	"dojo/_base/lang",
 	"dojo/on",
@@ -163,73 +162,103 @@ function(
 	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
-	var class1Layer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:18}], id:"Class 1 Wells", visible:true} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
 	var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
 
-	var swdRenderer = new ClassBreaksRenderer( {
+	// Get dates of most recent C1 and C2 injection data availability:
+	$.get("getMostRecentC1Date.cfm", function(response) {
+		arrLastAvailableInjData = response.split(",");
+		// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
+	} );
+
+	var c1BasicRenderer = new SimpleRenderer( {
+		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 12,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+	var class1Layer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 18,
+		 	renderer: c1BasicRenderer
+		} ],
+		id:"Class 1 Wells",
+		visible: true
+	} );
+
+	var c2BasicRenderer = new SimpleRenderer( {
+		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 15,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+
+	var c2Renderer = new ClassBreaksRenderer( {
 		field: "MOST_RECENT_TOTAL_FLUID"
 	} );
-	swdRenderer.addClassBreakInfo( {
+	c2Renderer.addClassBreakInfo( {
   		minValue: 0,
   		maxValue: 500000,
 		label: "Fewer than 500,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 5,
-    		color: [115, 178, 255, 0.80]
+    		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	swdRenderer.addClassBreakInfo( {
+	c2Renderer.addClassBreakInfo( {
   		minValue: 500000,
   		maxValue: 1000000,
 		label: "500,000 to 1,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 8,
-    		color: [115, 178, 255, 0.80]
+    		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	swdRenderer.addClassBreakInfo( {
+	c2Renderer.addClassBreakInfo( {
   		minValue: 1000000,
   		maxValue: 2000000,
 		label: "1,000,000 to 2,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 13,
-    		color: [115, 178, 255, 0.80]
+    		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	swdRenderer.addClassBreakInfo( {
+	c2Renderer.addClassBreakInfo( {
   		minValue: 2000000,
   		maxValue: 5000000,
 		label: "2,000,000 to 5,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 16,
-    		color: [115, 178, 255, 0.80]
+    		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	swdRenderer.addClassBreakInfo( {
+	c2Renderer.addClassBreakInfo( {
   		minValue: 5000000,
 		maxValue: 1000000000000,
 		label: "Greater than 5,000,000",
   		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 20,
-    		color: [115, 178, 255, 0.80]
+    		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	swdRenderer.legendOptions = {
+	c2Renderer.legendOptions = {
   		title: "2016 Total Fluid Injection (bbls)"
 	};
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
 			id: 19,
-		 	renderer: swdRenderer
+		 	renderer: c2BasicRenderer
 		} ],
 		id:"Class 2 Wells",
 		visible: true
@@ -890,18 +919,18 @@ function(
 
 					// Class 1:
 					// Figure out most recent data available date:
-					$.get("getMostRecentC1Date.cfm", function(response) {
-						var date = response.split(",");
-
-						if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
-							// Use most recent month and year available.
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and month = " + date[1] + " and barrels >= " + bbls + ")";
-						}
-						if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
-							// Use most recent year.
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and barrels >= " + bbls + ")";
-						}
-					} );
+					// $.get("getMostRecentC1Date.cfm", function(response) {
+					// 	var date = response.split(",");
+					//
+					// 	if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
+					// 		// Use most recent month and year available.
+					// 		c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and month = " + date[1] + " and barrels >= " + bbls + ")";
+					// 	}
+					// 	if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
+					// 		// Use most recent year.
+					// 		c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and barrels >= " + bbls + ")";
+					// 	}
+					// } );
 				}
 				break;
 		}
@@ -930,7 +959,7 @@ function(
 				wellsAttrWhere += wellsWhere + " and ";
 			}
 		}
-		console.log("2: "+wellsAttrWhere)
+
 		if (locWhere !== "") {
 			wellsAttrWhere += locWhere + " and ";
 		}
@@ -947,7 +976,7 @@ function(
 				c1WellsAttrWhere += c1WellsWhere + " and ";
 			}
 		}
-		console.log("1: "+c1WellsAttrWhere);
+
 		if (locWhere !== "") {
 			c1WellsAttrWhere += locWhere + " and ";
 		}
@@ -1506,6 +1535,12 @@ function(
                 findParams.layerIds = [2];
                 findParams.searchFields = ["county"];
                 findParams.searchText = dom.byId("lstCounty").value;
+
+				// junk for renderer testing:
+				var junklayer = swdLayer.findSublayerById(19);
+				// console.log(junklayer.renderer);
+				junklayer.renderer = c2Renderer;
+
                 break;
             case "field":
                 findParams.layerIds = [1];
