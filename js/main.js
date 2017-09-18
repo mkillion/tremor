@@ -115,6 +115,9 @@ function(
 	var userDefinedPoint;
 	var facilities;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
+	var today = new Date();
+	var thisYear = today.getFullYear();
+	var thisMonth = today.getMonth() + 1;
 
     // Set up basic frame:
     window.document.title = "Tremor Database Mapper";
@@ -173,7 +176,7 @@ function(
 		// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
 	} );
 
-	var c1BasicRenderer = new SimpleRenderer( {
+	var c1GrayRenderer = new SimpleRenderer( {
 		symbol: new SimpleMarkerSymbol( {
     		style: "square",
     		size: 12,
@@ -184,13 +187,13 @@ function(
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
 			id: 18,
-		 	renderer: c1BasicRenderer
+		 	renderer: c1GrayRenderer
 		} ],
 		id:"Class 1 Wells",
 		visible: true
 	} );
 
-	var c2BasicRenderer = new SimpleRenderer( {
+	var c2GrayRenderer = new SimpleRenderer( {
 		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
     		size: 15,
@@ -198,10 +201,10 @@ function(
 		} )
 	} );
 
-	var c2Renderer = new ClassBreaksRenderer( {
+	var c2ColorRenderer = new ClassBreaksRenderer( {
 		field: "MOST_RECENT_TOTAL_FLUID"
 	} );
-	c2Renderer.addClassBreakInfo( {
+	c2ColorRenderer.addClassBreakInfo( {
   		minValue: 0,
   		maxValue: 500000,
 		label: "Fewer than 500,000",
@@ -211,7 +214,7 @@ function(
     		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	c2Renderer.addClassBreakInfo( {
+	c2ColorRenderer.addClassBreakInfo( {
   		minValue: 500000,
   		maxValue: 1000000,
 		label: "500,000 to 1,000,000",
@@ -221,7 +224,7 @@ function(
     		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	c2Renderer.addClassBreakInfo( {
+	c2ColorRenderer.addClassBreakInfo( {
   		minValue: 1000000,
   		maxValue: 2000000,
 		label: "1,000,000 to 2,000,000",
@@ -231,7 +234,7 @@ function(
     		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	c2Renderer.addClassBreakInfo( {
+	c2ColorRenderer.addClassBreakInfo( {
   		minValue: 2000000,
   		maxValue: 5000000,
 		label: "2,000,000 to 5,000,000",
@@ -241,7 +244,7 @@ function(
     		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	c2Renderer.addClassBreakInfo( {
+	c2ColorRenderer.addClassBreakInfo( {
   		minValue: 5000000,
 		maxValue: 1000000000000,
 		label: "Greater than 5,000,000",
@@ -251,14 +254,14 @@ function(
     		color: [115, 178, 255, 0.85]
 		} )
 	} );
-	c2Renderer.legendOptions = {
+	c2ColorRenderer.legendOptions = {
   		title: "2016 Total Fluid Injection (bbls)"
 	};
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
 			id: 19,
-		 	renderer: c2BasicRenderer
+		 	renderer: c2GrayRenderer
 		} ],
 		id:"Class 2 Wells",
 		visible: true
@@ -522,6 +525,56 @@ function(
 		$(".dashboard").show();
 		$("#dashboard-btn").hide();
 	} );
+
+
+	checkInjData = function(val) {
+		// week or month - is data available for this month?
+		// year - what's the last month this year for data?
+		// range - get toMonth and toYear, then get last available data that matches
+
+		var c1Available, c2Available;
+
+		switch (val) {
+			case "week":
+				// Fall through.
+			case "month":
+				// TODO: Technically should check if last 30 days spans 2 months. Currently just checking for today's month. Same w/ week.
+				if (arrLastAvailableInjData[1] == thisYear && arrLastAvailableInjData[2] == thisMonth) {
+					c1Available = true;
+				} else {
+					c1Available = false;
+				}
+				if (arrLastAvailableInjData[4] == thisYear && arrLastAvailableInjData[5] == thisMonth) {
+					c2Available = true;
+				} else {
+					c2Available = false;
+				}
+				break;
+			case "year":
+
+				break;
+			case "range":
+
+				break;
+
+		}
+
+		if (c1Available) {
+			var theLayer = class1Layer.findSublayerById(18);
+			theLayer.renderer = c1ColorRenderer;
+		} else {
+			var theLayer = class1Layer.findSublayerById(18);
+			theLayer.renderer = c1GrayRenderer;
+		}
+
+		if (c2Available) {
+			var theLayer = swdLayer.findSublayerById(19);
+			theLayer.renderer = c2ColorRenderer;
+		} else {
+			var theLayer = swdLayer.findSublayerById(19);
+			theLayer.renderer = c2GrayRenderer;
+		}
+	}
 
 
     function popCountyDropdown() {
@@ -851,9 +904,6 @@ function(
 				var dateClause, c1DateClause;
 
 				// Calculate most recent injection data availability for SWDs:
-				var today = new Date();
-				var thisYear = today.getFullYear();
-				var thisMonth = today.getMonth() + 1;
 				var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
 				if (today > mostRecentDataDate) {
 					var y = thisYear - 1;
@@ -1535,12 +1585,6 @@ function(
                 findParams.layerIds = [2];
                 findParams.searchFields = ["county"];
                 findParams.searchText = dom.byId("lstCounty").value;
-
-				// junk for renderer testing:
-				var junklayer = swdLayer.findSublayerById(19);
-				// console.log(junklayer.renderer);
-				junklayer.renderer = c2Renderer;
-
                 break;
             case "field":
                 findParams.layerIds = [1];
@@ -2423,10 +2467,10 @@ function(
 		// Time:
 		dbCon += "<div class='db-sub-div'><span class='sub-div-hdr' id='time'>Time</span>";
 		dbCon += "<table class='db-sub-table' id='time-body'>";
-		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='checkInjData(&quot;week&quot;);saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='checkInjData(&quot;month&quot;);saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='checkInjData(&quot;year&quot;);saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		// dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
