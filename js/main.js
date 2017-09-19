@@ -176,13 +176,7 @@ function(
 		// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
 	} );
 
-	// var c1GrayRenderer = new SimpleRenderer( {
-	// 	symbol: new SimpleMarkerSymbol( {
-    // 		style: "square",
-    // 		size: 12,
-    // 		color: [175, 175, 175, 0.80]
-	// 	} )
-	// } );
+
 	var c1GrayRenderer = new ClassBreaksRenderer( {
 		field: "LAST_VOLUME"
 	} );
@@ -237,6 +231,63 @@ function(
 		} )
 	} );
 	c1GrayRenderer.legendOptions = {
+  		title: "Most Recent Monthy Volume (bbls)"
+	};
+
+	var c1ColorRenderer = new ClassBreaksRenderer( {
+		field: "LAST_VOLUME"
+	} );
+	c1ColorRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1000,
+		label: "Fewer than 1,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 5,
+    		color: [56, 168, 0, 0.75]
+		} )
+	} );
+	c1ColorRenderer.addClassBreakInfo( {
+  		minValue: 1000,
+  		maxValue: 10000,
+		label: "1,000 to 10,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 8,
+    		color: [56, 168, 0, 0.75]
+		} )
+	} );
+	c1ColorRenderer.addClassBreakInfo( {
+  		minValue: 10000,
+  		maxValue: 100000,
+		label: "10,000 to 100,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 13,
+    		color: [56, 168, 0, 0.8750]
+		} )
+	} );
+	c1ColorRenderer.addClassBreakInfo( {
+  		minValue: 100000,
+  		maxValue: 300000,
+		label: "100,000 to 300,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 15,
+    		color: [56, 168, 0, 0.75]
+		} )
+	} );
+	c1ColorRenderer.addClassBreakInfo( {
+  		minValue: 300000,
+		maxValue: 50000000,
+		label: "Greater than 300,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 18,
+    		color: [56, 168, 0, 0.75]
+		} )
+	} );
+	c1ColorRenderer.legendOptions = {
   		title: "Most Recent Monthy Volume (bbls)"
 	};
 
@@ -639,7 +690,7 @@ function(
 		// week or month - is data available for this month?
 		// year - what's the last month this year for data?
 		// range - get toMonth and toYear, then get last available data that matches
-
+		thisYear = 2016;
 		var c1Available, c2Available;
 
 		switch (val) {
@@ -659,7 +710,16 @@ function(
 				}
 				break;
 			case "year":
-
+				if (arrLastAvailableInjData[1] == thisYear) {
+					c1Available = true;
+				} else {
+					c1Available = false;
+				}
+				if (arrLastAvailableInjData[4] == thisYear) {
+					c2Available = true;
+				} else {
+					c2Available = false;
+				}
 				break;
 			case "range":
 
@@ -667,6 +727,7 @@ function(
 
 		}
 
+		// Swap renderers:
 		if (c1Available) {
 			var theLayer = class1Layer.findSublayerById(18);
 			theLayer.renderer = c1ColorRenderer;
@@ -2580,6 +2641,7 @@ function(
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='checkInjData(&quot;year&quot;);saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		// dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
+		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br> data for selected time period</span></td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
