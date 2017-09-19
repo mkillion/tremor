@@ -176,13 +176,70 @@ function(
 		// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
 	} );
 
-	var c1GrayRenderer = new SimpleRenderer( {
-		symbol: new SimpleMarkerSymbol( {
+	// var c1GrayRenderer = new SimpleRenderer( {
+	// 	symbol: new SimpleMarkerSymbol( {
+    // 		style: "square",
+    // 		size: 12,
+    // 		color: [175, 175, 175, 0.80]
+	// 	} )
+	// } );
+	var c1GrayRenderer = new ClassBreaksRenderer( {
+		field: "LAST_VOLUME"
+	} );
+	c1GrayRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1000,
+		label: "Fewer than 1,000",
+  		symbol: new SimpleMarkerSymbol( {
     		style: "square",
-    		size: 12,
-    		color: [200, 200, 200, 0.80]
+    		size: 5,
+    		color: [175, 175, 175, 0.80]
 		} )
 	} );
+	c1GrayRenderer.addClassBreakInfo( {
+  		minValue: 1000,
+  		maxValue: 10000,
+		label: "1,000 to 10,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 8,
+    		color: [175, 175, 175, 0.80]
+		} )
+	} );
+	c1GrayRenderer.addClassBreakInfo( {
+  		minValue: 10000,
+  		maxValue: 100000,
+		label: "10,000 to 100,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 13,
+    		color: [175, 175, 175, 0.80]
+		} )
+	} );
+	c1GrayRenderer.addClassBreakInfo( {
+  		minValue: 100000,
+  		maxValue: 300000,
+		label: "100,000 to 300,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 15,
+    		color: [175, 175, 175, 0.80]
+		} )
+	} );
+	c1GrayRenderer.addClassBreakInfo( {
+  		minValue: 300000,
+		maxValue: 50000000,
+		label: "Greater than 300,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "square",
+    		size: 18,
+    		color: [175, 175, 175, 0.80]
+		} )
+	} );
+	c1GrayRenderer.legendOptions = {
+  		title: "Most Recent Monthy Volume (bbls)"
+	};
+
 	var class1Layer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
@@ -193,13 +250,63 @@ function(
 		visible: true
 	} );
 
-	var c2GrayRenderer = new SimpleRenderer( {
-		symbol: new SimpleMarkerSymbol( {
+
+	var c2GrayRenderer = new ClassBreaksRenderer( {
+		field: "MOST_RECENT_TOTAL_FLUID"
+	} );
+	c2GrayRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 500000,
+		label: "Fewer than 500,000",
+  		symbol: new SimpleMarkerSymbol( {
     		style: "diamond",
-    		size: 15,
+    		size: 5,
     		color: [200, 200, 200, 0.80]
 		} )
 	} );
+	c2GrayRenderer.addClassBreakInfo( {
+  		minValue: 500000,
+  		maxValue: 1000000,
+		label: "500,000 to 1,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 8,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+	c2GrayRenderer.addClassBreakInfo( {
+  		minValue: 1000000,
+  		maxValue: 2000000,
+		label: "1,000,000 to 2,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 13,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+	c2GrayRenderer.addClassBreakInfo( {
+  		minValue: 2000000,
+  		maxValue: 5000000,
+		label: "2,000,000 to 5,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 16,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+	c2GrayRenderer.addClassBreakInfo( {
+  		minValue: 5000000,
+		maxValue: 1000000000000,
+		label: "Greater than 5,000,000",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "diamond",
+    		size: 20,
+    		color: [200, 200, 200, 0.80]
+		} )
+	} );
+	c2GrayRenderer.legendOptions = {
+  		title: "2016 Total Fluid Injection (bbls)"
+	};
 
 	var c2ColorRenderer = new ClassBreaksRenderer( {
 		field: "MOST_RECENT_TOTAL_FLUID"
@@ -257,6 +364,7 @@ function(
 	c2ColorRenderer.legendOptions = {
   		title: "2016 Total Fluid Injection (bbls)"
 	};
+
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
@@ -468,7 +576,7 @@ function(
 		},
 		{
 			layer: swdLayer,
-			title: " "
+			title: "Class 2 Wells"
 		},
 		{
 			layer: basementStructuresLayer,
@@ -476,7 +584,7 @@ function(
 		},
 		{
 			layer: class1Layer,
-			title: " "
+			title: "Class 1 Wells"
 		},
 		{
 			layer: arbuckleFaultsLayer,
@@ -2820,7 +2928,11 @@ function(
 
 
 	function class1Content(feature) {
+		var f = feature.attributes;
+		var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
 		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_NAME}</td></tr>";
+		content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
         content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr></table>";
 
         return content;
