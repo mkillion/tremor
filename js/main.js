@@ -112,6 +112,7 @@ function(
 	var wellsAttrWhere = "";
 	var c1WellsAttrWhere = "";
 	var fromYear, toYear;
+	var fromMonth, toMonth;
 	var userDefinedPoint;
 	var facilities;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
@@ -687,15 +688,31 @@ function(
 
 
 	checkInjData = function(val) {
-		// week or month - is data available for this month?
-		// year - what's the last month this year for data?
-		// range - get toMonth and toYear, then get last available data that matches
-		thisYear = 2016;
+		var fromDate = dom.byId('from-date').value;
+		var toDate = dom.byId('to-date').value;
+		var fromDateParts = fromDate.split("/");
+		fromMonth = parseInt(fromDateParts[0]);
+		fromYear = parseInt(fromDateParts[2]);
+		var toDateParts = toDate.split("/");
+		toMonth = parseInt(toDateParts[0]);
+		toYear = parseInt(toDateParts[2]);
+		if (fromDate) {
+			var dtFromDate = new Date(fromYear, fromMonth - 1, 15);
+		}
+		if (toDate) {
+			var dtToDate = new Date(toYear, toMonth - 1, 15);
+		}
+
+		var dtC1AvailFromDate = new Date(2000, 1, 15);	// January 2000 is the min date in TREMOR.CLASS_1_INJECTION_VOLUMES.
+		var dtC1AvailToDate = new Date(arrLastAvailableInjData[1], arrLastAvailableInjData[2], 15);
+		var dtC2AvailFromDate = new Date(1910, 1, 15);	// 1910 is the min date in QUALIFIED.INJECTIONS (so first available c2 annual data).
+		var dtC2AvailToDate = new Date(arrLastAvailableInjData[4], arrLastAvailableInjData[5], 15);
+
 		var c1Available, c2Available;
 
 		switch (val) {
 			case "week":
-				// Fall through.
+				// Let fall through.
 			case "month":
 				// TODO: Technically should check if last 30 days spans 2 months. Currently just checking for today's month. Same w/ week.
 				if (arrLastAvailableInjData[1] == thisYear && arrLastAvailableInjData[2] == thisMonth) {
@@ -722,7 +739,47 @@ function(
 				}
 				break;
 			case "range":
-
+				// Check selected dates against data availability:
+				if (dtFromDate && dtToDate) {
+					// C1: - tested and works
+					if ( dtToDate < dtC1AvailFromDate || dtFromDate > dtC1AvailToDate ) {
+						c1Available = false;
+					} else {
+						c1Available = true;
+					}
+					// C2: - tested and works
+					if ( dtToDate < dtC2AvailFromDate || dtFromDate > dtC2AvailToDate ) {
+						c2Available = false;
+					} else {
+						c2Available = true;
+					}
+				} else if ( !dtFromDate && dtToDate ) {
+					// C1: - tested and works
+					if ( dtToDate < dtC1AvailFromDate ) {
+						c1Available = false;
+					} else {
+						c1Available = true;
+					}
+					// C2: - tested and works
+					if ( dtToDate < dtC2AvailFromDate ) {
+						c2Available = false;
+					} else {
+						c2Available = true;
+					}
+				} else if (dtFromDate && !dtToDate) {
+					// C1: - tested and works
+					if ( dtFromDate > dtC1AvailToDate ) {
+						c1Available = false;
+					} else {
+						c1Available = true;
+					}
+					// C2: - tested and works
+					if ( dtFromDate > dtC2AvailToDate ) {
+						c2Available = false;
+					} else {
+						c2Available = true;
+					}
+				}
 				break;
 
 		}
@@ -863,6 +920,7 @@ function(
 		$(".inj-graph").attr("disabled", true);
 
 		updateMap();
+		checkInjData();
 	}
 
 
@@ -935,7 +993,6 @@ function(
 			case "co":
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
 				if (counties !== 'Counties') {
-					/// locWhere = "county_name in (" + counties + ")";
 					locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
 				}
 				break;
@@ -983,7 +1040,7 @@ function(
 				// Check validity of dates:
 				if (fromDate !== "") {
 					var fromDateParts = fromDate.split("/");
-					var fromMonth = parseInt(fromDateParts[0]);
+					fromMonth = parseInt(fromDateParts[0]);
 					var fromDay = parseInt(fromDateParts[1]);
 					fromYear = parseInt(fromDateParts[2]);
 					fromDateIsValid = validateDate( fromDay, fromMonth, fromYear );
@@ -993,7 +1050,7 @@ function(
 				}
 				if (toDate !== "") {
 					var toDateParts = toDate.split("/");
-					var toMonth = parseInt(toDateParts[0]);
+					toMonth = parseInt(toDateParts[0]);
 					var toDay = parseInt(toDateParts[1]);
 					toYear = parseInt(toDateParts[2]);
 					toDateIsValid = validateDate( toDay, toMonth, toYear );
@@ -2639,9 +2696,9 @@ function(
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-week' value='week' checked onchange='checkInjData(&quot;week&quot;);saveRadioPrefs(&quot;tim-week&quot;)'></td><td> Past 7 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-month' value='month' onchange='checkInjData(&quot;month&quot;);saveRadioPrefs(&quot;tim-month&quot;)'></td><td> Past 30 days</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='checkInjData(&quot;year&quot;);saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
-		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
+		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		// dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br> data for selected time period</span></td></tr>";
+		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br> data for selected time perio</span></td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
