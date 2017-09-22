@@ -1243,7 +1243,7 @@ function(
 		if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
 			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
 		}
-
+		console.log(wellsAttrWhere);
 		// Class 1:
 		if (c1WellsWhere !== "") {
 			if (chkArbuckle) {
@@ -3052,7 +3052,8 @@ function(
 
 		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_NAME}</td></tr>";
 		content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
-        content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr></table>";
+        content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr>";
+		content += "<tr><td>Injection Zone:</td><td>{INJECTION_ZONE}</td></tr></table>";
 
         return content;
 	}
