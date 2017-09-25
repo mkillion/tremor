@@ -31,14 +31,13 @@
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1WellsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "UIC_ID,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,injection_zone">
+	<cfset Headers = "UIC_ID,WELL_NAME,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,INJECTION_ZONE">
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
     <!--- GET DATA: --->
-
     <cfquery name="qC1WellData" datasource="plss">
 		select
-            uic_id, facility_name, county_name, latitude, longitude, injection_zone
+            uic_id, well_name, facility_name, county_name, latitude, longitude, injection_zone
         from
             class1_wells
 		<cfif #form.c1wellwhere# neq "">
@@ -49,7 +48,7 @@
     <!--- WRITE FILE: --->
     <cfif #qC1WellData.recordcount# gt 0>
         <cfloop query="qC1WellData">
-    		<cfset Data = '"#uic_id#","#facility_name#","#county_name#","#latitude#","#longitude#","#injection_zone#"'>
+    		<cfset Data = '"#uic_id#","#well_name#","#facility_name#","#county_name#","#latitude#","#longitude#","#injection_zone#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
     	</cfloop>
 		<cfset C1WellsFileText = "Click for Class 1 Wells File">
@@ -92,10 +91,10 @@
 		<cfset WellsFileText = "No Class 2 wells data for this search">
 	</cfif>
 
-    <!--- End wells file. --->
+    <!--- End C2 wells file. --->
 
 
-    <!--- INJECTION: --->
+    <!--- C2 INJECTION: --->
     <cfset InjWhere = "swd." & #form.wellwhere#>
 
 	<!--- GET DATA: --->

@@ -3046,6 +3046,7 @@ function(
 		var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
 		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_NAME}</td></tr>";
+		content += "<tr><td>Name:</td><td>{WELL_NAME}</td></tr>";
 		content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
         content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr>";
 		content += "<tr><td>Injection Zone:</td><td>{INJECTION_ZONE}</td></tr></table>";
