@@ -173,7 +173,7 @@ function(
 
 	// Get dates of most recent C1 and C2 injection data availability:
 	$.get("getMostRecentC1Date.cfm", function(response) {
-		arrLastAvailableInjData = response.split(",");
+		arrLastAvailableC1Data = response.split(",");
 		// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
 	} );
 
@@ -704,9 +704,9 @@ function(
 		}
 
 		var dtC1AvailFromDate = new Date(2000, 1, 15);	// January 2000 is the min date in TREMOR.CLASS_1_INJECTION_VOLUMES.
-		var dtC1AvailToDate = new Date(arrLastAvailableInjData[1], arrLastAvailableInjData[2], 15);
+		var dtC1AvailToDate = new Date(arrLastAvailableC1Data[1], arrLastAvailableC1Data[2], 15);
 		var dtC2AvailFromDate = new Date(1910, 1, 15);	// 1910 is the min date in QUALIFIED.INJECTIONS (so first available c2 annual data).
-		var dtC2AvailToDate = new Date(arrLastAvailableInjData[4], arrLastAvailableInjData[5], 15);
+		var dtC2AvailToDate = new Date(arrLastAvailableC1Data[4], arrLastAvailableC1Data[5], 15);
 
 		var c1Available, c2Available;
 
@@ -715,24 +715,24 @@ function(
 				// Let fall through.
 			case "month":
 				// TODO: Technically should check if last 30 days spans 2 months. Currently just checking for today's month. Same w/ week.
-				if (arrLastAvailableInjData[1] == thisYear && arrLastAvailableInjData[2] == thisMonth) {
+				if (arrLastAvailableC1Data[1] == thisYear && arrLastAvailableC1Data[2] == thisMonth) {
 					c1Available = true;
 				} else {
 					c1Available = false;
 				}
-				if (arrLastAvailableInjData[4] == thisYear && arrLastAvailableInjData[5] == thisMonth) {
+				if (arrLastAvailableC1Data[4] == thisYear && arrLastAvailableC1Data[5] == thisMonth) {
 					c2Available = true;
 				} else {
 					c2Available = false;
 				}
 				break;
 			case "year":
-				if (arrLastAvailableInjData[1] == thisYear) {
+				if (arrLastAvailableC1Data[1] == thisYear) {
 					c1Available = true;
 				} else {
 					c1Available = false;
 				}
-				if (arrLastAvailableInjData[4] == thisYear) {
+				if (arrLastAvailableC1Data[4] == thisYear) {
 					c2Available = true;
 				} else {
 					c2Available = false;
@@ -1194,19 +1194,14 @@ function(
 					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 
 					// Class 1:
-					// Figure out most recent data available date:
-					// $.get("getMostRecentC1Date.cfm", function(response) {
-					// 	var date = response.split(",");
-					//
-					// 	if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
-					// 		// Use most recent month and year available.
-					// 		c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and month = " + date[1] + " and barrels >= " + bbls + ")";
-					// 	}
-					// 	if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
-					// 		// Use most recent year.
-					// 		c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + date[0] + " and barrels >= " + bbls + ")";
-					// 	}
-					// } );
+					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
+						// Use most recent month and year available.
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+					}
+					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
+						// Use most recent year.
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+					}
 				}
 				break;
 		}
@@ -1243,7 +1238,7 @@ function(
 		if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
 			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
 		}
-		console.log(wellsAttrWhere);
+
 		// Class 1:
 		if (c1WellsWhere !== "") {
 			if (chkArbuckle) {
@@ -2698,7 +2693,7 @@ function(
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='checkInjData(&quot;year&quot;);saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		// dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br> data for selected time perio</span></td></tr>";
+		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br>&nbsp;&nbsp;data for selected time perio</span></td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
