@@ -546,7 +546,13 @@ function(
 		urlParams = location.search.substr(1);
 	    urlZoom(urlParams);
 
-		updateMap();
+		// Get dates of most recent C1 and C2 injection data availability:
+		$.get("getMostRecentC1Date.cfm", function(response) {
+			arrLastAvailableC1Data = response.split(",");
+			// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
+
+			updateMap();
+		} );
     } );
 
 	var searchWidget = new Search( {
@@ -931,339 +937,331 @@ function(
 
 
 	updateMap = function() {
+		locWhere = "";
+		var timeWhere = "";
+		var magWhere = "";
+		wellsWhere = "";
+		c1WellsWhere = "";
+		attrWhere = "";
+		geomWhere = "";
+		wellsGeomWhere = "";
+		class1GeomWhere = "";
+		wellsAttrWhere = "";
+		c1WellsAttrWhere = "";
 
-		// Get dates of most recent C1 and C2 injection data availability:
-		$.get("getMostRecentC1Date.cfm", function(response) {
-			arrLastAvailableC1Data = response.split(",");
-			// Values: [1] and [2] class1 year and month. [4] and [5] class2 year and month.
+		// Remove download links and clear graphics:
+		$(".download-link").html("");
+		// graphicsLayer.removeAll();
+		graphicsLayer.remove(bufferGraphic);
+		graphicsLayer.remove(hilite);
 
+		// Create location clause:
+		var location = $("input[name=loc-type]:checked").val();
+		switch (location) {
+			case "state":
+				// Dummy clause to select all:
+				locWhere = "objectid > 0";
+				break;
+			case "buf":
+				buffDist = $("#loc-buff").val();
 
-			locWhere = "";
-			var timeWhere = "";
-			var magWhere = "";
-			wellsWhere = "";
-			c1WellsWhere = "";
-			attrWhere = "";
-			geomWhere = "";
-			wellsGeomWhere = "";
-			class1GeomWhere = "";
-			wellsAttrWhere = "";
-			c1WellsAttrWhere = "";
+				if ( localStorage.getItem("saved") === "true" ) {
+					//need check for saved xy here?
+					var selX = localStorage.getItem("sel-feat-x");
+					var selY = localStorage.getItem("sel-feat-y");
+					createBufferGeom(buffDist, selX, selY);
+				}
 
-			// Remove download links and clear graphics:
-			$(".download-link").html("");
-			// graphicsLayer.removeAll();
-			graphicsLayer.remove(bufferGraphic);
-			graphicsLayer.remove(hilite);
-
-			// Create location clause:
-			var location = $("input[name=loc-type]:checked").val();
-			switch (location) {
-				case "state":
-					// Dummy clause to select all:
-					locWhere = "objectid > 0";
-					break;
-				case "buf":
-					buffDist = $("#loc-buff").val();
-
-					if ( localStorage.getItem("saved") === "true" ) {
-						//need check for saved xy here?
-						var selX = localStorage.getItem("sel-feat-x");
-						var selY = localStorage.getItem("sel-feat-y");
-						createBufferGeom(buffDist, selX, selY);
+				if (view.popup.selectedFeature) {
+					if (userDefinedPoint.geometry) {
+						createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
+					} else {
+						createBufferGeom(buffDist);
 					}
-
+				} else if (userDefinedPoint.geometry) {
 					if (view.popup.selectedFeature) {
-						if (userDefinedPoint.geometry) {
-							createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
-						} else {
-							createBufferGeom(buffDist);
+						createBufferGeom(buffDist);
+					} else {
+						createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
+					}
+				} else {
+					if (!firstUpdatePass) {
+						alert("Please select an event, well, point, or address to buffer.");
+					}
+				}
+				break;
+			case "co":
+				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
+				if (counties !== 'Counties') {
+					locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
+				}
+				break;
+			case "sca":
+				var selected = $("#sca").val();
+				if (selected.length == 1 && selected[0] === "Seismic Concern Areas") {
+					return;
+				} else {
+					if (selected[0] === "Seismic Concern Areas") {
+						selected.shift();
+					}
+					var scas = "'" + selected.join("','") + "'";
+					geomWhere = "";
+					getScaGeometry(scas);
+				}
+				break;
+		}
+
+		// Create time clause:
+		// This timeWhere only applies to events, dates for wells handled under "bbls" section of wells where.
+		var time = $("input[name=time-type]:checked").val();
+		switch (time) {
+			case "week":
+				timeWhere = "sysdate - cast(local_time as date) <= 7";
+				break;
+			case "month":
+				timeWhere = "sysdate - cast(local_time as date) <= 29";
+				break
+			case "year":
+				timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
+				break;
+			case "all":
+				timeWhere = "";
+				break;
+			case "date":
+				// Enable injection graphs:
+				$(".inj-graph-text").css("color", "#000");
+				$(".inj-graph").attr("disabled", false);
+
+				var fromDate = dom.byId('from-date').value;
+				var toDate = dom.byId('to-date').value;
+				var fromDateIsValid = true;
+				var toDateIsValid = true;
+
+				// Check validity of dates:
+				if (fromDate !== "") {
+					var fromDateParts = fromDate.split("/");
+					fromMonth = parseInt(fromDateParts[0]);
+					var fromDay = parseInt(fromDateParts[1]);
+					fromYear = parseInt(fromDateParts[2]);
+					fromDateIsValid = validateDate( fromDay, fromMonth, fromYear );
+				} else {
+					fromMonth = "";
+					fromYear = "";
+				}
+				if (toDate !== "") {
+					var toDateParts = toDate.split("/");
+					toMonth = parseInt(toDateParts[0]);
+					var toDay = parseInt(toDateParts[1]);
+					toYear = parseInt(toDateParts[2]);
+					toDateIsValid = validateDate( toDay, toMonth, toYear );
+				} else {
+					toMonth = "";
+					toYear = "";
+				}
+				if (!fromDateIsValid || !toDateIsValid) {
+					alert("An invalid date was entered.");
+					return;
+				}
+				var d1 = new Date();
+				var d2 = new Date(fromDate);
+				if (d2 > d1) {
+					alert("From Date cannot be in the future.");
+					return;
+				}
+				var d3 = new Date(toDate);
+				if (d2 > d3) {
+					alert("From Date cannot be later than To Date");
+					return;
+				}
+
+				if (fromDate && toDate) {
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				} else if (fromDate && !toDate) {
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+				} else if (!fromDate && toDate) {
+					timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+				}
+				break;
+		}
+
+		// Create mag-sas clause:
+		var lMag = dom.byId('low-mag').value;
+		var uMag = dom.byId('high-mag').value;
+
+		var mag = $("input[name=mag-type]:checked").val();
+		switch (mag) {
+			case "all":
+				// blank in this case.
+				break;
+			case "magrange":
+				if (lMag && uMag) {
+					magWhere = "magnitude >= " + lMag + " and magnitude <= " + uMag;
+				} else if (lMag && !uMag) {
+					magWhere = "magnitude >= " + lMag;
+				} else if (!lMag && uMag) {
+					magWhere = "magnitude <= " + uMag;
+				}
+				break
+			case "gt3517":
+				magWhere = "(magnitude >= 3.5 or sas >= 17)";
+				break;
+		}
+
+		// Create wells clause:
+		var well = $("input[name=well-type]:checked").val();
+		var chkArbuckle = $("#chkArb:checked").val();
+
+		switch (well) {
+			case "all":
+				// Dummy clause to return all:
+				if (chkArbuckle) {
+					wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+				} else {
+					wellsWhere = "objectid > 0";
+				}
+				if (chkArbuckle) {
+					c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle')";
+				} else {
+					c1WellsWhere = "objectid > 0";
+				}
+				break;
+			case "bbls":
+				var bbls = $("#bbls").val().replace(/,/g, "");
+				var dateClause, c1DateClause;
+
+				// Calculate most recent injection data availability for SWDs:
+				var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
+				if (today > mostRecentDataDate) {
+					var y = thisYear - 1;
+					dateClause = "year = " + y;
+				} else {
+					var y = thisYear - 2;
+					dateClause = "year = " + y;
+				}
+
+				if ( $("#tim-date").prop("checked") ) {
+					// Use date range.
+					if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
+						// Use annual volumes for C2s.
+						if (fromYear && toYear) {
+							var yearClause = "year >= " + fromYear + " and year <= " + toYear;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+						} else if (fromYear && !toYear) {
+							var yearClause = "year >= " + fromYear;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+						} else if (!fromYear && toYear) {
+							var yearClause = "year <= " + toYear;
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
-					} else if (userDefinedPoint.geometry) {
-						if (view.popup.selectedFeature) {
-							createBufferGeom(buffDist);
-						} else {
-							createBufferGeom(buffDist, userDefinedPoint.geometry.x, userDefinedPoint.geometry.y);
-						}
-					} else {
-						if (!firstUpdatePass) {
-							alert("Please select an event, well, point, or address to buffer.");
-						}
-					}
-					break;
-				case "co":
-					var counties = "'" + $("#lstCounty2").val().join("','") + "'";
-					if (counties !== 'Counties') {
-						locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
-					}
-					break;
-				case "sca":
-					var selected = $("#sca").val();
-					if (selected.length == 1 && selected[0] === "Seismic Concern Areas") {
-						return;
-					} else {
-						if (selected[0] === "Seismic Concern Areas") {
-							selected.shift();
-						}
-						var scas = "'" + selected.join("','") + "'";
-						geomWhere = "";
-						getScaGeometry(scas);
-					}
-					break;
-			}
-
-			// Create time clause:
-			// This timeWhere only applies to events, dates for wells handled under "bbls" section of wells where.
-			var time = $("input[name=time-type]:checked").val();
-			switch (time) {
-				case "week":
-					timeWhere = "sysdate - cast(local_time as date) <= 7";
-					break;
-				case "month":
-					timeWhere = "sysdate - cast(local_time as date) <= 29";
-					break
-				case "year":
-					timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
-					break;
-				case "all":
-					timeWhere = "";
-					break;
-				case "date":
-					// Enable injection graphs:
-					$(".inj-graph-text").css("color", "#000");
-					$(".inj-graph").attr("disabled", false);
-
-					var fromDate = dom.byId('from-date').value;
-					var toDate = dom.byId('to-date').value;
-					var fromDateIsValid = true;
-					var toDateIsValid = true;
-
-					// Check validity of dates:
-					if (fromDate !== "") {
-						var fromDateParts = fromDate.split("/");
-						fromMonth = parseInt(fromDateParts[0]);
-						var fromDay = parseInt(fromDateParts[1]);
-						fromYear = parseInt(fromDateParts[2]);
-						fromDateIsValid = validateDate( fromDay, fromMonth, fromYear );
-					} else {
-						fromMonth = "";
-						fromYear = "";
-					}
-					if (toDate !== "") {
-						var toDateParts = toDate.split("/");
-						toMonth = parseInt(toDateParts[0]);
-						var toDay = parseInt(toDateParts[1]);
-						toYear = parseInt(toDateParts[2]);
-						toDateIsValid = validateDate( toDay, toMonth, toYear );
-					} else {
-						toMonth = "";
-						toYear = "";
-					}
-					if (!fromDateIsValid || !toDateIsValid) {
-						alert("An invalid date was entered.");
-						return;
-					}
-					var d1 = new Date();
-					var d2 = new Date(fromDate);
-					if (d2 > d1) {
-						alert("From Date cannot be in the future.");
-						return;
-					}
-					var d3 = new Date(toDate);
-					if (d2 > d3) {
-						alert("From Date cannot be later than To Date");
-						return;
-					}
-
-					if (fromDate && toDate) {
-						timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
-					} else if (fromDate && !toDate) {
-						timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
-					} else if (!fromDate && toDate) {
-						timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
-					}
-					break;
-			}
-
-			// Create mag-sas clause:
-			var lMag = dom.byId('low-mag').value;
-			var uMag = dom.byId('high-mag').value;
-
-			var mag = $("input[name=mag-type]:checked").val();
-			switch (mag) {
-				case "all":
-					// blank in this case.
-					break;
-				case "magrange":
-					if (lMag && uMag) {
-						magWhere = "magnitude >= " + lMag + " and magnitude <= " + uMag;
-					} else if (lMag && !uMag) {
-						magWhere = "magnitude >= " + lMag;
-					} else if (!lMag && uMag) {
-						magWhere = "magnitude <= " + uMag;
-					}
-					break
-				case "gt3517":
-					magWhere = "(magnitude >= 3.5 or sas >= 17)";
-					break;
-			}
-
-			// Create wells clause:
-			var well = $("input[name=well-type]:checked").val();
-			var chkArbuckle = $("#chkArb:checked").val();
-
-			switch (well) {
-				case "all":
-					// Dummy clause to return all:
-					if (chkArbuckle) {
-						wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
-					} else {
-						wellsWhere = "objectid > 0";
-					}
-					if (chkArbuckle) {
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle')";
-					} else {
-						c1WellsWhere = "objectid > 0";
-					}
-					break;
-				case "bbls":
-					var bbls = $("#bbls").val().replace(/,/g, "");
-					var dateClause, c1DateClause;
-
-					// Calculate most recent injection data availability for SWDs:
-					var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
-					if (today > mostRecentDataDate) {
-						var y = thisYear - 1;
-						dateClause = "year = " + y;
-					} else {
-						var y = thisYear - 2;
-						dateClause = "year = " + y;
-					}
-
-					if ( $("#tim-date").prop("checked") ) {
-						// Use date range.
-						if ( parseInt(fromYear) < 2015 || parseInt(toYear) < 2015 ) {
-							// Use annual volumes for C2s.
-							if (fromYear && toYear) {
-								var yearClause = "year >= " + fromYear + " and year <= " + toYear;
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							} else if (fromYear && !toYear) {
-								var yearClause = "year >= " + fromYear;
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-							} else if (!fromYear && toYear) {
-								var yearClause = "year <= " + toYear;
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							}
-							wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
-						} else if (fromYear == thisYear) {
-							// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
-							wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
-							// For C1s
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
-						} else {
-							dateClause = "";
-							// Use monthly volumes for C2s.
-							if (fromYear && toYear) {
-								dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							} else if (fromYear && !toYear) {
-								dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-							} else if (!fromYear && toYear) {
-								dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-								c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							}
-							wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
-
-							var fDate = dom.byId('from-date').value;
-							var tDate = dom.byId('to-date').value;
-							if (!fDate && !tDate) {
-								// Date pickers are blank, return all.
-								wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
-							}
-
-
-						}
-					} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
-						// Time = all, so no date clause, just volumes. NOTE "all" option is commented out as of 20170824.
-						// wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
-					} else {
-						// Date presets, use most recent year data is available.
-						// Class 2:
+						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+					} else if (fromYear == thisYear) {
+						// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						// For C1s
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
+					} else {
+						dateClause = "";
+						// Use monthly volumes for C2s.
+						if (fromYear && toYear) {
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+						} else if (fromYear && !toYear) {
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+						} else if (!fromYear && toYear) {
+							dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+						}
+						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 
-						// Class 1:
-						if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
-							// Use most recent month and year available.
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+						var fDate = dom.byId('from-date').value;
+						var tDate = dom.byId('to-date').value;
+						if (!fDate && !tDate) {
+							// Date pickers are blank, return all.
+							wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
 						}
-						if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
-							// Use most recent year.
-							c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
-						}
+
+
 					}
-					break;
-			}
-
-			// Put where clauses together (excluding wells clause which is created below):
-			if (locWhere !== "") {
-				attrWhere += locWhere + " and ";
-			}
-			if (timeWhere !== "") {
-				attrWhere += timeWhere + " and ";
-			}
-			if (magWhere !== "") {
-				attrWhere += magWhere + " and ";
-			}
-			// Strip off final "and":
-			if (attrWhere.substr(attrWhere.length - 5) === " and ") {
-				attrWhere = attrWhere.slice(0,attrWhere.length - 5);
-			}
-
-			// Put wells clauses together w/ location where (note - location-where really only includes counties, others are handled through geomWhere):
-			// Class 2:
-			if (wellsWhere !== "") {
-				if (chkArbuckle) {
-					wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
+				} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
+					// Time = all, so no date clause, just volumes. NOTE "all" option is commented out as of 20170824.
+					// wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
 				} else {
-					wellsAttrWhere += wellsWhere + " and ";
+					// Date presets, use most recent year data is available.
+					// Class 2:
+					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+
+					// Class 1:
+					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
+						// Use most recent month and year available.
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+					}
+					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
+						// Use most recent year.
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+					}
 				}
-			}
+				break;
+		}
 
-			if (locWhere !== "") {
-				wellsAttrWhere += locWhere + " and ";
-			}
-			// Strip off final "and":
-			if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
-				wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
-			}
+		// Put where clauses together (excluding wells clause which is created below):
+		if (locWhere !== "") {
+			attrWhere += locWhere + " and ";
+		}
+		if (timeWhere !== "") {
+			attrWhere += timeWhere + " and ";
+		}
+		if (magWhere !== "") {
+			attrWhere += magWhere + " and ";
+		}
+		// Strip off final "and":
+		if (attrWhere.substr(attrWhere.length - 5) === " and ") {
+			attrWhere = attrWhere.slice(0,attrWhere.length - 5);
+		}
 
-			// Class 1:
-			if (c1WellsWhere !== "") {
-				if (chkArbuckle) {
-					c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle') and ";
-				} else {
-					c1WellsAttrWhere += c1WellsWhere + " and ";
-				}
-			}
-
-			if (locWhere !== "") {
-				c1WellsAttrWhere += locWhere + " and ";
-			}
-			// Strip off final "and":
-			if (c1WellsAttrWhere.substr(c1WellsAttrWhere.length - 5) === " and ") {
-				c1WellsAttrWhere = c1WellsAttrWhere.slice(0,c1WellsAttrWhere.length - 5);
-			}
-
-			if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "" || class1GeomWhere == "") ) {
-				setTimeout(waitForGeomWheres(), 100);
+		// Put wells clauses together w/ location where (note - location-where really only includes counties, others are handled through geomWhere):
+		// Class 2:
+		if (wellsWhere !== "") {
+			if (chkArbuckle) {
+				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
 			} else {
-				applyDefExp();
+				wellsAttrWhere += wellsWhere + " and ";
 			}
-			firstUpdatePass = false;
-		} );
+		}
+
+		if (locWhere !== "") {
+			wellsAttrWhere += locWhere + " and ";
+		}
+		// Strip off final "and":
+		if (wellsAttrWhere.substr(wellsAttrWhere.length - 5) === " and ") {
+			wellsAttrWhere = wellsAttrWhere.slice(0,wellsAttrWhere.length - 5);
+		}
+
+		// Class 1:
+		if (c1WellsWhere !== "") {
+			if (chkArbuckle) {
+				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle') and ";
+			} else {
+				c1WellsAttrWhere += c1WellsWhere + " and ";
+			}
+		}
+
+		if (locWhere !== "") {
+			c1WellsAttrWhere += locWhere + " and ";
+		}
+		// Strip off final "and":
+		if (c1WellsAttrWhere.substr(c1WellsAttrWhere.length - 5) === " and ") {
+			c1WellsAttrWhere = c1WellsAttrWhere.slice(0,c1WellsAttrWhere.length - 5);
+		}
+
+		if ( (location === "buf" || location === "sca") && (geomWhere == "" || wellsGeomWhere == "" || class1GeomWhere == "") ) {
+			setTimeout(waitForGeomWheres(), 100);
+		} else {
+			applyDefExp();
+		}
+		firstUpdatePass = false;
 	}	// end updateMap().
 
 
