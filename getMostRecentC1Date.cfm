@@ -21,5 +21,5 @@
 
 
 <cfoutput>
-    C1, #qC1Date.year#, #qC1Date.month#, C2, #qC2Date.year#, #qC2Date.month#
+    C1,#qC1Date.year#,#qC1Date.month#,C2,#qC2Date.year#,#qC2Date.month#
 </cfoutput>

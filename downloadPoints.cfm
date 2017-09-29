@@ -18,10 +18,12 @@
 <cfif #form.fromdate# neq "">
     <cfset FromYear = Right(#form.fromdate#, 4)>
     <cfset FromMonth = Left(#form.fromdate#, 2)>
+    <cfset FromDate = CreateDate(#FromYear#, #fromMonth#, 28)>
 </cfif>
 <cfif #form.todate# neq "">
     <cfset ToYear = Right(#form.todate#, 4)>
     <cfset ToMonth = Left(#form.todate#, 2)>
+    <cfset ToDate = CreateDate(#ToYear#, #ToMonth#, 28)>
 </cfif>
 
 <!--- C1 WELLS: --->
@@ -58,6 +60,75 @@
     <!--- End C1 wells file. --->
 
     <!--- C1 INJECTION FILE: --->
+    <!--- Calc data availability: --->
+    <cfset LAD = CreateDate(#form.ladY#, #form.ladM#, 28)>
+    <cfset TodayDate = Now()>
+    <cfset T7 = DateAdd("d", -7, TodayDate)>
+    <cfset T30 = DateAdd("d", -30, TodayDate)>
+    <cfset TY = Year(TodayDate)>
+    <cfset FAD = CreateDate(2000, 1, 1)>
+
+    <cfset DataIsAvailable = False>
+
+    <cfif #form.time# eq "week">
+        <cfif DateCompare(T7, LAD, "d") eq -1>   <!--- -1 if first date is earlier than second date, so if 7 days ago is earlier than last avaialable data date. --->
+            <cfset DataIsAvailable = True>
+        </cfif>
+    </cfif>
+    <cfif #form.time# eq "month">
+        <cfif DateCompare(T30, LAD, "d") eq -1>
+            <cfset DataIsAvailable = True>
+        </cfif>
+    </cfif>
+    <cfif #form.time# eq "year">
+        <cfif DateCompare(TY, DatePart("yyyy", LAD), "yyyy") eq -1 OR  DateCompare(TY, DatePart("yyyy", LAD), "yyyy") eq 0>
+            <cfset DataIsAvailable = True>
+        </cfif>
+    </cfif>
+    <cfif #form.time# eq "date">
+        <cfif IsDefined("FromDate") AND IsDefined("ToDate")>
+            <cfif DateCompare(ToDate, FAD, "m") eq -1 OR DateCompare(FromDate, LAD, "m") eq 1>
+                <!--- No data if selected To-Date is earlier than first available data date, or selected From-Date is later than last available data date. --->
+                <cfset DataIsAvailable = False>
+            <cfelse>
+                <cfset DataIsAvailable = True>
+            </cfif>
+        </cfif>
+    </cfif>
+
+    <!--- Prepare output file: --->
+    <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
+    <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
+    <cfset Headers = "UIC_ID,YEAR,MONTH,BARRELS">
+    <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
+
+    <!--- Get data: --->
+    <cfif DataIsAvailable>
+        <!---<cfquery name="qC1Data" datasource="plss">
+            select
+                uic_id,
+                year,
+                month,
+                barrels
+            from
+                tremor.class_1_injection_volumes
+            where
+                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(C1WellWhere)#)
+        </cfquery>--->
+    <cfelse>
+        <cfset C1InjFileText = "No Class 1 injection data for this time period">
+    </cfif>
+
+    <!--- Write file: --->
+    <!---<cfif #qC1Data.recordcount# gt 0>
+        <cfloop query="qC1Data">
+            <cfset Data = '"#uic_id#","#year#","#month#","#barrels#"'>
+            <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
+        </cfloop>
+        <cfset C1InjFileText = "Click for Class 1 Injection File">
+    <cfelse>
+        <cfset C1InjFileText = "No Class 1 injection data for this time period">
+    </cfif>--->
 
 </cfif>
 
@@ -286,16 +357,25 @@
 	<cfelse>
 		<div class="download-link">#C1WellsFileText#</div>
 	</cfif>
+
+    <cfif FindNoCase("Click", #C1InjFileName#) neq 0>
+		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#C1InjFileName#">#C1InjFileText#</a></div>
+	<cfelse>
+		<div class="download-link">#C1InjFileText#</div>
+	</cfif>
+
     <cfif FindNoCase("Click", #WellsFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#WellsFileName#">#WellsFileText#</a></div>
 	<cfelse>
 		<div class="download-link">#WellsFileText#</div>
 	</cfif>
+
 	<cfif FindNoCase("Click", #InjFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#InjFileName#">#InjFileText#</a></div>
 	<cfelse>
 		<div class="download-link">#InjFileText#</div>
 	</cfif>
+
 	<cfif FindNoCase("Click", #EventFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#EventsFileName#">#EventFileText#</a></div>
 	<cfelse>
