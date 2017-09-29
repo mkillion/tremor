@@ -87,7 +87,6 @@
     </cfif>
     <cfif #form.time# eq "date">
         <cfset DataIsAvailable = True> <!--- Note reversal in this block... --->
-        <!---<cfif IsDefined("FromDate") AND IsDefined("ToDate")>--->
         <cfif #FromDate# neq "" AND #ToDate# neq "">
             <cfif DateCompare(ToDate, CreateDate(2000, 1, 1), "d") eq -1 OR DateCompare(FromDate, LAD, "d") eq 1>   <!--- 1/1/2000 is first available C1 availability. --->
                 <cfset DataIsAvailable = False>
@@ -104,15 +103,15 @@
             </cfif>
         </cfif>
     </cfif>
-    <cfdump var="#DataIsAvailable#"><cfabort>
-    <!--- Prepare output file: --->
-    <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
-    <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
-    <cfset Headers = "UIC_ID,YEAR,MONTH,BARRELS">
-    <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
 
-    <!--- Get data: --->
     <cfif DataIsAvailable>
+        <!--- Prepare output file: --->
+        <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
+        <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
+        <cfset Headers = "UIC_ID,YEAR,MONTH,BARRELS">
+        <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
+
+        <!--- Get data: --->
         <!---<cfquery name="qC1Data" datasource="plss">
             select
                 uic_id,
@@ -124,20 +123,20 @@
             where
                 uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(C1WellWhere)#)
         </cfquery>--->
+
+        <!--- Write file: --->
+        <!---<cfif #qC1Data.recordcount# gt 0>
+            <cfloop query="qC1Data">
+                <cfset Data = '"#uic_id#","#year#","#month#","#barrels#"'>
+                <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
+            </cfloop>
+            <cfset C1InjFileText = "Click for Class 1 Injection File">
+        <cfelse>
+            <cfset C1InjFileText = "No Class 1 injection data for this time period">
+        </cfif>--->
     <cfelse>
         <cfset C1InjFileText = "No Class 1 injection data for this time period">
     </cfif>
-
-    <!--- Write file: --->
-    <!---<cfif #qC1Data.recordcount# gt 0>
-        <cfloop query="qC1Data">
-            <cfset Data = '"#uic_id#","#year#","#month#","#barrels#"'>
-            <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
-        </cfloop>
-        <cfset C1InjFileText = "Click for Class 1 Injection File">
-    <cfelse>
-        <cfset C1InjFileText = "No Class 1 injection data for this time period">
-    </cfif>--->
     <!--- End C1 injection file. --->
 </cfif>
 
