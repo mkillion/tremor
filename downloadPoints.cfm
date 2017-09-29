@@ -81,21 +81,30 @@
         </cfif>
     </cfif>
     <cfif #form.time# eq "year">
-        <cfif DateCompare(TY, DatePart("yyyy", LAD), "yyyy") eq -1 OR  DateCompare(TY, DatePart("yyyy", LAD), "yyyy") eq 0>
+        <cfif TY lte #form.ladY#>
             <cfset DataIsAvailable = True>
         </cfif>
     </cfif>
     <cfif #form.time# eq "date">
-        <cfif IsDefined("FromDate") AND IsDefined("ToDate")>
-            <cfif DateCompare(ToDate, FAD, "m") eq -1 OR DateCompare(FromDate, LAD, "m") eq 1>
-                <!--- No data if selected To-Date is earlier than first available data date, or selected From-Date is later than last available data date. --->
+        <cfset DataIsAvailable = True> <!--- Note reversal in this block... --->
+        <!---<cfif IsDefined("FromDate") AND IsDefined("ToDate")>--->
+        <cfif #FromDate# neq "" AND #ToDate# neq "">
+            <cfif DateCompare(ToDate, CreateDate(2000, 1, 1), "d") eq -1 OR DateCompare(FromDate, LAD, "d") eq 1>   <!--- 1/1/2000 is first available C1 availability. --->
                 <cfset DataIsAvailable = False>
-            <cfelse>
-                <cfset DataIsAvailable = True>
+            </cfif>
+        </cfif>
+        <cfif #FromDate# neq "" AND #ToDate# eq "">
+            <cfif DateCompare(FromDate, LAD, "d") eq 1>
+                <cfset DataIsAvailable = False>
+            </cfif>
+        </cfif>
+        <cfif #FromDate# eq "" AND #ToDate# neq "">
+            <cfif DateCompare(ToDate, CreateDate(2000, 1, 1), "d") eq -1>
+                <cfset DataIsAvailable = False>
             </cfif>
         </cfif>
     </cfif>
-
+    <cfdump var="#DataIsAvailable#"><cfabort>
     <!--- Prepare output file: --->
     <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
     <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
@@ -129,7 +138,7 @@
     <cfelse>
         <cfset C1InjFileText = "No Class 1 injection data for this time period">
     </cfif>--->
-
+    <!--- End C1 injection file. --->
 </cfif>
 
 
