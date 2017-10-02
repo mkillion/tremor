@@ -2700,7 +2700,7 @@ function(
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-year' value='year' onchange='checkInjData(&quot;year&quot;);saveRadioPrefs(&quot;tim-year&quot;)'></td><td> This year</td></tr>";
 		dbCon += "<tr><td><input type='radio' name='time-type' id='tim-date' value='date' onchange='checkInjData(&quot;range&quot;);saveRadioPrefs(&quot;tim-date&quot;)'></td><td> <input type='text' size='10' id='from-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;from-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'> to <input type='text' size='10' id='to-date' onchange='checkInjData(&quot;range&quot;); checkTimeRadio(); saveTextboxPrefs(&quot;to-date&quot;)' onfocus='checkInjData(&quot;range&quot;); saveRadioPrefs(&quot;tim-date&quot;)' placeholder='mm/dd/yyyy'></td></tr>";
 		// dbCon += "<tr><td><input type='radio' name='time-type' id='tim-all' value='all' onchange='saveRadioPrefs(&quot;tim-year&quot;)'></td><td> All</td></tr>";
-		dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br>&nbsp;&nbsp;data for selected time period</span></td></tr>";
+		// dbCon += "<tr><td colspan='2'><span class='note'>Wells are gray if no injection<br>&nbsp;&nbsp;data for selected time period</span></td></tr>";
 		dbCon += "</table></div>";
 		dbCon += "<div class='vertical-line'></div>";
 
