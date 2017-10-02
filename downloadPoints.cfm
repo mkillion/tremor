@@ -45,6 +45,7 @@
 		<cfif #form.c1wellwhere# neq "">
 			where #PreserveSingleQuotes(form.c1wellwhere)#
 		</cfif>
+        order by well_name
 	</cfquery>
 
     <!--- WRITE FILE: --->
@@ -136,6 +137,10 @@
                 <cfif #form.bbl# neq "">
                     and
                     barrels >= #form.bbl#
+                </cfif>
+                <cfif IsDefined("form.arb")>
+                    and
+                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
                 </cfif>
             order by
                 uic_id, year, month
