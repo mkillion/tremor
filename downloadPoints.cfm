@@ -112,20 +112,37 @@
         <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
 
         <!--- Get data: --->
-        <!---<cfquery name="qC1Data" datasource="plss">
+        <cfquery name="qC1Data" datasource="plss">
             select
-                uic_id,
-                year,
-                month,
-                barrels
+                uic_id, year, month, barrels
             from
                 tremor.class_1_injection_volumes
             where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(C1WellWhere)#)
-        </cfquery>--->
+                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                <cfif IsDefined("fromYear") and IsDefined("ToYear")>
+                    and
+                    to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                    and
+                    to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                </cfif>
+                <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                    and
+                    to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                </cfif>
+                <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                    and
+                    to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                </cfif>
+                <cfif #form.bbl# neq "">
+                    and
+                    barrels >= #form.bbl#
+                </cfif>
+            order by
+                uic_id, year, month
+        </cfquery>
 
         <!--- Write file: --->
-        <!---<cfif #qC1Data.recordcount# gt 0>
+        <cfif #qC1Data.recordcount# gt 0>
             <cfloop query="qC1Data">
                 <cfset Data = '"#uic_id#","#year#","#month#","#barrels#"'>
                 <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
@@ -133,7 +150,7 @@
             <cfset C1InjFileText = "Click for Class 1 Injection File">
         <cfelse>
             <cfset C1InjFileText = "No Class 1 injection data for this time period">
-        </cfif>--->
+        </cfif>
     <cfelse>
         <cfset C1InjFileText = "No Class 1 injection data for this time period">
     </cfif>
@@ -366,7 +383,7 @@
 		<div class="download-link">#C1WellsFileText#</div>
 	</cfif>
 
-    <cfif FindNoCase("Click", #C1InjFileName#) neq 0>
+    <cfif FindNoCase("Click", #C1InjFileText#) neq 0>
 		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#C1InjFileName#">#C1InjFileText#</a></div>
 	<cfelse>
 		<div class="download-link">#C1InjFileText#</div>
