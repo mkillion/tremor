@@ -2156,9 +2156,15 @@ function(
 			}
 
 			var timeOption = $("input[name=time-type]:checked").val();
+			var class1Option = $("#c1w").prop("checked");
+			var class2Option = $("#c2w").prop("checked");
+			var classBothOption = false;
+			if (class1Option && class2Option) {
+				classBothOption = true;
+			}
 
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption  };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption };
 
 			$("#loader").show();
 
@@ -2217,7 +2223,7 @@ function(
 						} );
 					} else {
 						$(".ui-dialog").hide();
-						alert("No data returned for these search criteria and/or dates.");
+						alert("No injection data for these search criteria and/or dates.");
 						$("#loader").hide();
 					}
 				} );
@@ -2454,7 +2460,7 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td>Apply to:</td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1'>Class 1 Wells</td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
 		content += "<tr><td colspan='2'><hr></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
