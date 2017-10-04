@@ -2445,14 +2445,20 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Plots</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
-		content += "<table><tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
+		content += "<table><tr><td colspan='2'>Earthquakes:</td></tr>";
+		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
+		content += "<tr><td colspan='2'>Wells and Combinations:</td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='injvol' disabled> <span class='inj-graph-text'>Injection Volume</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
-		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr></table>";
-		content += '</div>';	// end graph div.
+		content += "<tr><td></td><td>Apply to:</td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1'>Class 1 Wells</td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
+		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
+		content += "<tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr></table>";
+		content += '</div>';	// end plots div.
 
         content += '</div>';	// end data panel div.
 
