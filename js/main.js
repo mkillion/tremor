@@ -1829,6 +1829,13 @@ function(
 				findParams.returnGeometry = true;
 				findParams.searchText = dom.byId("fac-wells").value
 				break;
+			case "gname":
+				findParams.layerIds = [18];
+				findParams.searchFields = ["well_name"];
+				findParams.contains = false;
+				findParams.returnGeometry = true;
+				findParams.searchText = dom.byId("gen-name").value
+				break;
         }
         findTask.execute(findParams).then(function(response) {
 			if (what === "event" && response.results.length > 0) {
@@ -2479,6 +2486,7 @@ function(
         content += '<input type="text" id="api_extension" size="4"/>';
         content += '<button class=find-button onclick=findIt("api")>Find API</button>';
 		content += '<span id="facs"></span>';
+		content += '<span id="general-name"></span>';
         content += '</div>';
 
 		// county:
@@ -2577,7 +2585,7 @@ function(
 		} );
 
 		// Facilities select box for Locate panel. Putting it down here because of loading order issues.
-		$.get("getFacilities.cfm", function(response) {
+		$.get("getFacilities.cfm?get=fac", function(response) {
 			facilities = response.split('","');
 			var con = "<p>Facility-Well<br><select id='fac-wells'>";
 			for (var y = 0; y < facilities.length; y++) {
@@ -2585,6 +2593,17 @@ function(
 			}
 			con += "</select><p><button class=find-button onclick=findIt('facility')>Find Facility-Well</button>";
 			$("#facs").html(con);
+		} );
+
+		// Generalized well name select box for Locate panel. ditto.
+		$.get("getFacilities.cfm?get=gname", function(response) {
+			names = response.split('","');
+			var con = "<p>Generalized Name<br><select id='gen-name'>";
+			for (var y = 0; y < names.length; y++) {
+				con += "<option value='" + names[y].replace('"','') + "'>" + names[y].replace('"','') + "</option>";
+			}
+			con += "</select><p><button class=find-button onclick=findIt('gname')>Find Well by Name</button>";
+			$("#general-name").html(con);
 		} );
     }
 
