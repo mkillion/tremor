@@ -2456,6 +2456,7 @@ function(
 		content += "<tr><td></td><td>Apply to:</td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1'>Class 1 Wells</td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
+		content += "<tr><td colspan='2'><hr></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
 		content += "<tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr></table>";
 		content += '</div>';	// end plots div.
