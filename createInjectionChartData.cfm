@@ -102,7 +102,7 @@
                 and
                 barrels >= #form.bbl#
             </cfif>
-            <cfif IsDefined("form.arb")>
+            <cfif #form.arb#>
                 and
                 uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
             </cfif>
@@ -110,7 +110,38 @@
             ms
     </cfquery>
 
-    <cfset Count = #qVolumes.recordcount#>
+    <!--- Get distinct count: --->
+    <cfquery name="qCount" datasource="plss">
+        select
+            distinct uic_id
+        from
+            tremor.class_1_injection_volumes
+        where
+            uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+            <cfif IsDefined("fromYear") and IsDefined("ToYear")>
+                and
+                to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                and
+                to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                and
+                to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+            </cfif>
+            <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                and
+                to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+            </cfif>
+            <cfif #form.bbl# neq "">
+                and
+                barrels >= #form.bbl#
+            </cfif>
+            <cfif #form.arb#>
+                and
+                uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+            </cfif>
+    </cfquery>
+
     <cfset DateFormat = "%b %Y">
 
 <cfelseif #form.plotboth# eq true>
@@ -121,14 +152,14 @@
 <cfoutput>
     [
         {
-            "name": "Total Volume (bbls) for #Count# Wells",
+            "name": "Total Volume (bbls) for #qCount.recordcount# Wells",
             "type": "area",
             "yAxis": 1,
             "data": [
                 <cfset i = 1>
                 <cfloop query="qVolumes">
                     [#ms#,#volume#]
-                    <cfif i neq #Count#>
+                    <cfif i neq #qVolumes.recordcount#>
                         ,
                     </cfif>
                     <cfset i = i + 1>

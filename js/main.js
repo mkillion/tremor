@@ -1109,7 +1109,7 @@ function(
 
 		// Create wells clause:
 		var well = $("input[name=well-type]:checked").val();
-		chkArbuckle = $("#chkArb:checked").val();
+		chkArbuckle = $("#chkArb").prop("checked");
 
 		switch (well) {
 			case "all":
