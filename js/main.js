@@ -2175,11 +2175,17 @@ function(
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption, "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
 
 			$("#loader").show();
+			if ( class2Option && !classBothOption ) {
+				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
+					var xDate = "{value:%Y}";
+					var volTitle = "Annual Total Injection Volume";
+				} else {
+					var xDate = "{value:%b %Y}";
+					var volTitle = "Monthy Total Injection Volume";
+				}
+			}
 
-			if (fromYear < 2015 || toYear < 2015) {
-				var xDate = "{value:%Y}";
-				var volTitle = "Annual Total Injection Volume";
-			} else {
+			if ( class1Option && !classBothOption ) {
 				var xDate = "{value:%b %Y}";
 				var volTitle = "Monthy Total Injection Volume";
 			}
