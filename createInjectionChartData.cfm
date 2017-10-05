@@ -41,7 +41,30 @@
             order by ms
         </cfquery>
 
-        <cfset Count = #qVolumes.recordcount#>
+        <!--- Get distinct count: --->
+        <cfquery name="qCount" datasource="plss">
+            select
+                distinct well_header_kid
+            from
+                qualified.injections
+            where
+                well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+                and
+                <cfif isDefined("FromYear") and isDefined("ToYear")>
+                    year >= #FromYear# and year <= #ToYear#
+                </cfif>
+                <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                    year >= #fromYear#
+                </cfif>
+                <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                    year <= #toYear#
+                </cfif>
+                <cfif #form.bbl# neq "">
+                    and
+                    total_fluid_volume/12 >= #form.bbl#
+                </cfif>
+        </cfquery>
+
         <cfset DateFormat = "%Y">
     <cfelse>
         <!--- Return MONTHLY volumes. --->
@@ -70,7 +93,29 @@
             order by ms
         </cfquery>
 
-        <cfset Count = #qVolumes.recordcount#>
+        <cfquery name="qCount" datasource="plss">
+            select
+                distinct well_header_kid
+            from
+                mk_injections_months
+            where
+                well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+                and
+                <cfif isDefined("FromYear") and isDefined("ToYear")>
+                    month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                </cfif>
+                <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                    month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                </cfif>
+                <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                    month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                </cfif>
+                <cfif #form.bbl# neq "">
+                    and
+                    fluid_injected >= #form.bbl#
+                </cfif>
+        </cfquery>
+
         <cfset DateFormat = "%b %Y">
     </cfif>
 
@@ -79,7 +124,7 @@
     <cfquery name="qVolumes" datasource="plss">
         select
             (to_date(month || '/15/' || year,'mm/dd/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
-            sum(barrels) over (partition by to_date(month || '/15/' || year, 'mm/dd/yyyy')) as volume
+            sum(barrels) over (partition by to_date(month || '/' || year, 'mm/yyyy')) as volume
         from
             tremor.class_1_injection_volumes
         where
