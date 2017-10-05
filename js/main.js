@@ -2155,6 +2155,14 @@ function(
 				injvolWhere = wellsGeomWhere;
 			}
 
+			var c1InjvolWhere = "";
+			if (locWhere) {
+				c1InjvolWhere = locWhere;
+			}
+			if (wellsGeomWhere) {
+				c1InjvolWhere = class1GeomWhere;
+			}
+
 			var timeOption = $("input[name=time-type]:checked").val();
 			var class1Option = $("#c1w").prop("checked");
 			var class2Option = $("#c2w").prop("checked");
@@ -2164,7 +2172,7 @@ function(
 			}
 
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
-			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption };
+			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption, "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
 
 			$("#loader").show();
 
