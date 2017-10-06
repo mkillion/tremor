@@ -118,7 +118,6 @@
 
         <cfset DateFormat = "%b %Y">
     </cfif>
-
 <cfelseif #form.plotc1# eq true AND #form.plotboth# eq false>
     <!--- Plot class1 only: --->
     <cfquery name="qVolumes" datasource="plss">
@@ -188,7 +187,6 @@
     </cfquery>
 
     <cfset DateFormat = "%b %Y">
-
 <cfelseif #form.plotboth# eq true>
     <!--- Plot both class1 and class2: --->
 
