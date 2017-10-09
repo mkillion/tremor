@@ -2190,11 +2190,70 @@ function(
 				var volTitle = "Monthy Total Injection Volume";
 			}
 
-			if (graphType === "injvol") {
-				$.post("createInjectionChartData.cfm", packet, function(response) {
-					var volData = JSON.parse(response);
-					if (volData[0].data.length !== 0) {
+			if (!classBothOption) {
+				// Plots for c1 or c2 individually.
+				if (graphType === "injvol") {
+					$.post("createInjectionChartData.cfm", packet, function(response) {
+						var volData = JSON.parse(response);
+
+						if (volData[0].data.length !== 0) {
+							$('#chart').highcharts( {
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
+										}
+									}
+							    },
+							    title: {
+							        text: volTitle
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            // format: '{value:%Y-%m}',
+										format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+								yAxis: [ { // Primary yAxis
+									title: ""
+							    }, { // Secondary yAxi
+							        title: {
+							            text: 'Total Injection (bbls)',
+							        },
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: false
+							    } ],
+								tooltip: {
+									crosshairs: {
+								        color: 'green',
+								        dashStyle: 'solid'
+								    }
+						        	// enabled: false
+						        },
+							    series: volData
+							} );
+						} else {
+							$(".ui-dialog").hide();
+							alert("No injection data for these search criteria and/or dates.");
+							$("#loader").hide();
+						}
+					} );
+				} else if (graphType === "joint" || graphType === "jointcount") {
+					$.post("createJointPlotData.cfm", packet, function(response) {
+						var jointData = JSON.parse(response);
+
 						$('#chart').highcharts( {
+							plotOptions: {
+						        area: {
+						            stacking: 'normal'
+						        }
+						    },
 							chart: {
 						        zoomType: 'xy',
 								events: {
@@ -2204,27 +2263,28 @@ function(
 								}
 						    },
 						    title: {
-						        text: volTitle
+						        text: titleText
 						    },
 							xAxis: {
 						        type: 'datetime',
 						        labels: {
-						            // format: '{value:%Y-%m}',
-									format: xDate,
+						            format: xDate,
 						            rotation: 45,
 						            align: 'left'
 						        }
 						    },
-							yAxis: [ { // Primary yAxis
-								title: ""
-						    }, { // Secondary yAxi
+						    yAxis: [ { // Primary yAxis
+						        title: {
+						            text: yText
+						        }
+						    }, { // Secondary yAxis
 						        title: {
 						            text: 'Total Injection (bbls)',
 						        },
 						        labels: {
 									format: '{value:,.0f}'
 						        },
-						        opposite: false
+						        opposite: true
 						    } ],
 							tooltip: {
 								crosshairs: {
@@ -2233,113 +2293,129 @@ function(
 							    }
 					        	// enabled: false
 					        },
-						    series: volData
+						    series: jointData
 						} );
-					} else {
-						$(".ui-dialog").hide();
-						alert("No injection data for these search criteria and/or dates.");
-						$("#loader").hide();
-					}
-				} );
-			} else if (graphType === "joint" || graphType === "jointcount") {
-				$.post("createJointPlotData.cfm", packet, function(response) {
-					var jointData = JSON.parse(response);
-
-					$('#chart').highcharts( {
-						chart: {
-					        zoomType: 'xy',
-							events: {
-								load: function() {
-									$("#loader").hide();
-								}
-							}
-					    },
-					    title: {
-					        text: titleText
-					    },
-						xAxis: {
-					        type: 'datetime',
-					        labels: {
-					            format: xDate,
-					            rotation: 45,
-					            align: 'left'
-					        }
-					    },
-					    yAxis: [ { // Primary yAxis
-					        title: {
-					            text: yText
-					        }
-					    }, { // Secondary yAxis
-					        title: {
-					            text: 'Total Injection (bbls)',
-					        },
-					        labels: {
-								format: '{value:,.0f}'
-					        },
-					        opposite: true
-					    } ],
-						tooltip: {
-							crosshairs: {
-						        color: 'green',
-						        dashStyle: 'solid'
-						    }
-				        	// enabled: false
-				        },
-					    series: jointData
 					} );
-				} );
-			} else {
-				$.post("createChartData.cfm", packet, function(response) {
-					var data = JSON.parse(response);
+				} else {
+					// Events.
+					$.post("createChartData.cfm", packet, function(response) {
+						var data = JSON.parse(response);
 
-				    $('#chart').highcharts( {
-				        chart: {
-				            type: chartType,
-							borderColor: '#A9A9A9',
-		            		borderWidth: 3,
-							borderRadius: 8,
-							zoomType: 'xy',
-							events: {
-								load: function() {
-									$("#loader").hide();
+					    $('#chart').highcharts( {
+					        chart: {
+					            type: chartType,
+								borderColor: '#A9A9A9',
+			            		borderWidth: 3,
+								borderRadius: 8,
+								zoomType: 'xy',
+								events: {
+									load: function() {
+										$("#loader").hide();
+									}
 								}
-							}
-				        },
-						title: {
-							text: graphTitle
-						},
-						// subtitle: {
-						// 	text: graphSubTitle
-						// },
-						tooltip: {
-							crosshairs: {
-						        color: 'green',
-						        dashStyle: 'solid'
-						    },
-				        	// enabled: false
-							headerFormat: '<b>{point.key}</b><br/>',
-							pointFormat: pointFormatText,
-							xDateFormat: '%b %e, %Y'
-				        },
-						xAxis: {
-				            type: 'datetime',
-							endOnTick: true,
-							startOnTick: true,
-							labels: {
-								format: xDate,
-								rotation: 45,
-								align: 'left'
-							}
-				        },
-						yAxis: {
-							allowDecimals: showDecimals,
+					        },
 							title: {
-								text: yAxisText
-							}
-						},
-						series: data
-				    } );
-				} );
+								text: graphTitle
+							},
+							// subtitle: {
+							// 	text: graphSubTitle
+							// },
+							tooltip: {
+								crosshairs: {
+							        color: 'green',
+							        dashStyle: 'solid'
+							    },
+					        	// enabled: false
+								headerFormat: '<b>{point.key}</b><br/>',
+								pointFormat: pointFormatText,
+								xDateFormat: '%b %e, %Y'
+					        },
+							xAxis: {
+					            type: 'datetime',
+								endOnTick: true,
+								startOnTick: true,
+								labels: {
+									format: xDate,
+									rotation: 45,
+									align: 'left'
+								}
+					        },
+							yAxis: {
+								allowDecimals: showDecimals,
+								title: {
+									text: yAxisText
+								}
+							},
+							series: data
+					    } );
+					} );
+				}
+			} else {
+				// Plots for both c1 and c2 combined.
+				// Injection only. Stacked Area plot:
+				if (graphType === "injvol") {
+					$.post("createCombinedInjectionChartData.cfm", packet, function(response) {
+						var comboInjData = JSON.parse(response);
+
+						if (comboInjData[0].data.length !== 0) {
+							$('#chart').highcharts( {
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
+										}
+									}
+							    },
+								plotOptions: {
+							        area: {
+							            stacking: 'normal'
+							        }
+							    },
+							    title: {
+							        text: volTitle
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            // format: '{value:%Y-%m}',
+										format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+								yAxis: [ { // Primary yAxis
+									title: ""
+							    }, { // Secondary yAxi
+							        title: {
+							            text: 'Total Injection (bbls)',
+							        },
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: false
+							    } ],
+								// tooltip: {
+								// 	crosshairs: {
+								//         color: 'green',
+								//         dashStyle: 'solid'
+								//     }
+						        // 	// enabled: false
+						        // },
+								tooltip: {
+									split: true
+								},
+							    series: comboInjData
+							} );
+						} else {
+							$(".ui-dialog").hide();
+							alert("No injection data for these search criteria and/or dates.");
+							$("#loader").hide();
+						}
+					} );
+				}
+
+				// Inection plus events:
 			}
 
 			if (graphWhere !== "") {

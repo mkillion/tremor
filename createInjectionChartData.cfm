@@ -187,9 +187,6 @@
     </cfquery>
 
     <cfset DateFormat = "%b %Y">
-<cfelseif #form.plotboth# eq true>
-    <!--- Plot both class1 and class2: --->
-
 </cfif>
 
 <cfoutput>
