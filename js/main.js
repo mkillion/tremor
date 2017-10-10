@@ -2398,7 +2398,6 @@ function(
 									}
 								],
 								tooltip: {
-							        valueSuffix: 'bbls',
 							        split: true,	// not working.
 							        distance: 20,
 							        padding: 5,
