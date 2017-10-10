@@ -2181,13 +2181,13 @@ function(
 					var volTitle = "Annual Total Injection Volume";
 				} else {
 					var xDate = "{value:%b %Y}";
-					var volTitle = "Monthy Total Injection Volume";
+					var volTitle = "Total Monthy Injection Volume - Class 2 Wells";
 				}
 			}
 
 			if ( class1Option && !classBothOption ) {
 				var xDate = "{value:%b %Y}";
-				var volTitle = "Monthy Total Injection Volume";
+				var volTitle = "Total Monthy Injection Volume - Class 1 Wells";
 			}
 
 			if (classBothOption) {
