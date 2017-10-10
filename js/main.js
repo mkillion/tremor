@@ -2178,7 +2178,7 @@ function(
 			if ( class2Option && !classBothOption ) {
 				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
 					var xDate = "{value:%Y}";
-					var volTitle = "Annual Total Injection Volume";
+					var volTitle = "Total Annual Injection Volume - Class 2 Wells";
 				} else {
 					var xDate = "{value:%b %Y}";
 					var volTitle = "Total Monthy Injection Volume - Class 2 Wells";
