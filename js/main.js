@@ -2190,6 +2190,12 @@ function(
 				var volTitle = "Monthy Total Injection Volume";
 			}
 
+			if (classBothOption) {
+				// TODO: add date check here and change title for annual.
+				var xDate = "{value:%b %Y}";
+				var volTitle = "Total Monthy Injection Volumes for Class 1 and Class 2 Wells";
+			}
+
 			if (!classBothOption) {
 				// Plots for c1 or c2 individually.
 				if (graphType === "injvol") {
@@ -2384,27 +2390,23 @@ function(
 							            align: 'left'
 							        }
 							    },
-								yAxis: [ { // Primary yAxis
-									title: ""
-							    }, { // Secondary yAxi
-							        title: {
-							            text: 'Total Injection (bbls)',
-							        },
-							        labels: {
-										format: '{value:,.0f}'
-							        },
-							        opposite: false
-							    } ],
-								// tooltip: {
-								// 	crosshairs: {
-								//         color: 'green',
-								//         dashStyle: 'solid'
-								//     }
-						        // 	// enabled: false
-						        // },
+								yAxis: [
+									{
+										title: {
+											text: 'Total Injection (bbls)'
+										}
+									}
+								],
 								tooltip: {
-									split: true
-								},
+							        valueSuffix: 'bbls',
+							        split: true,	// not working.
+							        distance: 20,
+							        padding: 5,
+									crosshairs: {
+									    color: 'black',
+									    dashStyle: 'solid'
+									}
+							    },
 							    series: comboInjData
 							} );
 						} else {

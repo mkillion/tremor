@@ -14,7 +14,7 @@
 <!--- Class1 volumes, always monthly: --->
 <cfquery name="qC1MonthlyVolumes" datasource="plss">
     select
-        (to_date(month || '/' || year,'mm/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
+        distinct (to_date(month || '/' || year,'mm/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
         sum(barrels) over (partition by to_date(month || '/' || year, 'mm/yyyy')) as volume
     from
         tremor.class_1_injection_volumes
@@ -46,6 +46,40 @@
         ms
 </cfquery>
 
+<!--- Get well count: --->
+<cfquery name="qC1MonthlyCount" datasource="plss">
+    select
+        distinct uic_id
+    from
+        tremor.class_1_injection_volumes
+    where
+        uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+        <cfif IsDefined("fromYear") and IsDefined("ToYear")>
+            and
+            to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+            and
+            to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif isDefined("FromYear") and not isDefined("ToYear")>
+            and
+            to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+        </cfif>
+        <cfif not isDefined("FromYear") and isDefined("ToYear")>
+            and
+            to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif #form.bbl# neq "">
+            and
+            barrels >= #form.bbl#
+        </cfif>
+        <cfif #form.arb#>
+            and
+            uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+        </cfif>
+</cfquery>
+
+<cfset C1SeriesName = "Class 1 (" & #qC1MonthlyCount.recordcount# & ")">
+
 
 <!--- Class2 MONTHLY volumes. --->
 <cfquery name="qC2MonthlyVolumes" datasource="plss">
@@ -70,17 +104,43 @@
             and
             fluid_injected >= #form.bbl#
         </cfif>
-    order by ms
+    order by
+        ms
 </cfquery>
+
+<!--- Get well count: --->
+<cfquery name="qC2MonthlyCount" datasource="plss">
+    select
+        distinct well_header_kid
+    from
+        mk_injections_months
+    where
+        well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
+        and
+        <cfif isDefined("FromYear") and isDefined("ToYear")>
+            month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy') and month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif isDefined("FromYear") and not isDefined("ToYear")>
+            month_year >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+        </cfif>
+        <cfif not isDefined("FromYear") and isDefined("ToYear")>
+            month_year <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+        </cfif>
+        <cfif #form.bbl# neq "">
+            and
+            fluid_injected >= #form.bbl#
+        </cfif>
+</cfquery>
+
+<cfset C2SeriesName = "Class 2 (" & #qC2MonthlyCount.recordcount# & ")">
 
 
 <!--- Create JSON: --->
 <cfoutput>
     [
         {
-            "name": "Class 1",
+            "name": "#C1SeriesName#",
             "type": "area",
-            "yAxis": 1,
             "color": "rgba(56, 168, 0, 0.75)",
             "data": [
                 <cfset i = 1>
@@ -94,9 +154,8 @@
             ]
         },
         {
-            "name": "Class 2",
+            "name": "#C2SeriesName#",
             "type": "area",
-            "yAxis": 1,
             "color": "rgba(115, 178, 255, 0.85)",
             "data": [
                 <cfset i = 1>
