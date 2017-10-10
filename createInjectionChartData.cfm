@@ -66,6 +66,7 @@
         </cfquery>
 
         <cfset DateFormat = "%Y">
+        <cfset PlotColor = '"rgba(115, 178, 255, 0.85)"'>
     <cfelse>
         <!--- Return MONTHLY volumes. --->
         <cfquery name="qVolumes" datasource="plss">
@@ -117,6 +118,7 @@
         </cfquery>
 
         <cfset DateFormat = "%b %Y">
+        <cfset PlotColor = '"rgba(115, 178, 255, 0.85)"'>
     </cfif>
 <cfelseif #form.plotc1# eq true AND #form.plotboth# eq false>
     <!--- Plot class1 only: --->
@@ -187,6 +189,7 @@
     </cfquery>
 
     <cfset DateFormat = "%b %Y">
+    <cfset PlotColor = '"rgba(56, 168, 0, 0.75)"'>
 </cfif>
 
 <cfoutput>
@@ -194,6 +197,7 @@
         {
             "name": "Total Volume (bbls) for #qCount.recordcount# Wells",
             "type": "area",
+            "color": #PlotColor#,
             "yAxis": 1,
             "data": [
                 <cfset i = 1>
