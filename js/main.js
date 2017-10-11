@@ -2202,6 +2202,61 @@ function(
 				}
 			}
 
+			if (graphType === "count" || graphType === "mag" || graphType === "cumulative") {
+				// Events.
+				$.post("createChartData.cfm", packet, function(response) {
+					var data = JSON.parse(response);
+
+					$('#chart').highcharts( {
+						chart: {
+							type: chartType,
+							borderColor: '#A9A9A9',
+							borderWidth: 3,
+							borderRadius: 8,
+							zoomType: 'xy',
+							events: {
+								load: function() {
+									$("#loader").hide();
+								}
+							}
+						},
+						title: {
+							text: graphTitle
+						},
+						// subtitle: {
+						// 	text: graphSubTitle
+						// },
+						tooltip: {
+							crosshairs: {
+								color: 'green',
+								dashStyle: 'solid'
+							},
+							// enabled: false
+							headerFormat: '<b>{point.key}</b><br/>',
+							pointFormat: pointFormatText,
+							xDateFormat: '%b %e, %Y'
+						},
+						xAxis: {
+							type: 'datetime',
+							endOnTick: true,
+							startOnTick: true,
+							labels: {
+								format: xDate,
+								rotation: 45,
+								align: 'left'
+							}
+						},
+						yAxis: {
+							allowDecimals: showDecimals,
+							title: {
+								text: yAxisText
+							}
+						},
+						series: data
+					} );
+				} );
+			}
+
 			if (!classBothOption) {
 				// Plots for c1 or c2 individually.
 				if (graphType === "injvol") {
@@ -2307,59 +2362,6 @@ function(
 					        },
 						    series: jointData
 						} );
-					} );
-				} else {
-					// Events.
-					$.post("createChartData.cfm", packet, function(response) {
-						var data = JSON.parse(response);
-
-					    $('#chart').highcharts( {
-					        chart: {
-					            type: chartType,
-								borderColor: '#A9A9A9',
-			            		borderWidth: 3,
-								borderRadius: 8,
-								zoomType: 'xy',
-								events: {
-									load: function() {
-										$("#loader").hide();
-									}
-								}
-					        },
-							title: {
-								text: graphTitle
-							},
-							// subtitle: {
-							// 	text: graphSubTitle
-							// },
-							tooltip: {
-								crosshairs: {
-							        color: 'green',
-							        dashStyle: 'solid'
-							    },
-					        	// enabled: false
-								headerFormat: '<b>{point.key}</b><br/>',
-								pointFormat: pointFormatText,
-								xDateFormat: '%b %e, %Y'
-					        },
-							xAxis: {
-					            type: 'datetime',
-								endOnTick: true,
-								startOnTick: true,
-								labels: {
-									format: xDate,
-									rotation: 45,
-									align: 'left'
-								}
-					        },
-							yAxis: {
-								allowDecimals: showDecimals,
-								title: {
-									text: yAxisText
-								}
-							},
-							series: data
-					    } );
 					} );
 				}
 			} else {
