@@ -15,7 +15,7 @@
     <!--- CLASS 1 ANNUAL: --->
         <cfquery name="qC1Volumes" datasource="plss">
         select
-            distinct (to_date(year,'yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
+            distinct (to_date('01/15/' || year,'mm/dd/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
             sum(barrels) over (partition by to_date(year, 'yyyy')) as volume
         from
             tremor.class_1_injection_volumes
@@ -78,6 +78,9 @@
                 uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
             </cfif>
     </cfquery>
+
+    <cfset DateFormat = "%Y">
+    <cfset C1SeriesName = "Class 1 (" & #qC1Count.recordcount# & ")">
 <cfelse>
     <!--- CLASS 1 MONTHLY: --->
     <cfquery name="qC1Volumes" datasource="plss">
@@ -201,7 +204,7 @@
     </cfquery>
 
     <cfset DateFormat = "%Y">
-    <cfset PlotColor = '"rgba(115, 178, 255, 0.85)"'>
+    <cfset C2SeriesName = "Class 2 (" & #qC2Count.recordcount# & ")">
 <cfelse>
     <!--- CLASS 2 MONTHLY VOLUMES: --->
     <cfquery name="qC2Volumes" datasource="plss">

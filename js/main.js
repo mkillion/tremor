@@ -2191,9 +2191,15 @@ function(
 			}
 
 			if (classBothOption) {
-				// TODO: add date check here and change title for annual.
-				var xDate = "{value:%b %Y}";
-				var volTitle = "Total Monthy Injection Volumes for Class 1 and Class 2 Wells";
+				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
+					var xDate = "{value:%Y}";
+					var xTooltipDate = "%Y";
+					var volTitle = "Total Annual Injection Volumes for Class 1 and Class 2 Wells";
+				} else {
+					var xDate = "{value:%b %Y}";
+					var xTooltipDate = "%b %Y";
+					var volTitle = "Total Monthy Injection Volumes for Class 1 and Class 2 Wells";
+				}
 			}
 
 			if (!classBothOption) {
@@ -2384,7 +2390,7 @@ function(
 								xAxis: {
 							        type: 'datetime',
 							        labels: {
-							            // format: '{value:%Y-%m}',
+							            // format: '{value:%Y}',
 										format: xDate,
 							            rotation: 45,
 							            align: 'left'
@@ -2400,6 +2406,7 @@ function(
 								tooltip: {
 							        split: true,	// not working.
 							        distance: 20,
+									xDateFormat: xTooltipDate,
 							        padding: 5,
 									crosshairs: {
 									    color: 'black',
