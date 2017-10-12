@@ -2051,6 +2051,7 @@ function(
 			classBothOption = true;
 		}
 
+		// Throw alert if needed options aren't selected:
 		var injGraphSelected = $("input:checked[class=inj-graph]").map(function() {
 			return $(this).val();
 		} ).get();
@@ -3067,10 +3068,15 @@ function(
 
 		eqTocContent += otherEqContent;
 
+		var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
+		var wellsDisclaimer = "<span class='note'>Well symbols are initially gray if there's no injection data for the current year.</span>";
+
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
 		$("#eq-group-body").html(eqTocContent);
+		$("#eq-group-body").append(eventDisclaimer);
 		$("#wells-group-body").html(wellsTocContent);
+		$("#wells-group-body").append(wellsDisclaimer);
 		$("#boundaries-group-body").html(boundariesTocContent);
 		basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='none' onclick='toggleBasemapLayer();'> None</label></div>";
 		$("#basemap-group-body").html(basemapTocContent);
