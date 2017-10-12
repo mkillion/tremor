@@ -2447,7 +2447,7 @@ function(
 					} );
 				} else if (graphType === "joint" || graphType === "jointcount") {
 					// Inection plus events:
-					$.post("createCombinedInjectionChartDataJointPlot.cfm", packet, function(response) {
+					$.post("createCombinedJointPlot.cfm", packet, function(response) {
 						var jointData = JSON.parse(response);
 
 						$('#chart').highcharts( {

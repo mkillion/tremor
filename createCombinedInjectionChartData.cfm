@@ -278,6 +278,7 @@
                 </cfloop>
             ]
         },
+        
         {
             "name": "#C2SeriesName#",
             "type": "area",
