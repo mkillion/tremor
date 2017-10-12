@@ -2043,6 +2043,36 @@ function(
 		var fromDate = dom.byId('from-date').value;
 		var toDate = dom.byId('to-date').value;
 
+		var timeOption = $("input[name=time-type]:checked").val();
+		var class1Option = $("#c1w").prop("checked");
+		var class2Option = $("#c2w").prop("checked");
+		var classBothOption = false;
+		if (class1Option && class2Option) {
+			classBothOption = true;
+		}
+
+		var injGraphSelected = $("input:checked[class=inj-graph]").map(function() {
+			return $(this).val();
+		} ).get();
+		if (injGraphSelected.length > 0) {
+			if (!class1Option && !class2Option) {
+				alert("At least one well type must be selected to make this plot.")
+			}
+		}
+
+		if (class1Option && !classBothOption) {
+			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 1 Wells";
+			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 1 Wells";
+		}
+		if (class2Option && !classBothOption) {
+			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 2 Wells";
+			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 2 Wells";
+		}
+		if (classBothOption) {
+			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 1 and Class 2 Wells";
+			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 1 and Class 2 Wells";
+		}
+
 		var puTitle = $(".esri-popup__header-title").html();
 
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
@@ -2106,7 +2136,7 @@ function(
 							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
 						}
 					}
-					var titleText = 'Event Counts & Total Injection Volumes For Selected Wells';
+					var titleText = jointCountTitle;
 					var yText = 'Count';
 					break;
 				case "joint":
@@ -2120,7 +2150,7 @@ function(
 							graphWhere = "objectid = " + view.popup.selectedFeature.attributes.OBJECTID;
 						}
 					}
-					var titleText = 'Event Magnitudes & Total Injection Volumes For Selected Wells';
+					var titleText = jointMagTitle;
 					var yText = 'Magnitude';
 					break;
 			}
@@ -2161,14 +2191,6 @@ function(
 			}
 			if (wellsGeomWhere) {
 				c1InjvolWhere = class1GeomWhere;
-			}
-
-			var timeOption = $("input[name=time-type]:checked").val();
-			var class1Option = $("#c1w").prop("checked");
-			var class2Option = $("#c2w").prop("checked");
-			var classBothOption = false;
-			if (class1Option && class2Option) {
-				classBothOption = true;
 			}
 
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
@@ -2366,8 +2388,8 @@ function(
 				}
 			} else {
 				// Plots for both c1 and c2 combined.
-				// Injection only. Stacked Area plot:
 				if (graphType === "injvol") {
+					// Injection only. Stacked Area plot:
 					$.post("createCombinedInjectionChartData.cfm", packet, function(response) {
 						var comboInjData = JSON.parse(response);
 
@@ -2423,9 +2445,60 @@ function(
 							$("#loader").hide();
 						}
 					} );
-				}
+				} else if (graphType === "joint" || graphType === "jointcount") {
+					// Inection plus events:
+					$.post("createCombinedInjectionChartDataJointPlot.cfm", packet, function(response) {
+						var jointData = JSON.parse(response);
 
-				// Inection plus events:
+						$('#chart').highcharts( {
+							plotOptions: {
+						        area: {
+						            stacking: 'normal'
+						        }
+						    },
+							chart: {
+						        zoomType: 'xy',
+								events: {
+									load: function() {
+										$("#loader").hide();
+									}
+								}
+						    },
+						    title: {
+						        text: titleText
+						    },
+							xAxis: {
+						        type: 'datetime',
+						        labels: {
+						            format: xDate,
+						            rotation: 45,
+						            align: 'left'
+						        }
+						    },
+						    yAxis: [ { // Primary yAxis
+						        title: {
+						            text: yText
+						        }
+						    }, { // Secondary yAxis
+						        title: {
+						            text: 'Total Injection (bbls)',
+						        },
+						        labels: {
+									format: '{value:,.0f}'
+						        },
+						        opposite: true
+						    } ],
+							tooltip: {
+								crosshairs: {
+							        color: 'green',
+							        dashStyle: 'solid'
+							    }
+					        	// enabled: false
+					        },
+						    series: jointData
+						} );
+					} );
+				}
 			}
 
 			if (graphWhere !== "") {
