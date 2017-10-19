@@ -2062,16 +2062,16 @@ function(
 		}
 
 		if (class1Option && !classBothOption) {
-			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 1 Wells";
-			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 1 Wells";
+			var jointCountTitle = "Event Counts & Monthy Injection Volumes For Class 1 Wells";
+			var jointMagTitle = "Event Magnitudes & Monthy Injection Volumes For Class 1 Wells";
 		}
 		if (class2Option && !classBothOption) {
-			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 2 Wells";
-			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 2 Wells";
+			var jointCountTitle = "Event Counts & Injection Volumes For Class 2 Wells";
+			var jointMagTitle = "Event Magnitudes & Injection Volumes For Class 2 Wells";
 		}
 		if (classBothOption) {
-			var jointCountTitle = "Event Counts & Total Injection Volumes For Class 1 and Class 2 Wells";
-			var jointMagTitle = "Event Magnitudes & Total Injection Volumes For Class 1 and Class 2 Wells";
+			var jointCountTitle = "Event Counts & Injection Volumes For Class 1 and Class 2 Wells";
+			var jointMagTitle = "Event Magnitudes & Injection Volumes For Class 1 and Class 2 Wells";
 		}
 
 		var puTitle = $(".esri-popup__header-title").html();
