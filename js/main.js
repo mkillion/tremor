@@ -2666,7 +2666,7 @@ function(
 		// well (api and c1 facility):
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="api"><span class="find-hdr-txt"> Well</span></div>';
         content += '<div class="find-body hide" id="find-api">';
-        content += 'API Number (extension optional):<br>';
+        content += 'API Number:<br>';
         content += '<input type="text" id="api_state" size="2" onKeyUp="jumpFocus(api_county, 2, this.id)"/>-';
         content += '<input type="text" id="api_county" size="3" onKeyUp="jumpFocus(api_number, 3, this.id)"/>-';
         content += '<input type="text" id="api_number" size="5" onKeyUp="jumpFocus(api_extension, 5, this.id)"/>-';
@@ -2749,8 +2749,7 @@ function(
         content = '';
         content += '<div class="panel-container">';
         content += '<div class="panel-header">Legend</div>';
-		content += '<div class="note">Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</div>';
-        content += '<div class="panel-padding">';
+		content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
 		// content += '<div class="panel-header">Links</div>';
         content += '</div>';

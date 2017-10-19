@@ -37,19 +37,21 @@
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
     <!--- GET DATA: --->
-    <cfquery name="qC1WellData" datasource="plss">
-		select
-            uic_id, well_name, facility_name, county_name, latitude, longitude, injection_zone
-        from
-            class1_wells
-		<cfif #form.c1wellwhere# neq "">
-			where #PreserveSingleQuotes(form.c1wellwhere)#
-		</cfif>
-        order by well_name
-	</cfquery>
+    <cfif FindNoCase("objectid in)", #form.c1wellwhere#) eq 0> <!--- Only run if C1s exist in spatial select (objectids were found) --->
+        <cfquery name="qC1WellData" datasource="plss">
+    		select
+                uic_id, well_name, facility_name, county_name, latitude, longitude, injection_zone
+            from
+                class1_wells
+    		<cfif #form.c1wellwhere# neq "">
+    			where #PreserveSingleQuotes(form.c1wellwhere)#
+    		</cfif>
+            order by well_name
+    	</cfquery>
+    </cfif>
 
     <!--- WRITE FILE: --->
-    <cfif #qC1WellData.recordcount# gt 0>
+    <cfif IsDefined("qC1WellData") AND #qC1WellData.recordcount# gt 0>
         <cfloop query="qC1WellData">
     		<cfset Data = '"#uic_id#","#well_name#","#facility_name#","#county_name#","#latitude#","#longitude#","#injection_zone#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
@@ -388,10 +390,12 @@
 		<div class="download-link">#C1WellsFileText#</div>
 	</cfif>
 
-    <cfif FindNoCase("Click", #C1InjFileText#) neq 0>
-		<div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#C1InjFileName#">#C1InjFileText#</a></div>
-	<cfelse>
-		<div class="download-link">#C1InjFileText#</div>
+    <cfif IsDefined("C1InjFileText")>
+        <cfif FindNoCase("Click", #C1InjFileText#) neq 0>
+		    <div class="download-link"><a href="http://vmpyrite.kgs.ku.edu/KgsMaps/oilgas/output/#C1InjFileName#">#C1InjFileText#</a></div>
+	    <cfelse>
+		    <div class="download-link">#C1InjFileText#</div>
+        </cfif>
 	</cfif>
 
     <cfif FindNoCase("Click", #WellsFileText#) neq 0>
