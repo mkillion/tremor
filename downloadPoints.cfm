@@ -158,10 +158,10 @@
             </cfloop>
             <cfset C1InjFileText = "Click for Class 1 Injection File">
         <cfelse>
-            <cfset C1InjFileText = "No Class 1 injection data for this time period">
+            <cfset C1InjFileText = "No Class 1 injection data for this search">
         </cfif>
     <cfelse>
-        <cfset C1InjFileText = "No Class 1 injection data for this time period">
+        <cfset C1InjFileText = "No Class 1 injection data for this search">
     </cfif>
     <!--- End C1 injection file. --->
 </cfif>
@@ -267,7 +267,7 @@
         	</cfloop>
     		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
-    		<cfset InjFileText = "No Class 2 injection data for this time period">
+    		<cfset InjFileText = "No Class 2 injection data for this search">
     	</cfif>
 
     <cfelseif #form.time# eq "date">
@@ -330,10 +330,10 @@
         	</cfloop>
     		<cfset InjFileText = "Click for Class 2 Injection File">
     	<cfelse>
-    		<cfset InjFileText = "No Class 2 injection data for this time period">
+    		<cfset InjFileText = "No Class 2 injection data for this search">
     	</cfif>
     <cfelse>
-        <cfset InjFileText = "No Class 2 injection data for this time period">
+        <cfset InjFileText = "No Class 2 injection data for this search">
     </cfif>
     <!--- End injection file. --->
 </cfif>
