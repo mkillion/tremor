@@ -115,41 +115,43 @@
         <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
 
         <!--- Get data: --->
-        <cfquery name="qC1Data" datasource="plss">
-            select
-                uic_id, year, month, barrels
-            from
-                tremor.class_1_injection_volumes
-            where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
-                <cfif IsDefined("fromYear") and IsDefined("ToYear")>
-                    and
-                    to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
-                    and
-                    to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
-                </cfif>
-                <cfif isDefined("FromYear") and not isDefined("ToYear")>
-                    and
-                    to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
-                </cfif>
-                <cfif not isDefined("FromYear") and isDefined("ToYear")>
-                    and
-                    to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
-                </cfif>
-                <cfif #form.bbl# neq "">
-                    and
-                    barrels >= #form.bbl#
-                </cfif>
-                <cfif IsDefined("form.arb")>
-                    and
-                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
-                </cfif>
-            order by
-                uic_id, year, month
-        </cfquery>
+        <cfif Len(form.c1injvolwhere) gt 11> <!--- Only run if C1s exist in spatial select (objectids were found) --->
+            <cfquery name="qC1Data" datasource="plss">
+                select
+                    uic_id, year, month, barrels
+                from
+                    tremor.class_1_injection_volumes
+                where
+                    uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                    <cfif IsDefined("fromYear") and IsDefined("ToYear")>
+                        and
+                        to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                        and
+                        to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                    </cfif>
+                    <cfif isDefined("FromYear") and not isDefined("ToYear")>
+                        and
+                        to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
+                    </cfif>
+                    <cfif not isDefined("FromYear") and isDefined("ToYear")>
+                        and
+                        to_date(month || '/' || year, 'mm/yyyy') <= to_date('#ToMonth#/#ToYear#','mm/yyyy')
+                    </cfif>
+                    <cfif #form.bbl# neq "">
+                        and
+                        barrels >= #form.bbl#
+                    </cfif>
+                    <cfif IsDefined("form.arb")>
+                        and
+                        uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                    </cfif>
+                order by
+                    uic_id, year, month
+            </cfquery>
+        </cfif>
 
         <!--- Write file: --->
-        <cfif #qC1Data.recordcount# gt 0>
+        <cfif IsDefined("qC1Data") AND  #qC1Data.recordcount# gt 0>
             <cfloop query="qC1Data">
                 <cfset Data = '"#uic_id#","#year#","#month#","#barrels#"'>
                 <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
