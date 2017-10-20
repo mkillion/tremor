@@ -965,12 +965,12 @@ function(
 			case "buf":
 				buffDist = $("#loc-buff").val();
 
-				if ( localStorage.getItem("saved") === "true" ) {
-					//need check for saved xy here?
-					var selX = localStorage.getItem("sel-feat-x");
-					var selY = localStorage.getItem("sel-feat-y");
-					createBufferGeom(buffDist, selX, selY);
-				}
+				// if ( localStorage.getItem("saved") === "true" ) {
+				// 	//need check for saved xy here?
+				// 	var selX = localStorage.getItem("sel-feat-x");
+				// 	var selY = localStorage.getItem("sel-feat-y");
+				// 	createBufferGeom(buffDist, selX, selY);
+				// }
 
 				if (view.popup.selectedFeature) {
 					if (userDefinedPoint.geometry) {
