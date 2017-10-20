@@ -2040,6 +2040,8 @@ function(
 
 
 	makeChart = function() {
+		var graphIt = true;
+
 		var fromDate = dom.byId('from-date').value;
 		var toDate = dom.byId('to-date').value;
 
@@ -2079,6 +2081,14 @@ function(
 		var filterLyrs = $("input:checked[class=filterable]").map(function() {
 			return $(this).val();
 		} ).get();
+
+		// See if any earthquake layers are visible, for alert when joint plots are selected:
+		var eqVisibleLyrs = filterLyrs.join();
+		if (eqVisibleLyrs.indexOf('Events') != -1) {
+			var eqIsVisible = true;
+		} else {
+			var eqIsVisible = false;
+		}
 
 		if (filterLyrs.length === 0) {
 			alert("At least one earthquake or well layer must be visible.")
@@ -2197,7 +2207,6 @@ function(
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption, "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
 
-			$("#loader").show();
 			if ( class2Option && !classBothOption ) {
 				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
 					var xDate = "{value:%Y}";
@@ -2227,6 +2236,7 @@ function(
 
 			if (graphType === "count" || graphType === "mag" || graphType === "cumulative") {
 				// Events.
+				$("#loader").show();
 				$.post("createChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
 
@@ -2283,6 +2293,7 @@ function(
 			if (!classBothOption) {
 				// Plots for c1 or c2 individually.
 				if (graphType === "injvol") {
+					$("#loader").show();
 					$.post("createInjectionChartData.cfm", packet, function(response) {
 						var volData = JSON.parse(response);
 
@@ -2335,62 +2346,70 @@ function(
 						}
 					} );
 				} else if (graphType === "joint" || graphType === "jointcount") {
-					$.post("createJointPlotData.cfm", packet, function(response) {
-						var jointData = JSON.parse(response);
+					if (eqIsVisible) {
+						$("#loader").show();
+						$.post("createJointPlotData.cfm", packet, function(response) {
+							var jointData = JSON.parse(response);
 
-						$('#chart').highcharts( {
-							plotOptions: {
-						        area: {
-						            stacking: 'normal'
-						        }
-						    },
-							chart: {
-						        zoomType: 'xy',
-								events: {
-									load: function() {
-										$("#loader").hide();
+							$('#chart').highcharts( {
+								plotOptions: {
+							        area: {
+							            stacking: 'normal'
+							        }
+							    },
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
+										}
 									}
-								}
-						    },
-						    title: {
-						        text: titleText
-						    },
-							xAxis: {
-						        type: 'datetime',
-						        labels: {
-						            format: xDate,
-						            rotation: 45,
-						            align: 'left'
-						        }
-						    },
-						    yAxis: [ { // Primary yAxis
-						        title: {
-						            text: yText
-						        }
-						    }, { // Secondary yAxis
-						        title: {
-						            text: 'Total Injection (bbls)',
+							    },
+							    title: {
+							        text: titleText
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+							    yAxis: [ { // Primary yAxis
+							        title: {
+							            text: yText
+							        }
+							    }, { // Secondary yAxis
+							        title: {
+							            text: 'Total Injection (bbls)',
+							        },
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: true
+							    } ],
+								tooltip: {
+									crosshairs: {
+								        color: 'green',
+								        dashStyle: 'solid'
+								    }
+						        	// enabled: false
 						        },
-						        labels: {
-									format: '{value:,.0f}'
-						        },
-						        opposite: true
-						    } ],
-							tooltip: {
-								crosshairs: {
-							        color: 'green',
-							        dashStyle: 'solid'
-							    }
-					        	// enabled: false
-					        },
-						    series: jointData
+							    series: jointData
+							} );
 						} );
-					} );
+					} else {
+						graphIt = false;
+						alert("An earthquake layer must be selected for this plot type.");
+						$("#loader").hide();
+					}
 				}
 			} else {
 				// Plots for both c1 and c2 combined.
 				if (graphType === "injvol") {
 					// Injection only. Stacked Area plot:
+					$("#loader").show();
 					$.post("createCombinedInjectionChartData.cfm", packet, function(response) {
 						var comboInjData = JSON.parse(response);
 
@@ -2447,69 +2466,78 @@ function(
 						}
 					} );
 				} else if (graphType === "joint" || graphType === "jointcount") {
-					// Inection plus events:
-					$.post("createCombinedJointPlot.cfm", packet, function(response) {
-						var jointData = JSON.parse(response);
+					if (eqIsVisible) {
+						// Inection plus events:
+						$("#loader").show();
+						$.post("createCombinedJointPlot.cfm", packet, function(response) {
+							var jointData = JSON.parse(response);
 
-						$('#chart').highcharts( {
-							plotOptions: {
-						        area: {
-						            stacking: 'normal'
-						        }
-						    },
-							chart: {
-						        zoomType: 'xy',
-								events: {
-									load: function() {
-										$("#loader").hide();
+							$('#chart').highcharts( {
+								plotOptions: {
+							        area: {
+							            stacking: 'normal'
+							        }
+							    },
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
+										}
 									}
-								}
-						    },
-						    title: {
-						        text: titleText
-						    },
-							xAxis: {
-						        type: 'datetime',
-						        labels: {
-						            format: xDate,
-						            rotation: 45,
-						            align: 'left'
-						        }
-						    },
-						    yAxis: [ { // Primary yAxis
-						        title: {
-						            text: yText
-						        }
-						    }, { // Secondary yAxis
-						        title: {
-						            text: 'Total Injection (bbls)',
+							    },
+							    title: {
+							        text: titleText
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+							    yAxis: [ { // Primary yAxis
+							        title: {
+							            text: yText
+							        }
+							    }, { // Secondary yAxis
+							        title: {
+							            text: 'Total Injection (bbls)',
+							        },
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: true
+							    } ],
+								tooltip: {
+									crosshairs: {
+								        color: 'green',
+								        dashStyle: 'solid'
+								    }
+						        	// enabled: false
 						        },
-						        labels: {
-									format: '{value:,.0f}'
-						        },
-						        opposite: true
-						    } ],
-							tooltip: {
-								crosshairs: {
-							        color: 'green',
-							        dashStyle: 'solid'
-							    }
-					        	// enabled: false
-					        },
-						    series: jointData
+							    series: jointData
+							} );
 						} );
-					} );
+					} else {
+						graphIt = false;
+						alert("An earthquake layer must be selected for this plot type.");
+						$("#loader").hide();
+					}
 				}
 			}
 
-			if (graphWhere !== "") {
-				$(".ui-dialog").show();
-				$("#chart-container").dialog("open");
-				$("#chart").show();
-			} else {
-				$("#chart").hide();
-				$(".ui-dialog").hide();
-				alert("Select a location other than 'Statewide'.");
+			if (graphIt) {
+				if (graphWhere !== "") {
+					$(".ui-dialog").show();
+					$("#chart-container").dialog("open");
+					$("#chart").show();
+				} else {
+					$("#chart").hide();
+					$(".ui-dialog").hide();
+					alert("Select a location other than 'Statewide'.");
+				}
 			}
 			$("#loader").hide();
 		}
