@@ -2192,21 +2192,6 @@ function(
 				c1InjvolWhere = class1GeomWhere;
 			}
 
-			// var runPlot = false;
-			// if (class1Option) {
-			// 	if (c1InjvolWhere === "objectid in") {
-			// 		alert("There are no Class 1 wells inside this area. Please deselect the Class 1 plot option or change the area.");
-			// 	} else {
-			// 		runPlot = true;
-			// 	}
-			// }
-			// if (class2Option) {
-			// 	if (injvolWhere === "objectid in") {
-			// 		alert("There are no Class 2 wells inside this area. Please deselect the Class 2 plot option or change the area.");
-			// 	} else {
-			// 		runPlot = true;
-			// 	}
-			// }
 			if (class1Option && !classBothOption) {
 				var jointCountTitle = "Event Counts & Monthy Injection Volumes For Class 1 Wells";
 				var jointMagTitle = "Event Magnitudes & Monthy Injection Volumes For Class 1 Wells";
@@ -2245,6 +2230,17 @@ function(
 					var xDate = "{value:%b %Y}";
 					var xTooltipDate = "%b %Y";
 					var volTitle = "Total Monthy Injection Volumes for Class 1 and Class 2 Wells";
+				}
+
+				if (c1InjvolWhere === "objectid in") {
+					class1Option = false;
+				}
+				if (injvolWhere === "objectid in") {
+					class2Option = false;
+				}
+				if (!class1Option && !class2Option) {
+					alert("No injection data for these search criteria or dates, or no wells present in buffer.");
+					return;
 				}
 			}
 
@@ -2309,121 +2305,120 @@ function(
 
 			if (!classBothOption) {
 				// Plots for c1 or c2 individually.
-				// if (runPlot) {
-					if (graphType === "injvol") {
-						$("#loader").show();
-						$.post("createInjectionChartData.cfm", packet, function(response) {
-							var volData = JSON.parse(response);
 
-							if (volData[0].data.length !== 0) {
-								$('#chart').highcharts( {
-									chart: {
-								        zoomType: 'xy',
-										events: {
-											load: function() {
-												$("#loader").hide();
-											}
-										}
-								    },
-								    title: {
-								        text: volTitle
-								    },
-									xAxis: {
-								        type: 'datetime',
-								        labels: {
-								            // format: '{value:%Y-%m}',
-											format: xDate,
-								            rotation: 45,
-								            align: 'left'
-								        }
-								    },
-									yAxis: [ { // Primary yAxis
-										title: ""
-								    }, { // Secondary yAxi
-								        title: {
-								            text: 'Total Injection (bbls)',
-								        },
-								        labels: {
-											format: '{value:,.0f}'
-								        },
-								        opposite: false
-								    } ],
-									tooltip: {
-										crosshairs: {
-									        color: 'green',
-									        dashStyle: 'solid'
-									    }
-							        	// enabled: false
-							        },
-								    series: volData
-								} );
-							} else {
-								$(".ui-dialog").hide();
-								alert("No Injection data for these search criteria or dates, or no wells present in buffer.");
-								$("#loader").hide();
-							}
-						} );
-					} else if (graphType === "joint" || graphType === "jointcount") {
-						if (eqIsVisible) {
-							$("#loader").show();
-							$.post("createJointPlotData.cfm", packet, function(response) {
-								var jointData = JSON.parse(response);
+				if (graphType === "injvol") {
+					$("#loader").show();
+					$.post("createInjectionChartData.cfm", packet, function(response) {
+						var volData = JSON.parse(response);
 
-								$('#chart').highcharts( {
-									plotOptions: {
-								        area: {
-								            stacking: 'normal'
-								        }
-								    },
-									chart: {
-								        zoomType: 'xy',
-										events: {
-											load: function() {
-												$("#loader").hide();
-											}
+						if (volData[0].data.length !== 0) {
+							$('#chart').highcharts( {
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
 										}
-								    },
-								    title: {
-								        text: titleText
-								    },
-									xAxis: {
-								        type: 'datetime',
-								        labels: {
-								            format: xDate,
-								            rotation: 45,
-								            align: 'left'
-								        }
-								    },
-								    yAxis: [ { // Primary yAxis
-								        title: {
-								            text: yText
-								        }
-								    }, { // Secondary yAxis
-								        title: {
-								            text: 'Total Injection (bbls)',
-								        },
-								        labels: {
-											format: '{value:,.0f}'
-								        },
-								        opposite: true
-								    } ],
-									tooltip: {
-										crosshairs: {
-									        color: 'green',
-									        dashStyle: 'solid'
-									    }
-							        	// enabled: false
+									}
+							    },
+							    title: {
+							        text: volTitle
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            // format: '{value:%Y-%m}',
+										format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+								yAxis: [ { // Primary yAxis
+									title: ""
+							    }, { // Secondary yAxi
+							        title: {
+							            text: 'Total Injection (bbls)',
 							        },
-								    series: jointData
-								} );
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: false
+							    } ],
+								tooltip: {
+									crosshairs: {
+								        color: 'green',
+								        dashStyle: 'solid'
+								    }
+						        	// enabled: false
+						        },
+							    series: volData
 							} );
 						} else {
-							graphIt = false;
-							alert("An earthquake layer must be selected for this plot type.");
+							$(".ui-dialog").hide();
+							alert("No Injection data for these search criteria or dates, or no wells present in buffer.");
 							$("#loader").hide();
 						}
+					} );
+				} else if (graphType === "joint" || graphType === "jointcount") {
+					if (eqIsVisible) {
+						$("#loader").show();
+						$.post("createJointPlotData.cfm", packet, function(response) {
+							var jointData = JSON.parse(response);
+
+							$('#chart').highcharts( {
+								plotOptions: {
+							        area: {
+							            stacking: 'normal'
+							        }
+							    },
+								chart: {
+							        zoomType: 'xy',
+									events: {
+										load: function() {
+											$("#loader").hide();
+										}
+									}
+							    },
+							    title: {
+							        text: titleText
+							    },
+								xAxis: {
+							        type: 'datetime',
+							        labels: {
+							            format: xDate,
+							            rotation: 45,
+							            align: 'left'
+							        }
+							    },
+							    yAxis: [ { // Primary yAxis
+							        title: {
+							            text: yText
+							        }
+							    }, { // Secondary yAxis
+							        title: {
+							            text: 'Total Injection (bbls)',
+							        },
+							        labels: {
+										format: '{value:,.0f}'
+							        },
+							        opposite: true
+							    } ],
+								tooltip: {
+									crosshairs: {
+								        color: 'green',
+								        dashStyle: 'solid'
+								    }
+						        	// enabled: false
+						        },
+							    series: jointData
+							} );
+						} );
+					} else {
+						graphIt = false;
+						alert("An earthquake layer must be selected for this plot type.");
+						$("#loader").hide();
 					}
-				// }
+				}
 			} else {
 				// Plots for both c1 and c2 combined.
 				if (graphType === "injvol") {
