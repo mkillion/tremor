@@ -267,7 +267,7 @@
 <!--- Create JSON: --->
 <cfoutput>
     [
-        <cfif #form.plotc1# eq "true">
+        <cfif #form.plotc1# eq "true" AND #qC1Volumes.recordcount# gt 0>
         {
             "name": "#C1SeriesName#",
             "type": "area",
@@ -282,10 +282,14 @@
                     <cfset i = i + 1>
                 </cfloop>
             ]
-        },
+        }
         </cfif>
 
-        <cfif #form.plotc2# eq "true">
+        <cfif IsDefined("qC1Volumes") AND #qC1Volumes.recordcount# gt 0 AND IsDefined("qC2Volumes") AND #qC2Volumes.recordcount# gt 0>
+        ,
+        </cfif>
+
+        <cfif #form.plotc2# eq "true" AND #qC2Volumes.recordcount# gt 0>
         {
             "name": "#C2SeriesName#",
             "type": "area",

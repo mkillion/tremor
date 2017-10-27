@@ -2199,7 +2199,7 @@ function(
 				var volTitle = "Total Monthy Injection Volume - Class 1 Wells";
 
 				if (c1InjvolWhere === "objectid in") {
-					alert("No injection data for these search criteria or dates, or no wells present in buffer.");
+					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 					return;
 				}
 			}
@@ -2215,7 +2215,7 @@ function(
 				}
 
 				if (injvolWhere === "objectid in") {
-					alert("No injection data for these search criteria or dates, or no wells present in buffer.");
+					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 					return;
 				}
 			}
@@ -2239,14 +2239,14 @@ function(
 					class2Option = false;
 				}
 				if (!class1Option && !class2Option) {
-					alert("No injection data for these search criteria or dates, or no wells present in buffer.");
+					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 					return;
 				}
 			}
 
 			// Note, everything in packet might not be used in each cfm, but keeping it all is easiest:
 			var packet = { "type": graphType, "where": graphWhere, "includelayers": graphLayers, "jointeqwhere": jointEqWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "plotc1": class1Option, "plotc2": class2Option, "plotboth": classBothOption, "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
-			console.log(packet);
+
 			if (graphType === "count" || graphType === "mag" || graphType === "cumulative") {
 				// Events.
 				$("#loader").show();
@@ -2305,7 +2305,6 @@ function(
 
 			if (!classBothOption) {
 				// Plots for c1 or c2 individually.
-
 				if (graphType === "injvol") {
 					$("#loader").show();
 					$.post("createInjectionChartData.cfm", packet, function(response) {
@@ -2355,7 +2354,7 @@ function(
 							} );
 						} else {
 							$(".ui-dialog").hide();
-							alert("No Injection data for these search criteria or dates, or no wells present in buffer.");
+							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
@@ -2425,57 +2424,65 @@ function(
 					// Injection only. Stacked Area plot:
 					$("#loader").show();
 					$.post("createCombinedInjectionChartData.cfm", packet, function(response) {
-						var comboInjData = JSON.parse(response);
+						if (response.length != 22) {
+							// If 22, then there's no data.
 
-						if (comboInjData[0].data.length !== 0) {
-							$('#chart').highcharts( {
-								chart: {
-							        zoomType: 'xy',
-									events: {
-										load: function() {
-											$("#loader").hide();
+							var comboInjData = JSON.parse(response);
+
+							if (comboInjData[0].data.length !== 0) {
+								$('#chart').highcharts( {
+									chart: {
+								        zoomType: 'xy',
+										events: {
+											load: function() {
+												$("#loader").hide();
+											}
 										}
-									}
-							    },
-								plotOptions: {
-							        area: {
-							            stacking: 'normal'
-							        }
-							    },
-							    title: {
-							        text: volTitle
-							    },
-								xAxis: {
-							        type: 'datetime',
-							        labels: {
-							            // format: '{value:%Y}',
-										format: xDate,
-							            rotation: 45,
-							            align: 'left'
-							        }
-							    },
-								yAxis: [
-									{
-										title: {
-											text: 'Total Injection (bbls)'
+								    },
+									plotOptions: {
+								        area: {
+								            stacking: 'normal'
+								        }
+								    },
+								    title: {
+								        text: volTitle
+								    },
+									xAxis: {
+								        type: 'datetime',
+								        labels: {
+								            // format: '{value:%Y}',
+											format: xDate,
+								            rotation: 45,
+								            align: 'left'
+								        }
+								    },
+									yAxis: [
+										{
+											title: {
+												text: 'Total Injection (bbls)'
+											}
 										}
-									}
-								],
-								tooltip: {
-							        split: true,	// not working.
-							        distance: 20,
-									xDateFormat: xTooltipDate,
-							        padding: 5,
-									crosshairs: {
-									    color: 'black',
-									    dashStyle: 'solid'
-									}
-							    },
-							    series: comboInjData
-							} );
+									],
+									tooltip: {
+								        split: true,	// not working.
+								        distance: 20,
+										xDateFormat: xTooltipDate,
+								        padding: 5,
+										crosshairs: {
+										    color: 'black',
+										    dashStyle: 'solid'
+										}
+								    },
+								    series: comboInjData
+								} );
+							} else {
+								$(".ui-dialog").hide();
+								alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+								$("#loader").hide();
+							}
 						} else {
 							$(".ui-dialog").hide();
-							alert("No injection data for these search criteria or dates, or no wells present in buffer.");
+							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
