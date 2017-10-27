@@ -2040,6 +2040,7 @@ function(
 
 
 	makeChart = function() {
+		$("#loader").show();
 		var graphIt = true;
 
 		var fromDate = dom.byId('from-date').value;
@@ -2199,7 +2200,8 @@ function(
 				var volTitle = "Total Monthy Injection Volume - Class 1 Wells";
 
 				if (c1InjvolWhere === "objectid in") {
-					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					alert("A-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					$("#loader").hide();
 					return;
 				}
 			}
@@ -2215,7 +2217,8 @@ function(
 				}
 
 				if (injvolWhere === "objectid in") {
-					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					alert("B-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					$("#loader").hide();
 					return;
 				}
 			}
@@ -2239,7 +2242,8 @@ function(
 					class2Option = false;
 				}
 				if (!class1Option && !class2Option) {
-					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					alert("C-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					$("#loader").hide();
 					return;
 				}
 			}
@@ -2354,7 +2358,7 @@ function(
 							} );
 						} else {
 							$(".ui-dialog").hide();
-							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+							alert("D-No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
@@ -2477,12 +2481,12 @@ function(
 								} );
 							} else {
 								$(".ui-dialog").hide();
-								alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+								alert("E-No injection data for these search criteria or dates, or no wells present in geographic selection.");
 								$("#loader").hide();
 							}
 						} else {
 							$(".ui-dialog").hide();
-							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+							alert("F-No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
@@ -2815,9 +2819,9 @@ function(
         }, dom.byId("drawer_menus"));
         drawerMenu.startup();
 
-		$("#chart-btn").click(function() {
-			$("#loader").show();
-		} );
+		// $("#chart-btn").click(function() {
+		// 	$("#loader").show();
+		// } );
 
 		// Facilities select box for Locate panel. Putting it down here because of loading order issues.
 		$.get("getFacilities.cfm?get=fac", function(response) {
