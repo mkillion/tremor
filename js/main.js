@@ -2200,9 +2200,11 @@ function(
 				var volTitle = "Total Monthy Injection Volume - Class 1 Wells";
 
 				if (c1InjvolWhere === "objectid in") {
-					alert("A-No injection data for these search criteria or dates, or no wells present in geographic selection.");
-					$("#loader").hide();
-					return;
+					if (graphType != "count" && graphType != "mag" && graphType != "cumulative") {
+						alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
+						$("#loader").hide();
+						return;
+					}
 				}
 			}
 			if (class2Option && !classBothOption) {
@@ -2217,7 +2219,7 @@ function(
 				}
 
 				if (injvolWhere === "objectid in") {
-					alert("B-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 					$("#loader").hide();
 					return;
 				}
@@ -2242,7 +2244,7 @@ function(
 					class2Option = false;
 				}
 				if (!class1Option && !class2Option) {
-					alert("C-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+					alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 					$("#loader").hide();
 					return;
 				}
@@ -2358,7 +2360,7 @@ function(
 							} );
 						} else {
 							$(".ui-dialog").hide();
-							alert("D-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
@@ -2481,12 +2483,12 @@ function(
 								} );
 							} else {
 								$(".ui-dialog").hide();
-								alert("E-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+								alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 								$("#loader").hide();
 							}
 						} else {
 							$(".ui-dialog").hide();
-							alert("F-No injection data for these search criteria or dates, or no wells present in geographic selection.");
+							alert("No injection data for these search criteria or dates, or no wells present in geographic selection.");
 							$("#loader").hide();
 						}
 					} );
