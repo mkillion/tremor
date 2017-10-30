@@ -1,4 +1,3 @@
-
 require([
 	"dojo/_base/lang",
 	"dojo/on",
