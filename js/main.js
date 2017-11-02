@@ -2987,8 +2987,10 @@ function(
 
 		$("#dashboard").html(dbCon);
 
-		$("#from-date").datepicker();
-        $("#to-date").datepicker();
+		if (!isMobile) {
+			$("#from-date").datepicker();
+	        $("#to-date").datepicker();
+		}
 
 		$("#close-db").click(function() {
 			$(".dashboard").hide();

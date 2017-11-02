@@ -521,4 +521,5 @@ input[type=checkbox] {
 
 #cp_outer_left {
 	border-right: 1px solid #000;
+	overflow-y: scroll;
 }
