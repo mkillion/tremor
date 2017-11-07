@@ -3296,9 +3296,9 @@ function(
 			hu = horizontalUncertainty.toFixed(1) + " km";
 		}
 
-		var content = "<table id='popup-tbl'><tr><td>Event ID: </td><td>{EVENT_ID}</td></tr>";
+		var content = "<table id='popup-tbl'><tr><td>Quake ID: </td><td>{QUAKE_ID}</td></tr>";
 		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
-		content += "<tr><td>Origin Time (local): </td><td>{local_time}</td></tr>";
+		content += "<tr><td>Origin Time (local): </td><td>{LOCAL_TIME}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
@@ -3308,7 +3308,7 @@ function(
         content += "<tr><td>Magnitude (" + mt + "): </td><td>" + m + "</td></tr>";
 		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
 		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
-        content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";
+        content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";	// TODO: change this to QUAKE_ID? Think this is a stub for linking to a "full report".
 
         return content;
     }
