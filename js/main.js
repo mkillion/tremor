@@ -542,9 +542,6 @@ function(
 			$(".esri-icon-checkbox-checked").show();
 		} );
 
-		urlParams = location.search.substr(1);
-	    urlZoom(urlParams);
-
 		// Get dates of most recent C1 and C2 injection data availability:
 		$.get("getMostRecentC1Date.cfm", function(response) {
 			arrLastAvailableC1Data = response.split(",");
@@ -552,6 +549,9 @@ function(
 
 			updateMap();
 		} );
+
+		urlParams = location.search.substr(1);
+	    urlZoom(urlParams);
     } );
 
 	var searchWidget = new Search( {
@@ -1664,10 +1664,8 @@ function(
             } )
             .then(function(feature) {
 				if (feature.length > 0) {
-
-
 					// Set dashboard time buttons to match origin time:
-					var arrOrigTime = feature[0].attributes.local_time.split("/");
+					var arrOrigTime = feature[0].attributes.LOCAL_TIME.split("/");
 					var y = arrOrigTime[2].substring(0,4);
 					var m = arrOrigTime[0] - 1;
 					var d = arrOrigTime[1];
@@ -1692,6 +1690,7 @@ function(
 						$("#tim-all").prop("checked", true);
 					}
 				}
+
 				updateMap();
 				openPopup(feature);
 				zoomToFeature(feature);
