@@ -159,10 +159,10 @@ function(
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map", visible:true} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
 	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
-	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Cataloged Events", visible:true} );
+	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Permanent Events", visible:true} );
 	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:true} );
-	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Cataloged Events", visible:false} );
-	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Cataloged Events", visible:false} );
+	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Permanent Events", visible:false} );
+	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Permanent Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
@@ -1838,7 +1838,7 @@ function(
         findTask.execute(findParams).then(function(response) {
 			if (what === "event" && response.results.length > 0) {
 				switch (response.results[0].layerName) {
-					case "KGS Cataloged Events":
+					case "KGS Permanent Events":
 						kgsCatalogedLayer.visible = true;
 						$("#KGS-Cataloged-Events input").prop("checked", true);
 						break;
@@ -1846,11 +1846,11 @@ function(
 						kgsPrelimLayer.visible = true;
 						$("#KGS-Preliminary-Events input").prop("checked", true);
 						break;
-					case "NEIC Cataloged Events":
+					case "NEIC Permaent Events":
 						neicLayer.visible = true;
 						$("#NEIC-Cataloged-Events input").prop("checked", true);
 						break;
-					case "OGS Cataloged Events":
+					case "OGS Permaent Events":
 						ogsLayer.visible = true;
 						$("#OGS-Cataloged-Events input").prop("checked", true);
 						break;
@@ -2713,7 +2713,7 @@ function(
         // Find panel:
         content = '';
         content += '<div class="panel-container">';
-        content += '<div class="panel-header">Locate</div>';
+        content += '<div class="panel-header">Find</div>';
         content += '<div class="panel-padding">';
 
 		// well (api and c1 facility):
@@ -2793,7 +2793,7 @@ function(
 		content += '<span id="reset-finds"><button onclick="resetFinds()">Reset</button></span>';
 
         menuObj = {
-            label: '<div class="icon-zoom-in"></div><div class="icon-text">Locate</div>',
+            label: '<div class="icon-zoom-in"></div><div class="icon-text">Find</div>',
             content: content
         };
         drawerMenus.push(menuObj);
@@ -3072,8 +3072,8 @@ function(
 		otherEqContent += '<div class="find-body hide" id="other-group-body">';
 
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
-		var earthquakeGroup = ["KGS-Cataloged-Events","KGS-Preliminary-Events"];
-		var otherEarthquakeGroup = ["NEIC-Cataloged-Events","Historic-Events"];
+		var earthquakeGroup = ["KGS-Permanent-Events","KGS-Preliminary-Events"];
+		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
 		var wellsGroup = ["Class-2-Wells","Class-1-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures","Precambrian-Arbuckle-Faults"];
@@ -3122,7 +3122,7 @@ function(
 
 		eqTocContent += otherEqContent;
 
-		var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Cataloged earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
+		var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Permanent earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
 		var wellsDisclaimer = "<span class='note'>Well symbols are initially gray if there's no injection data for the current year.</span>";
 
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
@@ -3176,7 +3176,7 @@ function(
 
 		for (var i = 0; i < visLayers.length; i++) {
 			switch (visLayers[i]) {
-				case "KGS Cataloged Events":
+				case "KGS Permanent Events":
 					idLayers.push(14);
 					break;
 				case "KGS Preliminary Events":
@@ -3185,7 +3185,7 @@ function(
 				case "Historic Events":
 					idLayers.push(20);
 					break;
-				case "NEIC Cataloged Events":
+				case "NEIC Permaent Events":
 					idLayers.push(16);
 					break;
 				case "Class 2 Wells":

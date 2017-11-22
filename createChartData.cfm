@@ -2,10 +2,10 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
-<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Cataloged Events", "'KGS'")>
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Cataloged Events", "'US'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "'C1'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "'C2'")>
 
@@ -98,7 +98,7 @@
                 <cfset Lyr = #layer#>
                 {
                 <cfif #layer# eq "KGS">
-                    "name": "KGS Cataloged",
+                    "name": "KGS Permanent",
                     "color": "rgba(255,85,0,0.85)",
                 <cfelseif #layer# eq "EWA">
                     "name": "KGS Preliminary",

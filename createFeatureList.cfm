@@ -70,9 +70,9 @@
         <!--- GET RECORDS: --->
         <cfquery name="qFeatureData" maxRows="500" datasource="gis_webinfo">
             select
-                decode(layer, 'KGS', 'KGS Cataloged',
+                decode(layer, 'KGS', 'KGS Permanent',
                     'EWA', 'KGS Preliminary',
-                    'OGS', 'OGS Cataloged') as eq_type,
+                    'OGS', 'OGS Permanent') as eq_type,
                 to_char(origin_time,'mm/dd/yyyy') as the_date,
                 round(mc, 1) || '&nbsp;&nbsp;mc' as mag,
                 event_id
@@ -86,7 +86,7 @@
 				mc is not null
 			union
 			select
-                decode(layer, 'USGS', 'NEIC Cataloged') as eq_type,
+                decode(layer, 'USGS', 'NEIC Permanent') as eq_type,
                 to_char(origin_time,'mm/dd/yyyy') as the_date,
                 round(ml, 1) || '&nbsp;&nbsp;ml' as mag,
                 event_id
