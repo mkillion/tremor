@@ -98,6 +98,11 @@ th {
 	z-index: 20;
 }
 
+input,
+select {
+	font-size: 16px;
+}
+
 .esri-icon-close {
 	cursor: pointer;
 	font-size: 16px;
