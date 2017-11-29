@@ -168,7 +168,7 @@ function(
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
-	var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
+	// var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
 
 
 	var c1GrayRenderer = new ClassBreaksRenderer( {
@@ -432,7 +432,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, arbuckleFaultsLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -636,11 +636,12 @@ function(
 		{
 			layer: class1Layer,
 			title: "Class 1 Wells"
-		},
-		{
-			layer: arbuckleFaultsLayer,
-			title: " "
 		}
+		// ,
+		// {
+		// 	layer: arbuckleFaultsLayer,
+		// 	title: " "
+		// }
 		]
 	}, "legend-content" );
 
