@@ -169,6 +169,7 @@ function(
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
 	// var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
+	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:4}], id:"Precambrian Top", visible:false} );
 
 
 	var c1GrayRenderer = new ClassBreaksRenderer( {
@@ -432,7 +433,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, precambrianLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -3077,7 +3078,7 @@ function(
 		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
 		var wellsGroup = ["Class-2-Wells","Class-1-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
-		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Basement-Structures","Precambrian-Arbuckle-Faults"];
+		var basemapGroup = ["Base-Map", "Precambrian-Top","Topo","Aerial-Imagery","Basement-Structures"];
 
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</div>';
 		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
@@ -3113,7 +3114,7 @@ function(
 			}
 
 			if (basemapGroup.indexOf(htmlID) > -1) {
-				if (htmlID === "Basement-Structures" || htmlID === "Precambrian-Arbuckle-Faults") {
+				if (htmlID === "Basement-Structures" || htmlID === "Precambrian-Top") {
 					basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='checkbox' value='" + layerID + "' id='tcb-" + j + "' onclick='toggleLayer(" + j + ");'" + chkd + ">" + layerID + "</label></div>";
 				} else {
 					basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='" + layerID + "' onclick='toggleBasemapLayer();'" + chkd + "> " + layerID + "</label></div>";
