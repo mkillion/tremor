@@ -1,3 +1,4 @@
+
 require([
 	"dojo/_base/lang",
 	"dojo/on",
@@ -45,6 +46,7 @@ require([
 	"esri/geometry/support/webMercatorUtils",
 	"esri/Viewpoint",
 	"esri/widgets/ScaleBar",
+	"esri/core/urlUtils",
     "dojo/domReady!"
 ],
 function(
@@ -93,8 +95,22 @@ function(
 	SimpleMarkerSymbol,
 	webMercatorUtils,
 	Viewpoint,
-	ScaleBar
+	ScaleBar,
+	urlUtils
 ) {
+	urlUtils.addProxyRule(
+ 		{
+         	urlPrefix: "//services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general/MapServer",
+         	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+     	}
+	);
+	urlUtils.addProxyRule(
+		{
+        	urlPrefix: "//services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer",
+        	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+    	}
+	);
+
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
 	var idDef = [];
