@@ -184,8 +184,7 @@ function(
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
-	// var arbuckleFaultsLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian-Arbuckle Faults", visible:false} );
-	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:4}], id:"Precambrian Top", visible:false} );
+	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian Top", visible:false} );
 
 
 	var c1GrayRenderer = new ClassBreaksRenderer( {
@@ -449,7 +448,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, precambrianLayer, usgsTopoLayer, latestAerialsLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, latestAerialsLayer, usgsTopoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -818,6 +817,9 @@ function(
 			theLayer.renderer = c2GrayRenderer;
 		}
 	}
+
+
+	$("#pc-info-container").dialog( {title:"Precambrian Top", autoOpen:false, height:300, width:600} );
 
 
     function popCountyDropdown() {
@@ -3094,7 +3096,7 @@ function(
 		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
 		var wellsGroup = ["Class-2-Wells","Class-1-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
-		var basemapGroup = ["Base-Map", "Precambrian-Top","Topo","Aerial-Imagery","Basement-Structures"];
+		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Precambrian-Top","Basement-Structures"];
 
 		tocContent += '<div class="find-header esri-icon-right-triangle-arrow group-hdr" id="eq-group"><span class="find-hdr-txt"> Earthquakes</div>';
 		tocContent += '<div class="find-body hide" id="eq-group-body"></div>';
@@ -3142,6 +3144,7 @@ function(
 
 		var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Permanent earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
 		var wellsDisclaimer = "<span class='note'>Well symbols are initially gray if there's no injection data for the current year.</span>";
+		var pcTopDisclaimer = 'Source: "Cole, V.B. 1976.  Configuration of the top of Precambrian rocks in Kansas. Kansas Geological Survey, Map Series, no. M-7, 1 sheet, scale 1:500,000". Note: Control points have been removed to avoid confusion with earthquakes. Click <a href="http://www.kgs.ku.edu/Publications/Bulletins/Map7/ks_precambrian_map.pdf" target="_blank">here</a> to view the original map with control points.';
 
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
@@ -3152,6 +3155,13 @@ function(
 		$("#boundaries-group-body").html(boundariesTocContent);
 		basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='none' onclick='toggleBasemapLayer();'> None</label></div>";
 		$("#basemap-group-body").html(basemapTocContent);
+
+		// Add info icon for PC Top:
+		$("#Precambrian-Top").append("<span class='esri-icon-description'></span>");
+		$(".esri-icon-description").click(function() {
+			$("#pc-info-container").dialog("open");
+		} );
+		$("#pc-info").html(pcTopDisclaimer);
 
 		// Click handlers for TOC groups:
 		$(".group-hdr").click(function() {

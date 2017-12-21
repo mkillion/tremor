@@ -28,6 +28,12 @@
 	max-width: 250px;
 }
 
+.esri-icon-description {
+	cursor: pointer;
+	font-size: 18px;
+	padding-left: 5px;
+}
+
 .esri-popup__position-container {
 	z-index: 25;
 }
