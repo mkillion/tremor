@@ -1644,11 +1644,6 @@ function(
     function openPopup(feature) {
 		dom.byId("mapDiv").style.cursor = "auto";
 		view.popup.features = feature;
-		// view.popup.dockEnabled = true;
-		// view.popup.dockOptions = {
-		// 	buttonEnabled: false,
-		// 	position: "bottom-right"
-		// };
 		view.popup.visible = true;
 
 		$(".esri-icon-checkbox-checked").show();
