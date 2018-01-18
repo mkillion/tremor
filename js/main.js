@@ -568,6 +568,12 @@ function(
 
 		urlParams = location.search.substr(1);
 	    urlZoom(urlParams);
+
+		view.popup.dockEnabled = true;
+		view.popup.dockOptions = {
+			buttonEnabled: false,
+			position: "bottom-right"
+		};
     } );
 
 	var searchWidget = new Search( {
@@ -1638,11 +1644,11 @@ function(
     function openPopup(feature) {
 		dom.byId("mapDiv").style.cursor = "auto";
 		view.popup.features = feature;
-		view.popup.dockEnabled = true;
-		view.popup.dockOptions = {
-			buttonEnabled: false,
-			position: "bottom-right"
-		};
+		// view.popup.dockEnabled = true;
+		// view.popup.dockOptions = {
+		// 	buttonEnabled: false,
+		// 	position: "bottom-right"
+		// };
 		view.popup.visible = true;
 
 		$(".esri-icon-checkbox-checked").show();
@@ -3323,18 +3329,19 @@ function(
 			hu = horizontalUncertainty.toFixed(1) + " km";
 		}
 
-		var content = "<table id='popup-tbl'><tr><td>Quake ID: </td><td>{QUAKE_ID}</td></tr>";
-		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
+		var content = "<table id='popup-tbl'>";
+		content += "<tr><td>Magnitude (" + mt + "): </td><td>" + m + "</td></tr>";
 		content += "<tr><td>Origin Time (local): </td><td>{LOCAL_TIME}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
+		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
+		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
+		content += "<tr><td>Quake ID: </td><td>{QUAKE_ID}</td></tr>";
+		content += "<tr><td>Reporting Agency: </td><td>" + ag + "</td></tr>";
 		content += "<tr><td>Latitude: </td><td>" + lat + "&deg;</td></tr>";
         content += "<tr><td>Longitude: </td><td>" + lon + "&deg;</td></tr>";
 		content += "<tr><td>Horizontal Uncertainty: </td><td>" + hu + "</td></tr>";
 		content += "<tr><td>Depth: </td><td>" + dep + "</td></tr>";
 		content += "<tr><td>Vertical Uncertainty: </td><td>" + de + "</td></tr>";
-        content += "<tr><td>Magnitude (" + mt + "): </td><td>" + m + "</td></tr>";
-		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
-		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
         content += "<span id='event-id' class='hide'>{EVENT_ID}</span></table>";	// TODO: change this to QUAKE_ID? Think this is a stub for linking to a "full report".
 
         return content;
