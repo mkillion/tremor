@@ -2576,11 +2576,11 @@ function(
 
 			if (graphIt) {
 				if (graphWhere !== "") {
-					$(".ui-dialog").show();
+					// $(".ui-dialog").show();
 					$("#chart-container").dialog("open");
 					$("#chart").show();
 				} else {
-					$("#chart").hide();
+					// $("#chart").hide();
 					$(".ui-dialog").hide();
 					alert("Select a location other than 'Statewide'.");
 				}
