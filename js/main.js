@@ -182,7 +182,7 @@ function(
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
-	var usgsTopoLayer = new TileLayer( {url:"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer", id:"Topo", visible:false} );
+	var topoLayer = new TileLayer( {url:"http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
 	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian Top", visible:false} );
 
@@ -448,7 +448,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, usgsTopoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, latestAerialsLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -3453,24 +3453,24 @@ function(
 		var chkdLyr = $("input[name=bm]:checked").val();
 		switch (chkdLyr) {
 			case "Topo":
-				usgsTopoLayer.visible = true;
+				topoLayer.visible = true;
 				latestAerialsLayer.visible = false;
 				basemapLayer.visible = false;
 				break;
 			case "Base Map":
 				basemapLayer.visible = true;
-				usgsTopoLayer.visible = false;
+				topoLayer.visible = false;
 				latestAerialsLayer.visible = false;
 				break;
 			case "Aerial Imagery":
 				latestAerialsLayer.visible = true;
 				basemapLayer.visible = false;
-				usgsTopoLayer.visible = false;
+				topoLayer.visible = false;
 				break;
 			case "none":
 				basemapLayer.visible = false;
 				latestAerialsLayer.visible = false;
-				usgsTopoLayer.visible = false;
+				topoLayer.visible = false;
 				break;
 		}
 	}
