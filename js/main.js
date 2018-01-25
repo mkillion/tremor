@@ -578,7 +578,7 @@ function(
 
 	var searchWidget = new Search( {
 		view: view,
-		popupEnabled: false
+		popupEnabled: true
 	}, "srch" );
 
 	var stateVp = new Viewpoint( {
