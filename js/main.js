@@ -890,7 +890,6 @@ function(
 		$("[name=loc-type]").filter("[value='state']").prop("checked", true);
 		$("[name=time-type]").filter("[value='week']").prop("checked", true);
 
-		// TODO: reset next 2 lines when done testing:
 		// $("[name=mag-type]").filter("[value='gt3517']").prop("checked", true);
 		$("[name=mag-type]").filter("[value='all']").prop("checked", true);
 
@@ -933,7 +932,7 @@ function(
 		saveRadioPrefs("tim-week");
 		saveTextboxPrefs("from-date");
 		saveTextboxPrefs("to-date");
-		saveRadioPrefs("mag-all");	// TODO: reset this to 3517 when in production (see SP first).
+		saveRadioPrefs("mag-all");
 		saveTextboxPrefs("low-mag");
 		saveTextboxPrefs("high-mag");
 		saveRadioPrefs("wel-bbl");

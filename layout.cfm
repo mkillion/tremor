@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script>
+        <cfoutput>
+            var #toScript(GetAuthUser(), "logged")#;
+        </cfoutput>
+        
+        if (logged === "") {
+            window.top.location = 'index.cfm';
+        }
+    </script>
+
+
     <meta charset="utf-8" />
     <!--Define the versions of IE that will be used to render the page. See Microsoft documentation for details. Optional.-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
