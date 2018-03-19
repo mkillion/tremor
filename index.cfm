@@ -23,7 +23,8 @@
 </head>
 
 <body>
-
+<img src="images/kgs_logo.png">
+<p>
 <cfform name="frmLogin" id="frmLogin" onsubmit="handleLogin();return false;">
 <table class="login" cellspacing="3">
 	<tr><td class="label">User Name:</td><td><input type="text" name="username" id="username" size="25"></td></tr>
