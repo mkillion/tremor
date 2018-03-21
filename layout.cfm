@@ -5,8 +5,8 @@
         <cfoutput>
             var #toScript(GetAuthUser(), "authUser")#;
         </cfoutput>
-
-        if (authUser === "") {
+        
+        if (!authUser) {
             window.top.location = 'index.cfm';
         }
     </script>

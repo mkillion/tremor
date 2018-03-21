@@ -12,10 +12,14 @@
 
 <script type="text/javascript">
 	handleLogin = function() {
+		$("#loader").show();
         var packet = {"username": $("#username").val(), "password": $("#password").val()};
         $.post("processLogin.cfm", packet, function(response) {
 			if (response === 'authenticated') {
-                window.top.location = 'layout.cfm';
+				setTimeout(function() {
+					window.top.location = 'layout.cfm';
+					$("#loader").hide();
+				}, 2000 );
             } else {
                 alert('Invalid login - please try again.');
             }
@@ -33,7 +37,7 @@ Tremor Database Mapper:
 <table class="login" cellspacing="3">
 	<tr><td class="label">User Name:</td><td><input type="text" name="username" id="username" size="25"></td></tr>
 	<tr><td class="label">Password:</td><td><input type="password" name="password" id="password" size="25"></td></tr>
-	<tr><td></td><td><input class="submit" type="submit" name="login" value="Log In"></td></tr>
+	<tr><td></td><td><input class="submit" type="submit" name="login" value="Log In"><img id="loader" style="display:none;margin-left:8px" src="images/ajax-loader.gif"></td></tr>
 </table>
 </cfform>
 
