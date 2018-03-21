@@ -1,10 +1,12 @@
-
+<cflogout>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//Dtd HTML 4.01 transitional//EN" "http://www.w3.org/tr/html4/loose.dtd">
 <html>
 <head>
-<title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
@@ -15,7 +17,7 @@
 			if (response === 'authenticated') {
                 window.top.location = 'layout.cfm';
             } else {
-                alert('Invalid login - please try again or contact the KGS.');
+                alert('Invalid login - please try again.');
             }
 		} );
 	}
@@ -24,6 +26,8 @@
 
 <body>
 <img src="images/kgs_logo.png">
+<p>
+Tremor Database Mapper:
 <p>
 <cfform name="frmLogin" id="frmLogin" onsubmit="handleLogin();return false;">
 <table class="login" cellspacing="3">

@@ -1,4 +1,3 @@
-﻿
 <cfsetting enablecfoutputonly="true">
 
 <cflogin>
@@ -9,8 +8,7 @@
 	</cfquery>
 
     <cfif qAuthenticate.recordcount gt 0>
-		<cfloginuser name="#qAuthenticate.user_name#" password="#qAuthenticate.pw#" roles="#qAuthenticate.user_name#">
-		<cfset session.loggedin = "true">
+		<cfloginuser name="#qAuthenticate.user_name#" password="#qAuthenticate.pw#" roles="user">
 		<cfoutput>authenticated</cfoutput>
 	<cfelse>
 		<cfoutput>denied</cfoutput>

@@ -3,10 +3,10 @@
 <head>
     <script>
         <cfoutput>
-            var #toScript(GetAuthUser(), "logged")#;
+            var #toScript(GetAuthUser(), "authUser")#;
         </cfoutput>
-        
-        if (logged === "") {
+
+        if (authUser === "") {
             window.top.location = 'index.cfm';
         }
     </script>
