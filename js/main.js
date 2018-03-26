@@ -467,26 +467,10 @@ function(
 		createTOC();
 		createDashboard();
 		popCountyDropdown();
-
-		var isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g);
-
-		if (!isIE) {
-			// TODO: save prefs not working in IE as of 20170417, disabling it until I can revisit it down the road.
-			if ( localStorage.getItem("saved") === "true" ) {
-				$("#save-prefs-chk").prop("checked", true);
-				setRadioPrefs();
-				setTextboxPrefs();
-				setTocPrefs();
-				if ( localStorage.getItem("center-x") ) {
-					view.center = [localStorage.getItem("center-x"), localStorage.getItem("center-y")];
-					view.zoom = localStorage.getItem("zoom");
-				}
-			} else {
-				$("#save-prefs-chk").prop("checked", false);
-			}
-		} else {
-			$("#save-prefs").html("");
-		}
+		// setRadioPrefs();
+		// setTextboxPrefs();
+		// setTocPrefs();
+		view.extent = JSON.parse( localStorage.getItem("kgstremor-ext") );
 
         on(view, "click", executeIdTask);
 
@@ -522,10 +506,7 @@ function(
         } );
 
 		view.watch("extent", function() {
-			var center = webMercatorUtils.webMercatorToGeographic(view.center);
-			localStorage.setItem("center-x", center.x);
-			localStorage.setItem("center-y", center.y);
-			localStorage.setItem("zoom", view.zoom);
+			localStorage.setItem("kgstremor-ext", JSON.stringify(view.extent));
 		} );
 
 		view.on("double-click", function(event) {
