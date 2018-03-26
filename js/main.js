@@ -469,7 +469,7 @@ function(
 		popCountyDropdown();
 		// setRadioPrefs();
 		// setTextboxPrefs();
-		// setTocPrefs();
+		setTocPrefs();
 		view.extent = JSON.parse( localStorage.getItem("kgstremor-ext") );
 
         on(view, "click", executeIdTask);
