@@ -19,7 +19,7 @@
 				setTimeout(function() {
 					window.top.location = 'layout.cfm';
 					$("#loader").hide();
-				}, 3000 );
+				}, 3500 );
             } else {
                 alert('Invalid login - please try again.');
             }
