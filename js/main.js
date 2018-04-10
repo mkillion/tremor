@@ -366,7 +366,7 @@ function(
 		} )
 	} );
 	c2GrayRenderer.legendOptions = {
-  		title: "2016 Total Fluid Injection (bbls)"
+  		title: "2017 Total Fluid Injection (bbls)"
 	};
 
 	var c2ColorRenderer = new ClassBreaksRenderer( {
@@ -423,7 +423,7 @@ function(
 		} )
 	} );
 	c2ColorRenderer.legendOptions = {
-  		title: "2016 Total Fluid Injection (bbls)"
+  		title: "2017 Total Fluid Injection (bbls)"
 	};
 
 	var swdLayer = new MapImageLayer( {
@@ -881,7 +881,7 @@ function(
 		$("#loc-buff").val("6");
 		$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
 		$("#bbls").val("150,000");
-		$("#inj-year").val("2016");
+		// $("#inj-year").val("2016");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
 		$("#chkArb").prop("checked", false);
@@ -918,7 +918,7 @@ function(
 		saveTextboxPrefs("high-mag");
 		saveRadioPrefs("wel-bbl");
 		saveTextboxPrefs("bbls");
-		saveTextboxPrefs("inj-year");
+		// saveTextboxPrefs("inj-year");
 
 		// Disable injection graphs:
 		$(".inj-graph-text").css("color", "#808080");
@@ -1964,7 +1964,7 @@ function(
 
 		$("#bbls").val( localStorage.getItem("bbls") );
 
-		$("#inj-year").val( localStorage.getItem("inj-year") );
+		// $("#inj-year").val( localStorage.getItem("inj-year") );
 	}
 
 
