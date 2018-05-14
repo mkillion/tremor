@@ -2325,7 +2325,7 @@ function(
 		}
 
 		if (filterLyrs.length === 0) {
-			alert("At least one earthquake or well layer must be visible.")
+			alert("At least one earthquake or well layer must be visible.");
 		} else {
 			var graphLayers = filterLyrs.join(",");
 
@@ -3140,7 +3140,7 @@ function(
 		} ).get();
 
 		if (filterLyrs.length === 0) {
-			alert("At least one earthquake or well layer must be visible.")
+			alert("At least one earthquake or well layer must be visible.");
 		} else {
 			var graphLayers = filterLyrs.join(",");
 
