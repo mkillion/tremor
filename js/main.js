@@ -175,17 +175,263 @@ function(
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map", visible:true} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
 	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
-	var kgsCatalogedLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:14}], id:"KGS Permanent Events", visible:true} );
-	var kgsPrelimLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:15}], id:"KGS Preliminary Events", visible:true} );
-	var neicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:16}], id:"NEIC Permanent Events", visible:false} );
-	// var ogsLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:17}], id:"OGS Permanent Events", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
-	var historicLayer = new MapImageLayer( {url:tremorGeneralServiceURL, sublayers:[{id:20}], id:"Historic Events", visible:false} );
 	var topoLayer = new TileLayer( {url:"http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer", id:"Topo", visible:false} );
 	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
 	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian Top", visible:false} );
 
+	var prelimEventRenderer = new ClassBreaksRenderer( {
+		field: "magnitude"
+	} );
+	prelimEventRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1,
+		label: "Less than 1.0",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 10,
+    		color: [223, 115, 255, 0.80]
+		} )
+	} );
+	prelimEventRenderer.addClassBreakInfo( {
+  		minValue: 1,
+  		maxValue: 2,
+		label: "1 to 1.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 14,
+    		color: [223, 115, 255, 0.80]
+		} )
+	} );
+	prelimEventRenderer.addClassBreakInfo( {
+  		minValue: 2,
+  		maxValue: 3,
+		label: "2 to 2.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 18,
+    		color: [223, 115, 255, 0.80]
+		} )
+	} );
+	prelimEventRenderer.addClassBreakInfo( {
+  		minValue: 3,
+  		maxValue: 4,
+		label: "3 to 3.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 22,
+    		color: [223, 115, 255, 0.80]
+		} )
+	} );
+	prelimEventRenderer.addClassBreakInfo( {
+  		minValue: 4,
+  		maxValue: 9,
+		label: "4.0 and greater",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 26,
+    		color: [223, 115, 255, 0.80]
+		} )
+	} );
+	var kgsPrelimLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 15,
+			renderer: prelimEventRenderer
+		} ],
+		id:"KGS Preliminary Events",
+		visible: true
+	} );
+
+	var catalogedEventRenderer = new ClassBreaksRenderer( {
+		field: "magnitude"
+	} );
+	catalogedEventRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1,
+		label: "Less than 1.0",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 10,
+    		color: [245, 122, 122, 0.80]
+		} )
+	} );
+	catalogedEventRenderer.addClassBreakInfo( {
+  		minValue: 1,
+  		maxValue: 2,
+		label: "1 to 1.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 14,
+    		color: [245, 122, 122, 0.80]
+		} )
+	} );
+	catalogedEventRenderer.addClassBreakInfo( {
+  		minValue: 2,
+  		maxValue: 3,
+		label: "2 to 2.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 18,
+    		color: [245, 122, 122, 0.80]
+		} )
+	} );
+	catalogedEventRenderer.addClassBreakInfo( {
+  		minValue: 3,
+  		maxValue: 4,
+		label: "3 to 3.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 22,
+    		color: [245, 122, 122, 0.80]
+		} )
+	} );
+	catalogedEventRenderer.addClassBreakInfo( {
+  		minValue: 4,
+  		maxValue: 9,
+		label: "4.0 and greater",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 26,
+    		color: [245, 122, 122, 0.80]
+		} )
+	} );
+	var kgsCatalogedLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 14,
+			renderer: catalogedEventRenderer
+		} ],
+		id:"KGS Permanent Events",
+		visible: true
+	} );
+
+	var neicEventRenderer = new ClassBreaksRenderer( {
+		field: "magnitude"
+	} );
+	neicEventRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1,
+		label: "Less than 1.0",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 10,
+    		color: [115, 223, 255, 0.80]
+		} )
+	} );
+	neicEventRenderer.addClassBreakInfo( {
+  		minValue: 1,
+  		maxValue: 2,
+		label: "1 to 1.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 14,
+    		color: [115, 223, 255, 0.80]
+		} )
+	} );
+	neicEventRenderer.addClassBreakInfo( {
+  		minValue: 2,
+  		maxValue: 3,
+		label: "2 to 2.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 18,
+    		color: [115, 223, 255, 0.80]
+		} )
+	} );
+	neicEventRenderer.addClassBreakInfo( {
+  		minValue: 3,
+  		maxValue: 4,
+		label: "3 to 3.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 22,
+    		color: [115, 223, 255, 0.80]
+		} )
+	} );
+	neicEventRenderer.addClassBreakInfo( {
+  		minValue: 4,
+  		maxValue: 9,
+		label: "4.0 and greater",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 26,
+    		color: [115, 223, 255, 0.80]
+		} )
+	} );
+	var neicLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 16,
+			renderer: neicEventRenderer
+		} ],
+		id:"NEIC Permanent Events",
+		visible: false
+	} );
+
+	var historicEventRenderer = new ClassBreaksRenderer( {
+		field: "magnitude"
+	} );
+	historicEventRenderer.addClassBreakInfo( {
+  		minValue: 0,
+  		maxValue: 1,
+		label: "Less than 1.0",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 10,
+    		color: [0, 255, 0, 0.80]
+		} )
+	} );
+	historicEventRenderer.addClassBreakInfo( {
+  		minValue: 1,
+  		maxValue: 2,
+		label: "1 to 1.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 14,
+    		color: [0, 255, 0, 0.80]
+		} )
+	} );
+	historicEventRenderer.addClassBreakInfo( {
+  		minValue: 2,
+  		maxValue: 3,
+		label: "2 to 2.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 18,
+    		color: [0, 255, 0, 0.80]
+		} )
+	} );
+	historicEventRenderer.addClassBreakInfo( {
+  		minValue: 3,
+  		maxValue: 4,
+		label: "3 to 3.9",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 22,
+    		color: [0, 255, 0, 0.80]
+		} )
+	} );
+	historicEventRenderer.addClassBreakInfo( {
+  		minValue: 4,
+  		maxValue: 9,
+		label: "4.0 and greater",
+  		symbol: new SimpleMarkerSymbol( {
+    		style: "circle",
+    		size: 26,
+    		color: [0, 255, 0, 0.80]
+		} )
+	} );
+	var historicLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 20,
+			renderer: historicEventRenderer
+		} ],
+		id:"Historic Events",
+		visible: false
+	} );
 
 	var c1GrayRenderer = new ClassBreaksRenderer( {
 		field: "LAST_VOLUME"
@@ -3191,7 +3437,7 @@ function(
 				case "Historic Events":
 					idLayers.push(20);
 					break;
-				case "NEIC Permaent Events":
+				case "NEIC Permanent Events":
 					idLayers.push(16);
 					break;
 				case "Class 2 Wells":
