@@ -10,30 +10,23 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
-<script type="text/javascript">
-	handleLogin = function() {
-		$("#loader").show();
-        var packet = {"username": $("#username").val(), "password": $("#password").val()};
-        $.post("processLogin.cfm", packet, function(response) {
-			if (response === 'authenticated') {
-				setTimeout(function() {
-					window.top.location = 'layout.cfm';
-					$("#loader").hide();
-				}, 3500 );
-            } else {
-                alert('Invalid login - please try again.');
-            }
-		} );
+<style>
+	td {
+		font: normal normal normal 14px arial;
 	}
-</script>
+</style>
 </head>
 
 <body>
 <img src="images/kgs_logo.png">
 <p>
-Tremor Database Mapper:
+<span style="font:normal normal normal 14px arial">Tremor Database Mapper:</span>
 <p>
-<cfform name="frmLogin" id="frmLogin" onsubmit="handleLogin();return false;">
+<cfif isDefined("session.auth") and session.auth eq False>
+	<span style="font:normal normal bold 14px arial">Invalid login, please try again.</span>
+</cfif>
+<p>
+<cfform name="frmLogin" id="frmLogin" action="processLogin.cfm">
 <table class="login" cellspacing="3">
 	<tr><td class="label">User Name:</td><td><input type="text" name="username" id="username" size="25"></td></tr>
 	<tr><td class="label">Password:</td><td><input type="password" name="password" id="password" size="25"></td></tr>

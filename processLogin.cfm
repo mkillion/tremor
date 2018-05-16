@@ -8,9 +8,10 @@
 	</cfquery>
 
     <cfif qAuthenticate.recordcount gt 0>
-		<cfloginuser name="#qAuthenticate.user_name#" password="#qAuthenticate.pw#" roles="user">
-		<cfoutput>authenticated</cfoutput>
+        <cfset session.auth = True>
+        <cflocation url="layout.cfm">
 	<cfelse>
-		<cfoutput>denied</cfoutput>
+        <cfset session.auth = False>
+        <cflocation url="index.cfm">
 	</cfif>
 </cflogin>

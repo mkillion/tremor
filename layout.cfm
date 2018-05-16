@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-        <cfoutput>
-            var #toScript(GetAuthUser(), "authUser")#;
-        </cfoutput>
-        
-        if (!authUser) {
-            window.top.location = 'index.cfm';
-        }
-    </script>
-
+    <cfif NOT isDefined("session.auth") OR session.auth eq False>
+        <cflocation url="index.cfm">
+        <cfabort>
+    </cfif>
 
     <meta charset="utf-8" />
     <!--Define the versions of IE that will be used to render the page. See Microsoft documentation for details. Optional.-->
