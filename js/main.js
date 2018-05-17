@@ -174,7 +174,8 @@ function(
 
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map", visible:true} );
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
-	var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
+	// var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
+	var esriImageryLayer = new TileLayer( {url:"http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", id:"Aerial Imagery", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
 	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	var topoLayer = new TileLayer( {url:"http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer", id:"Topo", visible:false} );
@@ -694,7 +695,7 @@ function(
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
     var map = new Map( {
-		layers: [basemapLayer, latestAerialsLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+		layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
     } );
 
     var graphicsLayer = new GraphicsLayer();
@@ -2050,6 +2051,8 @@ function(
             case "county":
                 findParams.layerIds = [2];
                 findParams.searchFields = ["county"];
+				findParams.contains = false;
+				findParams.returnGeometry = true;
                 findParams.searchText = dom.byId("lstCounty").value;
                 break;
             case "field":
@@ -2977,10 +2980,10 @@ function(
         content += '</div>';
 
 		// county:
-        content += '<div class="find-header esri-icon-right-triangle-arrow" id="county"><span class="find-hdr-txt"> County</span></div>';
-        content += '<div class="find-body hide" id="find-county">';
-        content += '<table><tr><td class="find-label">County:</td><td><select id="lstCounty"></select></td><td><button class=find-button onclick=findIt("county")>Find</button></td></tr></table>';
-        content += '</div>';
+        // content += '<div class="find-header esri-icon-right-triangle-arrow" id="county"><span class="find-hdr-txt"> County</span></div>';
+        // content += '<div class="find-body hide" id="find-county">';
+        // content += '<table><tr><td class="find-label">County:</td><td><select id="lstCounty"></select></td><td><button class=find-button onclick=findIt("county")>Find</button></td></tr></table>';
+        // content += '</div>';
 
 		// plss:
         content += '<div class="find-header esri-icon-right-triangle-arrow" id="plss"><span class="find-hdr-txt"> Section-Township-Range</span></div>';
@@ -3004,7 +3007,7 @@ function(
         content += '</table></div>';
 
         // address:
-        content += '<div class="find-header esri-icon-right-triangle-arrow" id="address"><span class="find-hdr-txt"> Address or Place<span></div>';
+        content += '<div class="find-header esri-icon-right-triangle-arrow" id="address"><span class="find-hdr-txt"> Address, Place, or County<span></div>';
         content += '<div class="find-body hide" id="find-address">';
         content += '<div id="srch"></div>';
         content += '</div>';
@@ -3677,22 +3680,22 @@ function(
 		switch (chkdLyr) {
 			case "Topo":
 				topoLayer.visible = true;
-				latestAerialsLayer.visible = false;
+				esriImageryLayer.visible = false;
 				basemapLayer.visible = false;
 				break;
 			case "Base Map":
 				basemapLayer.visible = true;
 				topoLayer.visible = false;
-				latestAerialsLayer.visible = false;
+				esriImageryLayer.visible = false;
 				break;
 			case "Aerial Imagery":
-				latestAerialsLayer.visible = true;
+				esriImageryLayer.visible = true;
 				basemapLayer.visible = false;
 				topoLayer.visible = false;
 				break;
 			case "none":
 				basemapLayer.visible = false;
-				latestAerialsLayer.visible = false;
+				esriImageryLayer.visible = false;
 				topoLayer.visible = false;
 				break;
 		}
