@@ -11,8 +11,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
 <style>
-	td {
+	td,
+	.hdr {
 		font: normal normal normal 14px arial;
+	}
+
+	#err {
+		font-weight: bold;
 	}
 </style>
 </head>
@@ -20,10 +25,10 @@
 <body>
 <img src="images/kgs_logo.png">
 <p>
-<span style="font:normal normal normal 14px arial">Tremor Database Mapper:</span>
+<span class="hdr">Tremor Database Mapper:</span>
 <p>
 <cfif isDefined("session.auth") and session.auth eq False>
-	<span style="font:normal normal bold 14px arial">Invalid login, please try again.</span>
+	<span class="hdr" id="err">Invalid login, please try again.</span>
 </cfif>
 <p>
 <cfform name="frmLogin" id="frmLogin" action="processLogin.cfm">

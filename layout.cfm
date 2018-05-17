@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <cfif NOT isDefined("session.auth") OR session.auth eq False>
+    <cfif NOT isDefined("session.auth") OR NOT session.auth>
         <cflocation url="index.cfm">
         <cfabort>
     </cfif>
