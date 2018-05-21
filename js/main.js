@@ -2321,7 +2321,7 @@ function(
 
 		// See if any earthquake layers are visible, for alert when joint plots are selected:
 		var eqVisibleLyrs = filterLyrs.join();
-		if (eqVisibleLyrs.indexOf('Events') != -1) {
+		if (eqVisibleLyrs.indexOf("Events") != -1) {
 			var eqIsVisible = true;
 		} else {
 			var eqIsVisible = false;
@@ -3098,10 +3098,18 @@ function(
 
 
 	dataDownload = function() {
-		// Which download options are checked:
+		var filterLyrs = $("input:checked[class=filterable]").map(function() {
+			return $(this).val();
+		} ).get();
+
 		var downloadOptions = [];
 		if ( $("#chk-dwn-evts").is(":checked") ) {
-			downloadOptions.push("events");
+			if (filterLyrs.join().indexOf("Events") != -1) {
+				downloadOptions.push("events");
+			} else {
+				alert("At least one earthquake layer must be visible (Display tab).");
+			}
+
 		}
 		if ( $("#chk-dwn-c2s").is(":checked") ) {
 			downloadOptions.push("wells");
@@ -3137,10 +3145,6 @@ function(
 		if (wellsGeomWhere) {
 			c1InjvolWhere = class1GeomWhere;
 		}
-
-		var filterLyrs = $("input:checked[class=filterable]").map(function() {
-			return $(this).val();
-		} ).get();
 
 		if (filterLyrs.length === 0) {
 			alert("At least one earthquake or well layer must be visible.");
