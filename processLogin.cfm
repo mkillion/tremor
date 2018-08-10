@@ -9,7 +9,11 @@
 
     <cfif qAuthenticate.recordcount gt 0>
         <cfset session.auth = True>
-        <cflocation url="layout.cfm">
+        <cfif isDefined("url.id")>
+            <cflocation url="layout.cfm?type=quake&id=#url.id#">
+        <cfelse>
+            <cflocation url="layout.cfm">
+        </cfif>
 	<cfelse>
         <cfset session.auth = False>
         <cflocation url="index.cfm">

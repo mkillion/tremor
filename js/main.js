@@ -1899,7 +1899,7 @@ function(
 					fieldsLayer.visible = true;
 	                $("#Oil-and-Gas-Fields input").prop("checked", true);
                     break;
-				case "event":
+				case "quake":
                     findParams.layerIds = [14,15];
                     findParams.searchFields = ["quake_id"];
                     break;

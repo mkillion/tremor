@@ -22,6 +22,16 @@
 </style>
 </head>
 
+<!--- Stuff to pass-through quake ID so can auto-zoom to event: --->
+<cfset ActionPage = "processLogin.cfm">
+<cfif isDefined("url.type")>
+	<cfset FeatureType = #url.type#>
+	<cfset FeatureID = #url.id#>
+	<cfif FeatureType eq "quake">
+		<cfset ActionPage = "processLogin.cfm?id=" & FeatureID>
+	</cfif>
+</cfif>
+
 <body>
 <img src="images/kgs_logo.png">
 <p>
@@ -31,7 +41,7 @@
 	<span class="hdr" id="err">Invalid login, please try again.</span>
 </cfif>
 <p>
-<cfform name="frmLogin" id="frmLogin" action="processLogin.cfm">
+<cfform name="frmLogin" id="frmLogin" action="#ActionPage#">
 <table class="login" cellspacing="3">
 	<tr><td class="label">User Name:</td><td><input type="text" name="username" id="username" size="25"></td></tr>
 	<tr><td class="label">Password:</td><td><input type="password" name="password" id="password" size="25"></td></tr>
