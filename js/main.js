@@ -100,19 +100,13 @@ function(
 ) {
 	urlUtils.addProxyRule(
  		{
-         	urlPrefix: "//services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general/MapServer",
+         	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer",
          	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
      	}
 	);
 	urlUtils.addProxyRule(
 		{
-        	urlPrefix: "//services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer",
-        	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
-    	}
-	);
-	urlUtils.addProxyRule(
-		{
-        	urlPrefix: "//services.kgs.ku.edu/arcgis8/rest/services/tremor/quakes_reg/MapServer",
+        	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer",
         	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
     	}
 	);
@@ -173,10 +167,10 @@ function(
 	var n = location.search.substr(1).split("&")[0].substring(2);;
 	switch (n) {
 		case "23":
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer";
 			break;
 		case "29":
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/quakes_reg/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer";
 			break;
 	}
 
@@ -192,11 +186,11 @@ function(
     var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
 	// var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
 	var esriImageryLayer = new TileLayer( {url:"http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", id:"Aerial Imagery", visible:false} );
-	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
-	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
+	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
+	var seismicConcernExpandedLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:1}], id:"2016 Specified Area", visible:false} );
 	var topoLayer = new TileLayer( {url:"http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer", id:"Topo", visible:false} );
-	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
-	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian Top", visible:false} );
+	var basementStructuresLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:2}], id:"Basement Structures", visible:false} );
+	var precambrianLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:3}], id:"Precambrian Top", visible:false} );
 
 	var prelimEventRenderer = new ClassBreaksRenderer( {
 		field: "magnitude"
@@ -1661,7 +1655,7 @@ function(
 		}
 
 		qry.returnGeometry = true;
-		qt.url = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
+		qt.url = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer/" + serviceLyr;
 		qt.execute(qry).then(function(result) {
 			var f = result.features;
 			geom = (f[0].geometry);
