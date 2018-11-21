@@ -162,9 +162,8 @@ function(
 
 	createMenus();
 
-    // Create map, layers, and widgets:
 
-	var n = location.search.substr(1).split("&")[0].substring(2);;
+	var n = location.search.substr(1).split("&")[0].substring(2);
 	switch (n) {
 		case "23":
 			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer";
@@ -174,6 +173,7 @@ function(
 			break;
 	}
 
+	// Create map, layers, and widgets:
 	identifyTask = new IdentifyTask(tremorGeneralServiceURL);
 	identifyParams = new IdentifyParameters();
 	identifyParams.returnGeometry = true;

@@ -16,7 +16,7 @@
 
         <cfset session.auth = True>
         <cfif isDefined("url.id")>
-            <cflocation url="layout.cfm?type=quake&id=#url.id#&n=#User#">
+            <cflocation url="layout.cfm?n=#User#&type=quake&id=#url.id#">
         <cfelse>
             <cflocation url="layout.cfm?n=#User#">
         </cfif>
