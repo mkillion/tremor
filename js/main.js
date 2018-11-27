@@ -1893,8 +1893,8 @@ function(
     function urlZoom(urlParams) {
         var items = urlParams.split("&");
         if (items.length > 1) {
-            var extType = items[0].substring(5);
-            var extValue = items[1].substring(3);
+            var extType = items[1].substring(5);
+            var extValue = items[2].substring(3);
 
             findParams.contains = false;
 
