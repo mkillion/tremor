@@ -2073,12 +2073,12 @@ function(
                 fieldsLayer.visible = true;
                 $("#Oil-and-Gas-Fields input").prop("checked", true);
 				break;
-			case "event":
+			case "quake":
 				findParams.layerIds = [14, 15, 16, 17];
-				findParams.searchFields = ["event_id"];
+				findParams.searchFields = ["quake_id"];
 				findParams.contains = false;
 				findParams.returnGeometry = true;
-				findParams.searchText = parseInt(dom.byId("eventid").value);
+				findParams.searchText = parseInt(dom.byId("quakeid").value);
 				break;
 			case "facility":
 				findParams.layerIds = [18];
@@ -2165,7 +2165,7 @@ function(
 
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
-			if (what === "api" || what === "field" || what === "event" || what === "facility") {
+			if (what === "api" || what === "field" || what === "quake" || what === "facility") {
 				openPopup(feature);
 			}
 		} );
@@ -2900,7 +2900,7 @@ function(
 		$("#twn, #rng, #sec, #datum, #lstCounty").prop("selectedIndex", 0);
 		$("#rngdir-w").prop("checked", "checked");
 		$("[name=welltype]").filter("[value='none']").prop("checked",true);
-		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select, #eventid").val("");
+		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select, #quakeid").val("");
 	}
 
 
@@ -3031,11 +3031,11 @@ function(
         content += '<tr><td></td><td><button class="find-button" onclick="zoomToLatLong();">Find</button></td></tr>';
         content += '</table><hr></div>';
 
-		// earthquake event id:
-		// content += '<div class="find-header esri-icon-right-triangle-arrow" id="event"><span class="find-hdr-txt"> Event ID</span></div>';
-        // content += '<div class="find-body hide" id="find-event">';
-        // content += '<table><tr><td class="find-label">Event ID:</td><td><input id="eventid" size="14"></td><td><button class=find-button onclick=findIt("event")>Find</button></td></tr></table>';
-        // content += '</div>';
+		// quake id:
+		content += '<div class="find-header esri-icon-right-triangle-arrow" id="event"><span class="find-hdr-txt"> Quake ID</span></div>';
+        content += '<div class="find-body hide" id="find-event">';
+        content += '<table><tr><td class="find-label">Quake ID:</td><td><input id="quakeid" size="12"></td><td><button class=find-button onclick=findIt("quake")>Find</button></td></tr></table>';
+        content += '</div>';
 
         // field:
         // content += '<div class="find-header esri-icon-right-triangle-arrow" id="field"><span class="find-hdr-txt"> Oil-Gas Field</span></div>';
