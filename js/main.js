@@ -110,6 +110,12 @@ function(
         	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
     	}
 	);
+	urlUtils.addProxyRule(
+		{
+        	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts/MapServer",
+        	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+    	}
+	);
 
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
@@ -170,6 +176,9 @@ function(
 			break;
 		case "29":
 			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer";
+			break;
+		case "37":
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts/MapServer";
 			break;
 	}
 
