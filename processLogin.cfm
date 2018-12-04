@@ -12,9 +12,12 @@
             <cfset User = 23>
         <cfelseif #UCase(form.username)# eq "KCC">
             <cfset User = 29>
+        <cfelseif #UCase(form.username)# eq "TREMORS">
+            <cfset User = 37>
         </cfif>
 
         <cfset session.auth = True>
+        
         <cfif isDefined("url.id")>
             <cflocation url="layout.cfm?n=#User#&type=quake&id=#url.id#">
         <cfelse>

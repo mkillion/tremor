@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <cfif NOT isDefined("session.auth") OR NOT session.auth>
+    <cfif NOT isDefined("session.auth") OR NOT session.auth OR #cgi.http_referer# eq "">
         <cflocation url="index.cfm">
         <cfabort>
     </cfif>
