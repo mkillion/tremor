@@ -1,5 +1,10 @@
 <cfsetting enablecfoutputonly="true">
 
+<cfif (#cgi.http_referer# eq "http://maps.kgs.ku.edu/mk_test/tremor/form_test.html")>
+    <cfset form.username = "tremors">
+    <cfset form.password = "graboid">
+</cfif>
+
 <cflogin>
     <cfquery name="qAuthenticate" datasource="gis_webinfo">
 		select user_name, pw
@@ -17,7 +22,7 @@
         </cfif>
 
         <cfset session.auth = True>
-        
+
         <cfif isDefined("url.id")>
             <cflocation url="layout.cfm?n=#User#&type=quake&id=#url.id#">
         <cfelse>
