@@ -3575,7 +3575,8 @@ function(
 
 		var content = "<table id='popup-tbl'>";
 		content += "<tr><td>Magnitude (" + mt + "): </td><td>" + m + "</td></tr>";
-		content += "<tr><td>Origin Time (local): </td><td>{LOCAL_TIME}</td></tr>";
+		content += "<tr><td>Local Origin Time: </td><td>{LOCAL_TIME}</td></tr>";
+		content += "<tr><td>UTC Origin Time: </td><td>{ORIGIN_TIME}</td></tr>";
 		content += "<tr><td>Origin Time Error: </td><td>" + ote + "</td></tr>";
 		content += "<tr><td>Seismic Action Score: </td><td>" + sas + "</td></tr>";
 		content += "<tr><td>County: </td><td>" + co + "</td></tr>";
