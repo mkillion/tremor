@@ -1,6 +1,6 @@
 <cfsetting enablecfoutputonly="true">
 
-<cfif (#cgi.http_referer# eq "http://maps.kgs.ku.edu/mk_test/tremor/form_test.html")>
+<cfif (#cgi.http_referer# eq "http://www.kgs.ku.edu/Geophysics/CSTS/Group/index2.html")>
     <cfset form.username = "tremors">
     <cfset form.password = "graboid">
 </cfif>
