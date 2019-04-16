@@ -632,7 +632,7 @@ function(
 		} )
 	} );
 	c2GrayRenderer.legendOptions = {
-  		title: "2017 Total Fluid Injection (bbls)"
+  		title: "2018 Total Fluid Injection (bbls)"
 	};
 
 	var c2ColorRenderer = new ClassBreaksRenderer( {
@@ -689,7 +689,7 @@ function(
 		} )
 	} );
 	c2ColorRenderer.legendOptions = {
-  		title: "2017 Total Fluid Injection (bbls)"
+  		title: "2018 Total Fluid Injection (bbls)"
 	};
 
 	var swdLayer = new MapImageLayer( {
