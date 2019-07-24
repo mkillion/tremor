@@ -195,7 +195,7 @@ function(
 	findParams.returnGeometry = true;
 
     var basemapLayer = new TileLayer( {url:"http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer", id:"Base Map", visible:true} );
-    var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss/MapServer", id:"Section-Township-Range", visible:false} );
+    var plssLayer = new TileLayer( {url:"http://services.kgs.ku.edu/arcgis8/rest/services/plss/plss_anno_labels/MapServer", id:"Section-Township-Range", visible:false} );
 	// var latestAerialsLayer = new ImageryLayer( {url:"http://services.kgs.ku.edu/arcgis7/rest/services/IMAGERY_STATEWIDE/FSA_NAIP_2015_Color/ImageServer", id:"Aerial Imagery", visible:false} );
 	var esriImageryLayer = new TileLayer( {url:"http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", id:"Aerial Imagery", visible:false} );
 	var seismicConcernLayer = new MapImageLayer( {url:"http://services.kgs.ku.edu/arcgis2/rest/services/tremor/seismic_areas/MapServer", sublayers:[{id:0}], id:"2015 Areas of Seismic Concern", visible:false} );
