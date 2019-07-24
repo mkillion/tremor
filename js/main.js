@@ -98,24 +98,24 @@ function(
 	ScaleBar,
 	urlUtils
 ) {
-	urlUtils.addProxyRule(
- 		{
-         	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer",
-         	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
-     	}
-	);
-	urlUtils.addProxyRule(
-		{
-        	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer",
-        	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
-    	}
-	);
-	urlUtils.addProxyRule(
-		{
-        	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts/MapServer",
-        	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
-    	}
-	);
+	// urlUtils.addProxyRule(
+ 	// 	{
+    //      	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer",
+    //      	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+    //  	}
+	// );
+	// urlUtils.addProxyRule(
+	// 	{
+    //     	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer",
+    //     	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+    // 	}
+	// );
+	// urlUtils.addProxyRule(
+	// 	{
+    //     	urlPrefix: "//services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts/MapServer",
+    //     	proxyUrl: "//maps.kgs.ku.edu/dot/proxy.jsp"
+    // 	}
+	// );
 
     var isMobile = WURFL.is_mobile;
 	var firstUpdatePass = true;
@@ -172,13 +172,16 @@ function(
 	var n = location.search.substr(1).split("&")[0].substring(2);
 	switch (n) {
 		case "23":
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general/MapServer";
+			console.log("general service");
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general_2/MapServer";
 			break;
 		case "29":
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg/MapServer";
+			console.log("reg service");
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_2/MapServer";
 			break;
 		case "37":
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts/MapServer";
+			console.log("csts service");
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_2/MapServer";
 			break;
 	}
 
@@ -257,7 +260,7 @@ function(
 	var kgsPrelimLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 15,
+			id: 3,
 			renderer: prelimEventRenderer
 		} ],
 		id:"KGS Preliminary Events",
@@ -320,7 +323,7 @@ function(
 	var kgsCatalogedLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 14,
+			id: 2,
 			renderer: catalogedEventRenderer
 		} ],
 		id:"KGS Permanent Events",
@@ -383,7 +386,7 @@ function(
 	var neicLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 16,
+			id: 4,
 			renderer: neicEventRenderer
 		} ],
 		id:"NEIC Permanent Events",
@@ -446,7 +449,7 @@ function(
 	var historicLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 20,
+			id: 8,
 			renderer: historicEventRenderer
 		} ],
 		id:"Historic Events",
@@ -570,7 +573,7 @@ function(
 	var class1Layer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 18,
+			id: 6,
 		 	renderer: c1GrayRenderer
 		} ],
 		id:"Class 1 Wells",
@@ -695,7 +698,7 @@ function(
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 19,
+			id: 7,
 		 	renderer: c2GrayRenderer
 		} ],
 		id:"Class 2 Wells",
@@ -1055,18 +1058,18 @@ function(
 
 		// Swap renderers:
 		if (c1Available) {
-			var theLayer = class1Layer.findSublayerById(18);
+			var theLayer = class1Layer.findSublayerById(6);
 			theLayer.renderer = c1ColorRenderer;
 		} else {
-			var theLayer = class1Layer.findSublayerById(18);
+			var theLayer = class1Layer.findSublayerById(6);
 			theLayer.renderer = c1GrayRenderer;
 		}
 
 		if (c2Available) {
-			var theLayer = swdLayer.findSublayerById(19);
+			var theLayer = swdLayer.findSublayerById(7);
 			theLayer.renderer = c2ColorRenderer;
 		} else {
-			var theLayer = swdLayer.findSublayerById(19);
+			var theLayer = swdLayer.findSublayerById(7);
 			theLayer.renderer = c2GrayRenderer;
 		}
 	}
@@ -1152,19 +1155,19 @@ function(
 		$(".esri-icon-erase").hide();
 		$("#chkArb").prop("checked", false);
 
-		swdLayer.findSublayerById(19).definitionExpression = "";
-		kgsCatalogedLayer.findSublayerById(14).definitionExpression = "";
-		kgsPrelimLayer.findSublayerById(15).definitionExpression = "";
-		neicLayer.findSublayerById(16).definitionExpression = "";
-		historicLayer.findSublayerById(20).definitionExpression = "";
-		swdLayer.findSublayerById(19).definitionExpression = "";
-		idDef[14] = "";
-		idDef[15] = "";
-		idDef[16] = "";
-		idDef[17] = "";
-		idDef[18] = "";
-		idDef[20] = "";
-		idDef[19] = "";
+		swdLayer.findSublayerById(7).definitionExpression = "";
+		kgsCatalogedLayer.findSublayerById(2).definitionExpression = "";
+		kgsPrelimLayer.findSublayerById(3).definitionExpression = "";
+		neicLayer.findSublayerById(4).definitionExpression = "";
+		historicLayer.findSublayerById(8).definitionExpression = "";
+		swdLayer.findSublayerById(7).definitionExpression = "";
+		idDef[2] = "";
+		idDef[3] = "";
+		idDef[4] = "";
+		idDef[5] = "";
+		idDef[6] = "";
+		idDef[8] = "";
+		idDef[7] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
@@ -1685,7 +1688,7 @@ function(
 		var qry = new Query();
 		geomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/21";	// Note this selects all events so objectids are already in where clause when layer is made visible.
+		qt.url = tremorGeneralServiceURL + "/9";	// Note this selects all events so objectids are already in where clause when layer is made visible.
 		qry.geometry = geom;
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
@@ -1709,7 +1712,7 @@ function(
 		var qry = new Query();
 		wellsGeomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/19";
+		qt.url = tremorGeneralServiceURL + "/7";
 		qry.geometry = geom;
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
@@ -1734,7 +1737,7 @@ function(
 		var qry = new Query();
 		class1GeomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/18";
+		qt.url = tremorGeneralServiceURL + "/6";
 		qry.geometry = geom;
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
@@ -1787,14 +1790,14 @@ function(
 			comboWhere = "";
 		}
 
-		kgsCatalogedLayer.findSublayerById(14).definitionExpression = comboWhere;
-		kgsPrelimLayer.findSublayerById(15).definitionExpression = comboWhere;
-		neicLayer.findSublayerById(16).definitionExpression = comboWhere;
-		historicLayer.findSublayerById(20).definitionExpression = comboWhere;
-		idDef[14] = comboWhere;
-		idDef[15] = comboWhere;
-		idDef[16] = comboWhere;
-		idDef[20] = comboWhere;
+		kgsCatalogedLayer.findSublayerById(2).definitionExpression = comboWhere;
+		kgsPrelimLayer.findSublayerById(3).definitionExpression = comboWhere;
+		neicLayer.findSublayerById(4).definitionExpression = comboWhere;
+		historicLayer.findSublayerById(8).definitionExpression = comboWhere;
+		idDef[2] = comboWhere;
+		idDef[3] = comboWhere;
+		idDef[4] = comboWhere;
+		idDef[8] = comboWhere;
 
 		if (wellsAttrWhere && wellsGeomWhere) {
 			wellsComboWhere = wellsAttrWhere + " and (" + wellsGeomWhere + ")";
@@ -1809,8 +1812,8 @@ function(
 			wellsComboWhere = "";
 		}
 
-		swdLayer.findSublayerById(19).definitionExpression = wellsComboWhere;
-		idDef[19] = wellsComboWhere;
+		swdLayer.findSublayerById(7).definitionExpression = wellsComboWhere;
+		idDef[7] = wellsComboWhere;
 
 		if (c1WellsAttrWhere && class1GeomWhere) {
 			class1ComboWhere = c1WellsAttrWhere + " and (" + class1GeomWhere + ")";
@@ -1825,8 +1828,8 @@ function(
 			class1ComboWhere = "";
 		}
 
-		class1Layer.findSublayerById(18).definitionExpression = class1ComboWhere;
-		idDef[18] = class1ComboWhere;
+		class1Layer.findSublayerById(6).definitionExpression = class1ComboWhere;
+		idDef[6] = class1ComboWhere;
 	}
 
 
@@ -1908,18 +1911,18 @@ function(
             findParams.contains = false;
 
             switch (extType) {
-                case "well":
-                    findParams.layerIds = [0];
-                    findParams.searchFields = ["kid"];
-                    break;
-                case "field":
-                    findParams.layerIds = [1];
-                    findParams.searchFields = ["field_kid"];
-					fieldsLayer.visible = true;
-	                $("#Oil-and-Gas-Fields input").prop("checked", true);
-                    break;
+                // case "well":
+                //     findParams.layerIds = [0];
+                //     findParams.searchFields = ["kid"];
+                //     break;
+                // case "field":
+                //     findParams.layerIds = [1];
+                //     findParams.searchFields = ["field_kid"];
+				// 	fieldsLayer.visible = true;
+	            //     $("#Oil-and-Gas-Fields input").prop("checked", true);
+                //     break;
 				case "quake":
-                    findParams.layerIds = [14,15];
+                    findParams.layerIds = [2,3];
                     findParams.searchFields = ["quake_id"];
                     break;
             }
@@ -2044,12 +2047,12 @@ function(
 
                 if (dom.byId('sec').value !== "") {
                     plssText = 'S' + dom.byId('sec').value + '-T' + dom.byId('twn').value + 'S-R' + dom.byId('rng').value + dir;
-                    findParams.layerIds = [3];
+                    findParams.layerIds = [0];
                     findParams.searchFields = ["s_r_t"];
                 }
                 else {
                     plssText = 'T' + dom.byId('twn').value + 'S-R' + dom.byId('rng').value + dir;
-                    findParams.layerIds = [4];
+                    findParams.layerIds = [1];
                     findParams.searchFields = ["t_r"];
                 }
                 findParams.searchText = plssText;
@@ -2060,7 +2063,7 @@ function(
                 if (dom.byId('api_extension').value != "") {
                     apiText = apiText + "-" + dom.byId('api_extension').value;
                 }
-                findParams.layerIds = [19];
+                findParams.layerIds = [7];
                 findParams.searchFields = ["api_number"];
                 findParams.searchText = apiText;
 				findParams.contains = false;
@@ -2068,36 +2071,28 @@ function(
                 $("#Salt-Water-Disposal-Wells input").prop("checked", true);
                 break;
             case "county":
-                findParams.layerIds = [2];
+                findParams.layerIds = [10];
                 findParams.searchFields = ["county"];
 				findParams.contains = false;
 				findParams.returnGeometry = true;
                 findParams.searchText = dom.byId("lstCounty").value;
                 break;
-            case "field":
-                findParams.layerIds = [1];
-                findParams.searchFields = ["field_name"];
-                findParams.contains = false;
-                findParams.searchText = dom.byId("field-select").value;
-                fieldsLayer.visible = true;
-                $("#Oil-and-Gas-Fields input").prop("checked", true);
-				break;
 			case "quake":
-				findParams.layerIds = [14, 15, 16, 17];
+				findParams.layerIds = [2, 3, 4, 5];
 				findParams.searchFields = ["quake_id"];
 				findParams.contains = false;
 				findParams.returnGeometry = true;
 				findParams.searchText = parseInt(dom.byId("quakeid").value);
 				break;
 			case "facility":
-				findParams.layerIds = [18];
+				findParams.layerIds = [6];
 				findParams.searchFields = ["facility_name"];
 				findParams.contains = false;
 				findParams.returnGeometry = true;
 				findParams.searchText = dom.byId("fac-wells").value
 				break;
 			case "gname":
-				findParams.layerIds = [18];
+				findParams.layerIds = [6];
 				findParams.searchFields = ["well_name"];
 				findParams.contains = false;
 				findParams.returnGeometry = true;
@@ -2133,35 +2128,37 @@ function(
 			var selectWellType = $("input:radio[name=welltype]:checked").val();
 
 			if (what === "plss") {
-				if (selectWellType !== "none") {
-					if (selectWellType === "Oil and Gas") {
-						var lyrID = "/0";
-						// Attributes to be included in download file:
-						query.outFields = ["KID","API_NUMBER","LEASE_NAME","WELL_NAME","STATE_CODE","COUNTY","FIELD_NAME","FIELD_KID","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","SUBDIVISION_1_LARGEST","SUBDIVISION_2","SUBDIVISION_3","SUBDIVISION_4_SMALLEST","SPOT","FEET_NORTH_FROM_REFERENCE","FEET_EAST_FROM_REFERENCE","REFERENCE_CORNER","ROTARY_TOTAL_DEPTH","ELEVATION_KB","ELEVATION_GL","ELEVATION_DF","PRODUCING_FORMATION","NAD27_LATITUDE","NAD27_LONGITUDE","OPERATOR_NAME","CURR_OPERATOR","PERMIT_DATE_TXT","SPUD_DATE_TXT","COMPLETION_DATE_TXT","PLUG_DATE_TXT","STATUS_TXT"];
-						wellsLayer.visible = true;
-	                    $("#Oil-and-Gas-Wells input").prop("checked", true);
-					} else {
-						// water.
-						var lyrID = "/8";
-						query.outFields = ["INPUT_SEQ_NUMBER","OWNER_NAME","USE_DESC","DWR_APPROPRIATION_NUMBER","MONITORING_NUMBER","COUNTY","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","QUARTER_CALL_1_LARGEST","QUARTER_CALL_2","QUARTER_CALL_3","NAD27_LATITUDE","NAD27_LONGITUDE","DEPTH_TXT","ELEV_TXT","STATIC_LEVEL_TXT","YIELD_TXT","STATUS","COMP_DATE_TXT","CONTRACTOR"];
-						wwc5Layer.visible = true;
-	                    $("#WWC5-Water-Wells input").prop("checked", true);
-					}
-
-					query.where = "township="+dom.byId('twn').value+" and township_direction='S' and range="+dom.byId('rng').value+" and range_direction='"+dir+"'";
-					if (dom.byId('sec').value !== "") {
-						query.where += " and section=" + dom.byId('sec').value;
-					}
-				} else {
-					$("#wells-tbl").html("");
-				}
+				console.log("line 2131");
+				// if (selectWellType !== "none") {
+				// 	if (selectWellType === "Oil and Gas") {
+				// 		var lyrID = "/0";
+				// 		// Attributes to be included in download file:
+				// 		query.outFields = ["KID","API_NUMBER","LEASE_NAME","WELL_NAME","STATE_CODE","COUNTY","FIELD_NAME","FIELD_KID","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","SUBDIVISION_1_LARGEST","SUBDIVISION_2","SUBDIVISION_3","SUBDIVISION_4_SMALLEST","SPOT","FEET_NORTH_FROM_REFERENCE","FEET_EAST_FROM_REFERENCE","REFERENCE_CORNER","ROTARY_TOTAL_DEPTH","ELEVATION_KB","ELEVATION_GL","ELEVATION_DF","PRODUCING_FORMATION","NAD27_LATITUDE","NAD27_LONGITUDE","OPERATOR_NAME","CURR_OPERATOR","PERMIT_DATE_TXT","SPUD_DATE_TXT","COMPLETION_DATE_TXT","PLUG_DATE_TXT","STATUS_TXT"];
+				// 		wellsLayer.visible = true;
+	            //         $("#Oil-and-Gas-Wells input").prop("checked", true);
+				// 	} else {
+				// 		// water.
+				// 		var lyrID = "/8";
+				// 		query.outFields = ["INPUT_SEQ_NUMBER","OWNER_NAME","USE_DESC","DWR_APPROPRIATION_NUMBER","MONITORING_NUMBER","COUNTY","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","QUARTER_CALL_1_LARGEST","QUARTER_CALL_2","QUARTER_CALL_3","NAD27_LATITUDE","NAD27_LONGITUDE","DEPTH_TXT","ELEV_TXT","STATIC_LEVEL_TXT","YIELD_TXT","STATUS","COMP_DATE_TXT","CONTRACTOR"];
+				// 		wwc5Layer.visible = true;
+	            //         $("#WWC5-Water-Wells input").prop("checked", true);
+				// 	}
+				//
+				// 	query.where = "township="+dom.byId('twn').value+" and township_direction='S' and range="+dom.byId('rng').value+" and range_direction='"+dir+"'";
+				// 	if (dom.byId('sec').value !== "") {
+				// 		query.where += " and section=" + dom.byId('sec').value;
+				// 	}
+				// } else {
+				// 	$("#wells-tbl").html("");
+				// }
 			} else if (what === "field") {
-				if ( $("#field-list-wells").prop("checked") ) {
-					query.where = "FIELD_KID = " + response.results[0].feature.attributes.FIELD_KID;
-					query.outFields = ["KID","API_NUMBER","LEASE_NAME","WELL_NAME","STATE_CODE","COUNTY","FIELD_NAME","FIELD_KID","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","SUBDIVISION_1_LARGEST","SUBDIVISION_2","SUBDIVISION_3","SUBDIVISION_4_SMALLEST","SPOT","FEET_NORTH_FROM_REFERENCE","FEET_EAST_FROM_REFERENCE","REFERENCE_CORNER","ROTARY_TOTAL_DEPTH","ELEVATION_KB","ELEVATION_GL","ELEVATION_DF","PRODUCING_FORMATION","NAD27_LATITUDE","NAD27_LONGITUDE","OPERATOR_NAME","CURR_OPERATOR","PERMIT_DATE_TXT","SPUD_DATE_TXT","COMPLETION_DATE_TXT","PLUG_DATE_TXT","STATUS_TXT"];
-					var lyrID = "/0";
-					selectWellType = "Oil and Gas";
-				}
+				console.log("line 2154");
+				// if ( $("#field-list-wells").prop("checked") ) {
+				// 	query.where = "FIELD_KID = " + response.results[0].feature.attributes.FIELD_KID;
+				// 	query.outFields = ["KID","API_NUMBER","LEASE_NAME","WELL_NAME","STATE_CODE","COUNTY","FIELD_NAME","FIELD_KID","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","SUBDIVISION_1_LARGEST","SUBDIVISION_2","SUBDIVISION_3","SUBDIVISION_4_SMALLEST","SPOT","FEET_NORTH_FROM_REFERENCE","FEET_EAST_FROM_REFERENCE","REFERENCE_CORNER","ROTARY_TOTAL_DEPTH","ELEVATION_KB","ELEVATION_GL","ELEVATION_DF","PRODUCING_FORMATION","NAD27_LATITUDE","NAD27_LONGITUDE","OPERATOR_NAME","CURR_OPERATOR","PERMIT_DATE_TXT","SPUD_DATE_TXT","COMPLETION_DATE_TXT","PLUG_DATE_TXT","STATUS_TXT"];
+				// 	var lyrID = "/0";
+				// 	selectWellType = "Oil and Gas";
+				// }
 			}
 
 			var queryTask = new QueryTask( {
@@ -3455,22 +3452,22 @@ function(
 		for (var i = 0; i < visLayers.length; i++) {
 			switch (visLayers[i]) {
 				case "KGS Permanent Events":
-					idLayers.push(14);
+					idLayers.push(2);
 					break;
 				case "KGS Preliminary Events":
-					idLayers.push(15);
+					idLayers.push(3);
 					break;
 				case "Historic Events":
-					idLayers.push(20);
+					idLayers.push(8);
 					break;
 				case "NEIC Permanent Events":
-					idLayers.push(16);
+					idLayers.push(4);
 					break;
 				case "Class 2 Wells":
-					idLayers.push(19);
+					idLayers.push(7);
 					break;
 				case "Class 1 Wells":
-					idLayers.push(18);
+					idLayers.push(6);
 					break;
 			}
 		}
