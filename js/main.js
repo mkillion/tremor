@@ -2128,7 +2128,6 @@ function(
 			var selectWellType = $("input:radio[name=welltype]:checked").val();
 
 			if (what === "plss") {
-				console.log("line 2131");
 				// if (selectWellType !== "none") {
 				// 	if (selectWellType === "Oil and Gas") {
 				// 		var lyrID = "/0";
@@ -2152,7 +2151,6 @@ function(
 				// 	$("#wells-tbl").html("");
 				// }
 			} else if (what === "field") {
-				console.log("line 2154");
 				// if ( $("#field-list-wells").prop("checked") ) {
 				// 	query.where = "FIELD_KID = " + response.results[0].feature.attributes.FIELD_KID;
 				// 	query.outFields = ["KID","API_NUMBER","LEASE_NAME","WELL_NAME","STATE_CODE","COUNTY","FIELD_NAME","FIELD_KID","TOWNSHIP","TOWNSHIP_DIRECTION","RANGE","RANGE_DIRECTION","SECTION","SUBDIVISION_1_LARGEST","SUBDIVISION_2","SUBDIVISION_3","SUBDIVISION_4_SMALLEST","SPOT","FEET_NORTH_FROM_REFERENCE","FEET_EAST_FROM_REFERENCE","REFERENCE_CORNER","ROTARY_TOTAL_DEPTH","ELEVATION_KB","ELEVATION_GL","ELEVATION_DF","PRODUCING_FORMATION","NAD27_LATITUDE","NAD27_LONGITUDE","OPERATOR_NAME","CURR_OPERATOR","PERMIT_DATE_TXT","SPUD_DATE_TXT","COMPLETION_DATE_TXT","PLUG_DATE_TXT","STATUS_TXT"];
@@ -2161,17 +2159,17 @@ function(
 				// }
 			}
 
-			var queryTask = new QueryTask( {
-				url: tremorGeneralServiceURL + lyrID
-			} );
-
-			queryTask.executeForCount(query).then(function(count) {
-				listCount = count;
-			} );
+			// var queryTask = new QueryTask( {
+			// 	url: tremorGeneralServiceURL + lyrID
+			// } );
+			//
+			// queryTask.executeForCount(query).then(function(count) {
+			// 	listCount = count;
+			// } );
 
 			return addPopupTemplate(response.results);
         } ).then(function(feature) {
-			if (what === "api" || what === "field" || what === "quake" || what === "facility") {
+			if (what === "api" || what === "field" || what === "quake" || what === "facility" || what === "gname") {
 				openPopup(feature);
 			}
 		} );
