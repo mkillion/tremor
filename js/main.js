@@ -174,14 +174,20 @@ function(
 		case "23":
 			console.log("general service");
 			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general_2/MapServer";
+			var swdVisibility = true;
+			var c1Visibility = true;
 			break;
 		case "29":
 			console.log("reg service");
 			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_2/MapServer";
+			var swdVisibility = true;
+			var c1Visibility = false;
 			break;
 		case "37":
 			console.log("csts service");
 			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_2/MapServer";
+			var swdVisibility = false;
+			var c1Visibility = true;
 			break;
 	}
 
@@ -577,7 +583,7 @@ function(
 		 	renderer: c1GrayRenderer
 		} ],
 		id:"Class 1 Wells",
-		visible: true
+		visible: c1Visibility
 	} );
 
 
@@ -702,7 +708,7 @@ function(
 		 	renderer: c2GrayRenderer
 		} ],
 		id:"Class 2 Wells",
-		visible: true
+		visible: swdVisibility
 	} );
 
 	var countyRenderer = new SimpleRenderer( {
@@ -812,6 +818,21 @@ function(
 		$.get("getMostRecentC1Date.cfm", function(response) {
 			arrLastAvailableC1Data = response.split(",");
 			// Values: [1] and [2] = class1 year and month. [4] and [5] = class2 year and month.
+
+			// Set specific user preferences before updating map:
+			switch (n) {
+				case "23":
+					// General user - default, no modifications.
+					break;
+				case "29":
+					// Reg users - as of 20190724, same as general.
+					break;
+				case "37":
+					// Consortium user.
+					$("#bbls").val("0");
+					$("input[name=well-type][value='all']").prop("checked",true);
+					break;
+			}
 
 			updateMap();
 		} );
