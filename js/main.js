@@ -1169,8 +1169,17 @@ function(
 
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
-		$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
-		$("#bbls").val("150,000");
+
+		if (n == 37) {
+			// Consortium user.
+			$("[name=well-type]").filter("[value='all']").prop("checked", true);
+			$("#bbls").val("0");
+		} else {
+			// All others.
+			$("[name=well-type]").filter("[value='bbls']").prop("checked", true);
+			$("#bbls").val("150,000");
+		}
+
 		// $("#inj-year").val("2016");
 		$(".esri-icon-checkbox-checked").hide();
 		$(".esri-icon-erase").hide();
@@ -1711,6 +1720,7 @@ function(
 
 		qt.url = tremorGeneralServiceURL + "/9";	// Note this selects all events so objectids are already in where clause when layer is made visible.
 		qry.geometry = geom;
+
 		qt.executeForIds(qry).then(function(ids) {
 			var chunk;
 			geomWhere = "objectid in";
