@@ -32,7 +32,7 @@
             <cfelse>
                 from class1_wells
             </cfif>
-			where objectid in (select oid from #tempTable#)
+			where objectid in (select oid from #tempTable#) and status = 'Drilled'
             order by api_number
 		</cfquery>
 

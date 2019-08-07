@@ -44,7 +44,7 @@
             from
                 class1_wells
     		<cfif #form.c1wellwhere# neq "">
-    			where #PreserveSingleQuotes(form.c1wellwhere)#
+    			where status = 'Drilled' and #PreserveSingleQuotes(form.c1wellwhere)#
     		</cfif>
             order by well_name
     	</cfquery>
@@ -125,7 +125,7 @@
                 where
                     a.uic_id = b.uic_id
                     and
-                    a.uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                    a.uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                     <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                         and
                         to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -146,7 +146,7 @@
                     </cfif>
                     <cfif IsDefined("form.arb")>
                         and
-                        a.uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                        a.uic_id in (select uic_id from tremor.class_1_injection_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
                     </cfif>
                 order by
                     uic_id, year, month

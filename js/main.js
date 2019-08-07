@@ -173,13 +173,13 @@ function(
 	switch (n) {
 		case "23":
 			console.log("general service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/tremor_general_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general_2/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = true;
 			break;
 		case "29":
 			console.log("reg service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/quakes_reg_2/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = false;
 			break;
@@ -1424,7 +1424,7 @@ function(
 					wellsWhere = "objectid > 0";
 				}
 				if (chkArbuckle) {
-					c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle')";
+					c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
 				} else {
 					c1WellsWhere = "objectid > 0";
 				}
@@ -1546,7 +1546,7 @@ function(
 		// Class 1:
 		if (c1WellsWhere !== "") {
 			if (chkArbuckle) {
-				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle') and ";
+				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
 			} else {
 				c1WellsAttrWhere += c1WellsWhere + " and ";
 			}
@@ -2118,7 +2118,7 @@ function(
 			case "facility":
 				findParams.layerIds = [6];
 				findParams.searchFields = ["facility_name"];
-				findParams.contains = false;
+				findParams.contains = true;
 				findParams.returnGeometry = true;
 				findParams.searchText = dom.byId("fac-wells").value
 				break;
@@ -2932,7 +2932,7 @@ function(
 
 	resetFinds = function() {
 		searchWidget.clear();
-		$("#twn, #rng, #sec, #datum, #lstCounty").prop("selectedIndex", 0);
+		$("#twn, #rng, #sec, #datum, #lstCounty, #general-name, #facs").prop("selectedIndex", 0);
 		$("#rngdir-w").prop("checked", "checked");
 		$("[name=welltype]").filter("[value='none']").prop("checked",true);
 		$("#api_state, #api_county, #api_number, #api_extension, #lat, #lon, #field-select, #quakeid").val("");

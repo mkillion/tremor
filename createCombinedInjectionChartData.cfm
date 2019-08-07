@@ -21,7 +21,7 @@
             from
                 tremor.class_1_injection_volumes
             where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                     and
                     to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -42,7 +42,7 @@
                 </cfif>
                 <cfif #form.arb#>
                     and
-                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                    uic_id in (select uic_id from class1_wells where status = 'Drilled' injection_zone = 'Arbuckle')
                 </cfif>
             order by
                 ms
@@ -55,7 +55,7 @@
             from
                 tremor.class_1_injection_volumes
             where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                     and
                     to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -76,7 +76,7 @@
                 </cfif>
                 <cfif #form.arb#>
                     and
-                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                    uic_id in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
                 </cfif>
         </cfquery>
 
@@ -91,7 +91,7 @@
             from
                 tremor.class_1_injection_volumes
             where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                     and
                     to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -112,7 +112,7 @@
                 </cfif>
                 <cfif #form.arb#>
                     and
-                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                    uic_id in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
                 </cfif>
             order by
                 ms
@@ -125,7 +125,7 @@
             from
                 tremor.class_1_injection_volumes
             where
-                uic_id in (select uic_id from class1_wells where #PreserveSingleQuotes(c1injvolwhere)#)
+                uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                     and
                     to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -146,7 +146,7 @@
                 </cfif>
                 <cfif #form.arb#>
                     and
-                    uic_id in (select uic_id from class1_wells where injection_zone = 'Arbuckle')
+                    uic_id in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
                 </cfif>
         </cfquery>
 
