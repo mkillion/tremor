@@ -938,6 +938,8 @@ function(
 		]
 	}, "legend-content" );
 
+	setTimeout(refreshMap, 60000);
+
     // End map and map widgets.
 
 
@@ -1148,6 +1150,12 @@ function(
 		} else {
 			$("[name=well-type]").prop("checked", false);
 		}
+	}
+
+
+	function refreshMap() {
+	    kgsPrelimLayer.refresh();
+	    setTimeout(refreshMap, 60000);
 	}
 
 
