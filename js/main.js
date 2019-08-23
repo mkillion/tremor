@@ -179,7 +179,7 @@ function(
 			break;
 		case "29":
 			console.log("reg service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/quakes_reg_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/quakes_reg_2/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = false;
 			break;
@@ -819,6 +819,7 @@ function(
 			arrLastAvailableC1Data = response.split(",");
 			// Values: [1] and [2] = class1 year and month. [4] and [5] = class2 year and month.
 
+			// 20190822: Is get dates used anymore? Why is the following in this section?
 			// Set specific user preferences before updating map:
 			switch (n) {
 				case "23":
