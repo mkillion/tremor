@@ -19,6 +19,8 @@
             <cfset User = 29>
         <cfelseif #UCase(form.username)# eq "TREMORS">
             <cfset User = 37>
+        <cfelseif #UCase(form.username)# eq "KDHE">
+            <cfset User = 43>
         </cfif>
 
         <cfset session.auth = True>

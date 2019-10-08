@@ -166,9 +166,6 @@ function(
         }
     } );
 
-	createMenus();
-
-
 	var n = location.search.substr(1).split("&")[0].substring(2);
 	switch (n) {
 		case "23":
@@ -189,7 +186,15 @@ function(
 			var swdVisibility = false;
 			var c1Visibility = true;
 			break;
+		case "43":
+			console.log("he service");
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/quakes_reg_2/MapServer";
+			var swdVisibility = false;
+			var c1Visibility = true;
+			break;
 	}
+
+	createMenus();
 
 	// Create map, layers, and widgets:
 	identifyTask = new IdentifyTask(tremorGeneralServiceURL);
@@ -722,9 +727,30 @@ function(
   	} );
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
-    var map = new Map( {
-		layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
-    } );
+	switch (n) {
+		case "23":
+			var map = new Map( {
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+			} );
+			break;
+		case "29":
+			var map = new Map( {
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+			} );
+			break;
+		case "37":
+			var map = new Map( {
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+			} );
+			break;
+		case "43":
+			var map = new Map( {
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+			} );
+			break;
+
+	}
+
 
     var graphicsLayer = new GraphicsLayer();
     map.add(graphicsLayer);
@@ -2991,8 +3017,14 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='joint' disabled> <span class='inj-graph-text'>Joint Magnitude/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td>Apply to:</td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
+		if (n == "29") {
+			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2' checked>Class 2 Wells</td></tr>";
+		} else if (n == "43") {
+			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
+		} else {
+			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
+			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
+		}
 		content += "<tr><td colspan='2'><hr></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
 		content += "<tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr></table>";
