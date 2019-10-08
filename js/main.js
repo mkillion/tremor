@@ -3008,7 +3008,8 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Plots</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
-		content += "<table><tr><td colspan='2'>Earthquakes:</td></tr>";
+		content += "<table><tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr>";
+		content += "<tr><td colspan='2'>Earthquakes:</td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
@@ -3027,7 +3028,7 @@ function(
 		}
 		content += "<tr><td colspan='2'><hr></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
-		content += "<tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr></table>";
+		content += "<tr><td colspan='2'><span class='note'>DISCLAIMER - KGS represents that it has accumulated the data from state agencies and has made the data available to use but not disseminate from its website. KGS has no title or ownership of the data. Unless expressly stated use of the data is on an “as is” basis and the KGS makes no other warranties express or implied, including the implied warranties of merchantability and fitness for a particular purpose.</span></td></tr></table>";
 		content += '</div>';	// end plots div.
 
         content += '</div>';	// end data panel div.
