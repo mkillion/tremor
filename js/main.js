@@ -170,7 +170,7 @@ function(
 	switch (n) {
 		case "23":
 			console.log("general service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis8/rest/services/tremor/tremor_general_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general_2/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = true;
 			break;
