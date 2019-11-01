@@ -1494,13 +1494,17 @@ function(
 						// Use annual volumes for C2s.
 						if (fromYear && toYear) {
 							var yearClause = "year >= " + fromYear + " and year <= " + toYear;
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// for FGDB. will not work if to/from months etc are "crossed":
+							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear + " and month <= " + toMonth + " and year <= " + toYear;
 						} else if (fromYear && !toYear) {
 							var yearClause = "year >= " + fromYear;
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear;
 						} else if (!fromYear && toYear) {
 							var yearClause = "year <= " + toYear;
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							c1DateClause = "month <= " + toMonth + " and year <= " + toYear;
 						}
 						// wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
@@ -1516,16 +1520,21 @@ function(
 						dateClause = "";
 						// Use monthly volumes for C2s.
 						if (fromYear && toYear) {
-							console.log("heeeey");
 							// dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 							dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "' and month_year <= date'" + toMonth + "/" + toYear + "'";
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// for FGDB. will not work if to/from months etc are "crossed":
+							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear + " and month <= " + toMonth + " and year <= " + toYear;
 						} else if (fromYear && !toYear) {
-							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							// dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "'";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear;
 						} else if (!fromYear && toYear) {
-							dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							// dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							dateClause = "month_year <= date'" + toMonth + "/" + toYear + "'";
+							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							c1DateClause = "month <= " + toMonth + " and year <= " + toYear;
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
