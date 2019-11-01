@@ -169,26 +169,26 @@ function(
 	var n = location.search.substr(1).split("&")[0].substring(2);
 	switch (n) {
 		case "23":
-			console.log("general service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/tremor_general_2/MapServer";
+			console.log("kgs service");
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_kgs_3857/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = true;
 			break;
 		case "29":
 			console.log("reg service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/quakes_reg_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = false;
 			break;
 		case "37":
 			console.log("csts service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_3857/MapServer";
 			var swdVisibility = false;
 			var c1Visibility = true;
 			break;
 		case "43":
 			console.log("he service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis1/rest/services/tremor/quakes_reg_2/MapServer";
+			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
 			var swdVisibility = false;
 			var c1Visibility = true;
 			break;
@@ -1332,7 +1332,8 @@ function(
 			case "co":
 				var counties = "'" + $("#lstCounty2").val().join("','") + "'";
 				if (counties !== 'Counties') {
-					locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
+					// locWhere = "(county_name in (" + counties + ") or county_name in (select dept_motor_vehicles_abbrev from global.counties where name in (" + counties + ")))";
+					locWhere = "(county_name in (" + counties + "))";
 				}
 				break;
 			case "sca":
@@ -1355,13 +1356,18 @@ function(
 		var time = $("input[name=time-type]:checked").val();
 		switch (time) {
 			case "week":
-				timeWhere = "sysdate - cast(local_time as date) <= 7";
+				// For Oracle:
+				// timeWhere = "sysdate - cast(local_time as date) <= 7";
+				// For file geodatabase:
+				timeWhere = "CURRENT_DATE - local_time <= 7";
 				break;
 			case "month":
-				timeWhere = "sysdate - cast(local_time as date) <= 29";
+				// timeWhere = "sysdate - cast(local_time as date) <= 29";
+				timeWhere = "CURRENT_DATE - local_time <= 29";
 				break
 			case "year":
-				timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
+				// timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
+				timeWhere = 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)';
 				break;
 			case "all":
 				timeWhere = "";
@@ -1414,11 +1420,14 @@ function(
 				}
 
 				if (fromDate && toDate) {
-					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					// timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "local_time >= date '" + fromDate  + "' and local_time <= date '" + toDate + "'";
 				} else if (fromDate && !toDate) {
-					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+					// timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+					timeWhere = "local_time >= date '" + fromDate  + "'";
 				} else if (!fromDate && toDate) {
-					timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					// timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					timeWhere = "local_time <= date '" + toDate  + "'";
 				}
 				break;
 		}
@@ -1440,7 +1449,7 @@ function(
 				} else if (!lMag && uMag) {
 					magWhere = "magnitude <= " + uMag;
 				}
-				break
+				break;
 			case "gt3517":
 				magWhere = "(magnitude >= 3.5 or sas >= 17)";
 				break;
@@ -1452,14 +1461,15 @@ function(
 
 		switch (well) {
 			case "all":
-				// Dummy clause to return all:
 				if (chkArbuckle) {
-					wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+					// wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+					wellsWhere = "kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
 				} else {
 					wellsWhere = "objectid > 0";
 				}
 				if (chkArbuckle) {
-					c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
+					// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
+					c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
 				} else {
 					c1WellsWhere = "objectid > 0";
 				}
@@ -1492,18 +1502,23 @@ function(
 							var yearClause = "year <= " + toYear;
 							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
-						wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						// wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+						wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
 						// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						// For C1s
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
 					} else {
 						dateClause = "";
 						// Use monthly volumes for C2s.
 						if (fromYear && toYear) {
-							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							console.log("heeeey");
+							// dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+							dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "' and month_year <= date'" + toMonth + "/" + toYear + "'";
 							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						} else if (fromYear && !toYear) {
 							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
@@ -1513,7 +1528,8 @@ function(
 							c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 
 						var fDate = dom.byId('from-date').value;
 						var tDate = dom.byId('to-date').value;
@@ -1535,11 +1551,13 @@ function(
 					// Class 1:
 					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
 						// Use most recent month and year available.
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
 					}
 					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
 						// Use most recent year.
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
 					}
 				}
 				break;
@@ -1564,7 +1582,8 @@ function(
 		// Class 2:
 		if (wellsWhere !== "") {
 			if (chkArbuckle) {
-				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
+				// wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
+				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
 			} else {
 				wellsAttrWhere += wellsWhere + " and ";
 			}
@@ -1581,7 +1600,8 @@ function(
 		// Class 1:
 		if (c1WellsWhere !== "") {
 			if (chkArbuckle) {
-				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
+				// c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
+				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
 			} else {
 				c1WellsAttrWhere += c1WellsWhere + " and ";
 			}
