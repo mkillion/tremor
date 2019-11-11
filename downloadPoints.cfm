@@ -1,5 +1,46 @@
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
+<!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
+
+<!--- evtWhere: --->
+<!--- "This Year" time option selected: --->
+<cfif Find('EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', #form.evtWhere#)>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')")>
+</cfif>
+
+<!--- Past week or month option selected: --->
+<cfif Find("CURRENT_DATE", #form.evtWhere#)>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, "CURRENT_DATE", "sysdate")>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, "local_time", "cast(local_time as date)")>
+</cfif>
+
+<!--- Both from and to date selected: --->
+<cfif Find("local_time >= date '", #form.evtWhere#) AND Find("local_time <= date '", #form.evtWhere#)>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, "local_time >= date '", "trunc(local_time) >= to_date('")>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, " and local_time <= date '", ",'mm/dd/yyyy') and trunc(local_time) <= to_date('")>
+    <cfset form.evtWhere = #form.evtWhere# & ",'mm/dd/yyyy')">
+</cfif>
+
+<!--- Only from date selected: --->
+<cfif Find("local_time >= date '", #form.evtWhere#) AND NOT Find("local_time <= date '", #form.evtWhere#)>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, "local_time >= date '", "trunc(local_time) >= to_date('")>
+    <cfset form.evtWhere = #form.evtWhere# & ",'mm/dd/yyyy')">
+</cfif>
+
+<!--- Only to date selected: --->
+<cfif NOT Find("local_time >= date '", #form.evtWhere#) AND Find("local_time <= date '", #form.evtWhere#)>
+    <cfset form.evtWhere = Replace(#form.evtWhere#, "local_time <= date '", "trunc(local_time) <= to_date('")>
+    <cfset form.evtWhere = #form.evtWhere# & ",'mm/dd/yyyy')">
+</cfif>
+<!--- End reformat evtWhere. --->
+
+
+<!---<cfdump var="#form.evtwhere#"><cfabort>--->
+
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
