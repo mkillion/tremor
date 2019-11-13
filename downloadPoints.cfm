@@ -1,8 +1,7 @@
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
 <!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
-
-<!--- evtWhere: --->
+<!--- evtwhere: --->
 <!--- "This Year" time option selected: --->
 <cfif Find('EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', #form.evtWhere#)>
     <cfset form.evtWhere = Replace(#form.evtWhere#, 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')")>
@@ -35,8 +34,37 @@
 <!--- End reformat evtWhere. --->
 
 
-<!---<cfdump var="#form.evtwhere#"><cfabort>--->
+<!--- c1wellwhere: --->
+<cfif Find("TREMOR_CLASS_1_INJECTION_VOLUMES", #form.c1wellwhere#)>
+    <cfset form.c1wellwhere = ReplaceNoCase(#form.c1wellwhere#, "TREMOR_CLASS_1_INJECTION_VOLUMES", "tremor.class_1_injection_volumes")>
+</cfif>
+<!--- End reformat c1wellwhere. --->
 
+<!--- wellwhere (class IIs): --->
+<cfif Find("injections", #form.wellwhere#) AND NOT Find("mk_injections_months", #form.wellwhere#)>
+    <cfset form.wellwhere = ReplaceNoCase(#form.wellwhere#, "injections", "qualified.injections")>
+</cfif>
+
+<!--- Both from and to date selected: --->
+<cfif Find("month_year >= date'", #form.wellwhere#) AND Find("month_year <= date'", #form.wellwhere#)>
+    <cfset form.wellwhere = Replace(#form.wellwhere#, "month_year >= date'", "month_year >= to_date('")>
+    <cfset form.wellwhere = Replace(#form.wellwhere#, " and month_year <= date'", ",'mm/yyyy') and month_year <= to_date('")>
+    <cfset form.wellWhere = Replace(#form.wellwhere#, " and fluid_injected", ",'mm/yyyy') and fluid_injected")>
+</cfif>
+
+<!--- only from date selected: --->
+<cfif Find("month_year >= date'", #form.wellwhere#) AND NOT Find("month_year <= date'", #form.wellwhere#)>
+    <cfset form.wellwhere = Replace(#form.wellwhere#, "month_year >= date'", "month_year >= to_date('")>
+    <cfset form.wellWhere = Replace(#form.wellwhere#, " and fluid_injected", ",'mm/yyyy') and fluid_injected")>
+</cfif>
+
+<!--- Only to date selected: --->
+<cfif NOT Find("month_year >= date'", #form.wellwhere#) AND Find("month_year <= date'", #form.wellwhere#)>
+    <cfset form.wellwhere = Replace(#form.wellwhere#, "month_year <= date'", "month_year <= to_date('")>
+    <cfset form.wellWhere = Replace(#form.wellwhere#, " and fluid_injected", ",'mm/yyyy') and fluid_injected")>
+</cfif>
+<!--- End reformat wellwhere. --->
+<!--- End reformatting of where clauses. --->
 
 
 

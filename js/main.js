@@ -2615,7 +2615,7 @@ function(
 				$("#loader").show();
 				$.post("createChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
-
+					
 					$('#chart').highcharts( {
 						chart: {
 							type: chartType,
@@ -3268,7 +3268,7 @@ function(
 			var graphLayers = filterLyrs.join(",");
 
 			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "c1wellwhere": class1ComboWhere, "ladY": arrLastAvailableC1Data[1], "ladM": arrLastAvailableC1Data[2], "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
-			
+
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
 				$("#wells-link").html(response);
