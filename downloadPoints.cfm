@@ -430,13 +430,13 @@
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
 
-	<cfquery name="qEventData" datasource="tremor">
+	<cfquery name="qEventData" datasource="gis_webinfo">
 		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,local_time,agency,agency_id,
             decode(layer,'EWA','Preliminary',
                 'KGS','Permanent',
                 'US','NEIC',
                 'KSNE','KSNE') as type
-		from quakes
+		from tremor_quakes_3857_fgdb
 		<cfif #form.evtwhere# neq "">
 			where #PreserveSingleQuotes(form.evtwhere)#
 			and layer in (#PreserveSingleQuotes(Lyrs)#)
