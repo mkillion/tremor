@@ -2615,7 +2615,7 @@ function(
 				$("#loader").show();
 				$.post("createChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
-					
+
 					$('#chart').highcharts( {
 						chart: {
 							type: chartType,

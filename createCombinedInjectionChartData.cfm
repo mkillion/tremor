@@ -1,6 +1,7 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
+
 <cfif #form.fromdate# neq "">
     <cfset FromYear = Right(#form.fromdate#, 4)>
     <cfset FromMonth = Left(#form.fromdate#, 2)>

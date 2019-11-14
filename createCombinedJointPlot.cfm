@@ -1,6 +1,42 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
+
+<!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
+<!--- jointEqWhere: --->
+<!--- "This Year" time option selected: --->
+<cfif Find('EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', #form.jointEqWhere#)>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)', "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')")>
+</cfif>
+
+<!--- Past week or month option selected: --->
+<cfif Find("CURRENT_DATE", #form.jointEqWhere#)>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, "CURRENT_DATE", "sysdate")>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, "local_time", "cast(local_time as date)")>
+</cfif>
+
+<!--- Both from and to date selected: --->
+<cfif Find("local_time >= date '", #form.jointEqWhere#) AND Find("local_time <= date '", #form.jointEqWhere#)>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, "local_time >= date '", "trunc(local_time) >= to_date('")>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, " and local_time <= date '", ",'mm/dd/yyyy') and trunc(local_time) <= to_date('")>
+    <cfset #form.jointEqWhere# = #form.jointEqWhere# & ",'mm/dd/yyyy')">
+</cfif>
+
+<!--- Only from date selected: --->
+<cfif Find("local_time >= date '", #form.jointEqWhere#) AND NOT Find("local_time <= date '", #form.jointEqWhere#)>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, "local_time >= date '", "trunc(local_time) >= to_date('")>
+    <cfset #form.jointEqWhere# = #form.jointEqWhere# & ",'mm/dd/yyyy')">
+</cfif>
+
+<!--- Only to date selected: --->
+<cfif NOT Find("local_time >= date '", #form.jointEqWhere#) AND Find("local_time <= date '", #form.jointEqWhere#)>
+    <cfset #form.jointEqWhere# = Replace(#form.jointEqWhere#, "local_time <= date '", "trunc(local_time) <= to_date('")>
+    <cfset #form.jointEqWhere# = #form.jointEqWhere# & ",'mm/dd/yyyy')">
+</cfif>
+<!--- End reformat jointEqWhere. --->
+
+
+
 <cfif #form.fromdate# neq "">
     <cfset FromYear = Right(#form.fromdate#, 4)>
     <cfset FromMonth = Left(#form.fromdate#, 2)>
@@ -273,9 +309,9 @@
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "'C1'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "'C2'")>
 
-<cfquery name="qLayers" datasource="tremor">
+<cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer
-    from quakes
+    from tremor_quakes_3857_fgdb
     where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
@@ -283,13 +319,13 @@
 
 <cfloop query="qLayers">
     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
-        <cfquery name="q#layer#" datasource="tremor">
+        <cfquery name="q#layer#" datasource="gis_webinfo">
             select
                 layer,
                 magnitude,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
-                quakes
+                tremor_quakes_3857_fgdb
             where
                 magnitude is not null
                 and
@@ -299,13 +335,13 @@
         		</cfif>
         </cfquery>
     <cfelseif #form.type# eq "jointcount">
-        <cfquery name="q#layer#" datasource="tremor">
+        <cfquery name="q#layer#" datasource="gis_webinfo">
             select
                 layer,
                 count(*) as cnt,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
-                quakes
+                tremor_quakes_3857_fgdb
             where
                 magnitude is not null
                 and

@@ -37,8 +37,6 @@
 <!--- End reformat where. --->
 
 
-<!---<cfdump var="#form.where#">--->
-
 
 <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
