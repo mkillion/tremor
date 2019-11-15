@@ -166,31 +166,37 @@ function(
         }
     } );
 
+	var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_kgs_3857/MapServer";
+
 	var n = location.search.substr(1).split("&")[0].substring(2);
 	switch (n) {
 		case "23":
-			console.log("kgs service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_kgs_3857/MapServer";
+			console.log("kgs user");
+			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_kgs_3857/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = true;
+			var userDefExp = "objectid > 0";
 			break;
 		case "29":
-			console.log("reg service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
+			console.log("kcc user");
+			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = false;
+			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
 			break;
 		case "37":
-			console.log("csts service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_3857/MapServer";
+			console.log("csts user");
+			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_3857/MapServer";
 			var swdVisibility = false;
 			var c1Visibility = true;
+			var userDefExp = "GAP <= 240";
 			break;
 		case "43":
-			console.log("he service");
-			var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
+			console.log("kdhe user");
+			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
 			var swdVisibility = false;
 			var c1Visibility = true;
+			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
 			break;
 	}
 
@@ -859,6 +865,11 @@ function(
 					$("#bbls").val("0");
 					$("input[name=well-type][value='all']").prop("checked",true);
 					break;
+				case "43":
+					// kdhe user.
+					$("#bbls").val("0");
+					$("input[name=well-type][value='all']").prop("checked",true);
+					break;
 			}
 
 			updateMap();
@@ -1205,8 +1216,8 @@ function(
 		$("#from-date, #to-date, #low-mag, #high-mag").val("");
 		$("#loc-buff").val("6");
 
-		if (n == 37) {
-			// Consortium user.
+		if (n == "37") {
+			// Consortium  user.
 			$("[name=well-type]").filter("[value='all']").prop("checked", true);
 			$("#bbls").val("0");
 		} else {
