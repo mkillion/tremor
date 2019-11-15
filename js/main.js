@@ -858,7 +858,7 @@ function(
 					// General user - default, no modifications.
 					break;
 				case "29":
-					// Reg users - as of 20190724, same as general.
+					// Reg users - as of 20190724 same as general.
 					break;
 				case "37":
 					// Consortium user.
