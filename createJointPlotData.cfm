@@ -1,7 +1,6 @@
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
-
 <!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
 <!--- jointeqwhere: --->
 <!--- "This Year" time option selected: --->
@@ -19,7 +18,7 @@
 <cfif Find("local_time >= date '", #form.jointeqwhere#) AND Find("local_time <= date '", #form.jointeqwhere#)>
     <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, "local_time >= date '", "trunc(local_time) >= to_date('")>
     <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, " and local_time <= date '", ",'mm/dd/yyyy') and trunc(local_time) <= to_date('")>
-    <cfif Find("objectid", #form.jointeqwhere#)>
+    <cfif Find("objectid in", #form.jointeqwhere#)>
         <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, "' and (objectid in", "','mm/dd/yyyy') and (objectid in")>
     <cfelse>
         <cfset form.jointeqwhere = #form.jointeqwhere# & ",'mm/dd/yyyy')">
