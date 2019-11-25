@@ -20,7 +20,11 @@
 <cfif Find("local_time >= date '", #form.where#) AND Find("local_time <= date '", #form.where#)>
     <cfset form.where = Replace(#form.where#, "local_time >= date '", "trunc(local_time) >= to_date('")>
     <cfset form.where = Replace(#form.where#, " and local_time <= date '", ",'mm/dd/yyyy') and trunc(local_time) <= to_date('")>
-    <cfset form.where = #form.where# & ",'mm/dd/yyyy')">
+    <cfif Find(" and magnitude", #form.where#)>
+        <cfset form.where = Replace(#form.where#, " and magnitude", ",'mm/dd/yyyy') and magnitude")>
+    <cfelse>
+        <cfset form.where = #form.where# & ",'mm/dd/yyyy')">
+    </cfif>
 </cfif>
 
 <!--- Only from date selected: --->

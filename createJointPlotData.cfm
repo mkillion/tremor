@@ -20,8 +20,11 @@
     <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, " and local_time <= date '", ",'mm/dd/yyyy') and trunc(local_time) <= to_date('")>
     <cfif Find("objectid in", #form.jointeqwhere#)>
         <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, "' and (objectid in", "','mm/dd/yyyy') and (objectid in")>
-    <cfelse>
-        <cfset form.jointeqwhere = #form.jointeqwhere# & ",'mm/dd/yyyy')">
+    <!---<cfelse>
+        <cfset form.jointeqwhere = #form.jointeqwhere# & ",'mm/dd/yyyy')">--->
+    </cfif>
+    <cfif Find(" and magnitude", #form.jointeqwhere#)>
+        <cfset form.jointeqwhere = Replace(#form.jointeqwhere#, " and magnitude", ",'mm/dd/yyyy') and magnitude")>
     </cfif>
 </cfif>
 
