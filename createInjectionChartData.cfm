@@ -129,7 +129,7 @@
         from
             tremor.class_1_injection_volumes
         where
-            uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
+            uic_permit in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
             <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                 and
                 to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -150,7 +150,7 @@
             </cfif>
             <cfif #form.arb#>
                 and
-                uic_id in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
+                uic_permit in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
             </cfif>
         order by
             ms
@@ -159,11 +159,11 @@
     <!--- Get distinct count: --->
     <cfquery name="qCount" datasource="plss">
         select
-            distinct uic_id
+            distinct uic_permit
         from
             tremor.class_1_injection_volumes
         where
-            uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
+            uic_permit in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
             <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                 and
                 to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -184,7 +184,7 @@
             </cfif>
             <cfif #form.arb#>
                 and
-                uic_id in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
+                uic_permit in (select uic_id from class1_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
             </cfif>
     </cfquery>
 

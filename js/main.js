@@ -652,7 +652,7 @@ function(
 		} )
 	} );
 	c2GrayRenderer.legendOptions = {
-  		title: "2018 Total Fluid Injection (bbls)"
+  		title: "2019 Total Fluid Injection (bbls)"
 	};
 
 	var c2ColorRenderer = new ClassBreaksRenderer( {
@@ -709,7 +709,7 @@ function(
 		} )
 	} );
 	c2ColorRenderer.legendOptions = {
-  		title: "2018 Total Fluid Injection (bbls)"
+  		title: "2019 Total Fluid Injection (bbls)"
 	};
 
 	var swdLayer = new MapImageLayer( {
@@ -847,6 +847,9 @@ function(
 		} );
 
 		// Get dates of most recent C1 and C2 injection data availability:
+		// var kludge = "C1,2020,5,C2,2019,12";
+		// arrLastAvailableC1Data = kludge.split(",");
+
 		$.get("getMostRecentC1Date.cfm", function(response) {
 			arrLastAvailableC1Data = response.split(",");
 			// Values: [1] and [2] = class1 year and month. [4] and [5] = class2 year and month.
@@ -874,6 +877,7 @@ function(
 
 			updateMap();
 		} );
+		// updateMap();
 
 		urlParams = location.search.substr(1);
 	    urlZoom(urlParams);
@@ -3279,7 +3283,7 @@ function(
 			var graphLayers = filterLyrs.join(",");
 
 			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "c1wellwhere": class1ComboWhere, "ladY": arrLastAvailableC1Data[1], "ladM": arrLastAvailableC1Data[2], "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
-
+			
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
 				$("#wells-link").html(response);

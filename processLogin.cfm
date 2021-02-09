@@ -1,6 +1,10 @@
 <cfsetting enablecfoutputonly="true">
 
-<cfif (#cgi.http_referer# eq "http://www.kgs.ku.edu/Geophysics/CSTS/Group/index.html")>
+<!---<cfif (#cgi.http_referer# eq "http://www.kgs.ku.edu/Geophysics/CSTS/Group/index.html")>--->
+<cfif (#cgi.http_referer# eq "http://www.kgs.ku.edu/")>
+    <cfset form.username = "tremors">
+    <cfset form.password = "graboid">
+<cfelseif (#cgi.http_referer# eq "https://www.kgs.ku.edu/")>
     <cfset form.username = "tremors">
     <cfset form.password = "graboid">
 </cfif>
