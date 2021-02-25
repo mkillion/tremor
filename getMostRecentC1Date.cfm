@@ -4,9 +4,9 @@
         max(year) year,
         max(month) month
     from
-        tremor.class_1_injection_volumes
+        MK_CLASS1_INJECTIONS_MONTHS
     where
-        year = (select max(year) from tremor.class_1_injection_volumes)
+        year = (select max(year) from MK_CLASS1_INJECTIONS_MONTHS)
 </cfquery>
 
 <cfquery name="qC2Date" datasource="plss">
@@ -14,9 +14,9 @@
         max(year) year,
         max(month) month
     from
-        mk_injections_months
+        mk_class2_injections_months
     where
-        year = (select max(year) from mk_injections_months)
+        year = (select max(year) from mk_class2_injections_months )
 </cfquery>
 
 

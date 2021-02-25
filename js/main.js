@@ -1040,7 +1040,7 @@ function(
 			var dtToDate = new Date(toYear, toMonth - 1, 15);
 		}
 
-		var dtC1AvailFromDate = new Date(2000, 1, 15);	// January 2000 is the min date in TREMOR.CLASS_1_INJECTION_VOLUMES.
+		var dtC1AvailFromDate = new Date(2000, 1, 15);	// January 2000 is the min date in MK_CLASS1_INJECTIONS_MONTHS.
 		var dtC1AvailToDate = new Date(arrLastAvailableC1Data[1], arrLastAvailableC1Data[2], 15);
 		var dtC2AvailFromDate = new Date(1910, 1, 15);	// 1910 is the min date in QUALIFIED.INJECTIONS (so first available c2 annual data).
 		var dtC2AvailToDate = new Date(arrLastAvailableC1Data[4], arrLastAvailableC1Data[5], 15);
@@ -1523,13 +1523,13 @@ function(
 						}
 						// wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
-						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
 						// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
-						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						// For C1s
-						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
 					} else {
 						dateClause = "";
@@ -1551,36 +1551,36 @@ function(
 							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 							c1DateClause = "month <= " + toMonth + " and year <= " + toYear;
 						}
-						wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
-						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 
 						var fDate = dom.byId('from-date').value;
 						var tDate = dom.byId('to-date').value;
 						if (!fDate && !tDate) {
 							// Date pickers are blank, return all.
-							wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
+							wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where fluid_injected >= " + bbls + ")";
 						}
 
 
 					}
 				} else if ( $("[name=time-type]").filter("[value='all']").prop("checked") ) {
 					// Time = all, so no date clause, just volumes. NOTE "all" option is commented out as of 20170824.
-					// wellsWhere = "kid in (select well_header_kid from mk_injections_months where fluid_injected >= " + bbls + ")";
+					// wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where fluid_injected >= " + bbls + ")";
 				} else {
 					// Date presets, use most recent year data is available.
 					// Class 2:
-					wellsWhere = "kid in (select well_header_kid from mk_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
+					wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
 
 					// Class 1:
 					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
 						// Use most recent month and year available.
-						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
 					}
 					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
 						// Use most recent year.
-						// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
 					}
 				}
@@ -3283,7 +3283,7 @@ function(
 			var graphLayers = filterLyrs.join(",");
 
 			var packet = { "what": downloadOptions, "includelayers": graphLayers, "evtwhere": comboWhere, "wellwhere": wellsComboWhere, "fromdate": fromDate, "todate": toDate, "injvolwhere": injvolWhere, "bbl": bbl, "time": timeOption, "c1wellwhere": class1ComboWhere, "ladY": arrLastAvailableC1Data[1], "ladM": arrLastAvailableC1Data[2], "c1injvolwhere": c1InjvolWhere, "arb": chkArbuckle };
-			
+
 			$("#loader").show();
 			$.post( "downloadPoints.cfm", packet, function(response) {
 				$("#wells-link").html(response);

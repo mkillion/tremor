@@ -20,7 +20,7 @@
                 distinct (to_date('01/15/' || year,'mm/dd/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
                 sum(barrels) over (partition by to_date(year, 'yyyy')) as volume
             from
-                tremor.class_1_injection_volumes
+                MK_CLASS1_INJECTIONS_MONTHS
             where
                 uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
@@ -54,7 +54,7 @@
             select
                 distinct uic_id
             from
-                tremor.class_1_injection_volumes
+                MK_CLASS1_INJECTIONS_MONTHS
             where
                 uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
@@ -90,7 +90,7 @@
                 distinct (to_date(month || '/' || year,'mm/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
                 sum(barrels) over (partition by to_date(month || '/' || year, 'mm/yyyy')) as volume
             from
-                tremor.class_1_injection_volumes
+                MK_CLASS1_INJECTIONS_MONTHS
             where
                 uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
@@ -124,7 +124,7 @@
             select
                 distinct uic_id
             from
-                tremor.class_1_injection_volumes
+                MK_CLASS1_INJECTIONS_MONTHS
             where
                 uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                 <cfif IsDefined("fromYear") and IsDefined("ToYear")>
@@ -216,7 +216,7 @@
                 distinct (trunc( month_year ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
                 sum(fluid_injected) over (partition by month_year) as volume
             from
-                mk_injections_months
+                mk_class2_injections_months 
             where
                 well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
                 and
@@ -242,7 +242,7 @@
             select
                 distinct well_header_kid
             from
-                mk_injections_months
+                mk_class2_injections_months 
             where
                 well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
                 and

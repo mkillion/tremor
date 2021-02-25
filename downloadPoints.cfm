@@ -36,12 +36,12 @@
 
 <!--- c1wellwhere: --->
 <cfif Find("TREMOR_CLASS_1_INJECTION_VOLUMES", #form.c1wellwhere#)>
-    <cfset form.c1wellwhere = ReplaceNoCase(#form.c1wellwhere#, "TREMOR_CLASS_1_INJECTION_VOLUMES", "tremor.class_1_injection_volumes")>
+    <cfset form.c1wellwhere = ReplaceNoCase(#form.c1wellwhere#, "TREMOR_CLASS_1_INJECTION_VOLUMES", "MK_CLASS1_INJECTIONS_MONTHS")>
 </cfif>
 <!--- End reformat c1wellwhere. --->
 
 <!--- wellwhere (class IIs): --->
-<cfif Find("injections", #form.wellwhere#) AND NOT Find("mk_injections_months", #form.wellwhere#)>
+<cfif Find("injections", #form.wellwhere#) AND NOT Find("mk_class2_injections_months ", #form.wellwhere#)>
     <cfset form.wellwhere = ReplaceNoCase(#form.wellwhere#, "injections", "qualified.injections")>
 </cfif>
 
@@ -189,7 +189,7 @@
                 select
                     b.well_name,a.uic_id, a.year, a.month, a.barrels
                 from
-                    tremor.class_1_injection_volumes a,
+                    MK_CLASS1_INJECTIONS_MONTHS a,
                     tremor.class_1_injection_wells b
                 where
                     a.uic_id = b.uic_id
@@ -366,7 +366,7 @@
             from
                 qualified.injections inj,
                 qualified.well_headers qwh,
-                mk_injections_months m
+                mk_class2_injections_months  m
             where
                 inj.well_header_kid = qwh.kid
                 and
