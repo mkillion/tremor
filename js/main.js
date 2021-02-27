@@ -1479,14 +1479,11 @@ function(
 				if (chkArbuckle) {
 					// wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
 					wellsWhere = "kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+					// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
+					c1WellsWhere = "uic_permit in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
+
 				} else {
 					wellsWhere = "objectid > 0";
-				}
-				if (chkArbuckle) {
-					// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
-					c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
-				} else {
-					c1WellsWhere = "objectid > 0";
 				}
 				break;
 			case "bbls":
@@ -1524,13 +1521,13 @@ function(
 						// wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
 						// Essentially the same as a date preset. Use most recent data for C2s (dateClause created above for last year data is available).
 						wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						// For C1s
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + thisYear + " and month = " + thisMonth + " and barrels >= " + bbls + ")";
 					} else {
 						dateClause = "";
 						// Use monthly volumes for C2s.
@@ -1553,7 +1550,7 @@ function(
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 
 						var fDate = dom.byId('from-date').value;
 						var tDate = dom.byId('to-date').value;
@@ -1576,12 +1573,12 @@ function(
 					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
 						// Use most recent month and year available.
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and month = " + arrLastAvailableC1Data[2] + " and barrels >= " + bbls + ")";
 					}
 					if ($("[name=time-type]").filter("[value='year']").prop("checked")) {
 						// Use most recent year.
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
-						c1WellsWhere = "uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
+						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where year = " + arrLastAvailableC1Data[1] + " and barrels >= " + bbls + ")";
 					}
 				}
 				break;
@@ -1625,7 +1622,7 @@ function(
 		if (c1WellsWhere !== "") {
 			if (chkArbuckle) {
 				// c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
-				c1WellsAttrWhere += c1WellsWhere + " and uic_id in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
+				c1WellsAttrWhere += c1WellsWhere + " and uic_permit in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled') and ";
 			} else {
 				c1WellsAttrWhere += c1WellsWhere + " and ";
 			}
@@ -3622,7 +3619,7 @@ function(
 			}
 			else if (layerName === 'Class 1 Wells') {
 				var class1Template = new PopupTemplate( {
-					title: "UIC-ID: {UIC_ID}",
+					title: "UIC-PERMIT: {UIC_PERMIT}",
 					content: class1Content(feature)
 					} );
 				feature.popupTemplate = class1Template;
@@ -3710,11 +3707,11 @@ function(
 		var f = feature.attributes;
 		var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
-		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_NAME}</td></tr>";
-		content += "<tr><td>Name:</td><td>{WELL_NAME}</td></tr>";
+		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_WELL}</td></tr>";
+		// content += "<tr><td>Name:</td><td>{WELL_NAME}</td></tr>";
 		content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
         content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr>";
-		content += "<tr><td>Injection Zone:</td><td>{INJECTION_ZONE}</td></tr></table>";
+		content += "<tr><td>Formation:</td><td>{FORMATION}</td></tr></table>";
 
         return content;
 	}

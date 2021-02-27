@@ -102,14 +102,14 @@
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1WellsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "UIC_ID,WELL_NAME,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,INJECTION_ZONE">
+	<cfset Headers = "UIC_PERMIT,WELL_NAME,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,INJECTION_ZONE">
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
     <!--- GET DATA: --->
     <cfif FindNoCase("objectid in)", #form.c1wellwhere#) eq 0> <!--- Only run if C1s exist in spatial select (objectids were found) --->
         <cfquery name="qC1WellData" datasource="plss">
     		select
-                uic_id, well_name, facility_name, county_name, latitude, longitude, injection_zone
+                uic_permit, well_name, facility_well, county_name, latitude, longitude, formation
             from
                 class1_wells
     		<cfif #form.c1wellwhere# neq "">
@@ -122,7 +122,7 @@
     <!--- WRITE FILE: --->
     <cfif IsDefined("qC1WellData") AND #qC1WellData.recordcount# gt 0>
         <cfloop query="qC1WellData">
-    		<cfset Data = '"#uic_id#","#well_name#","#facility_name#","#county_name#","#latitude#","#longitude#","#injection_zone#"'>
+    		<cfset Data = '"#uic_permit#","#well_name#","#facility_well#","#county_name#","#latitude#","#longitude#","#formation#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
     	</cfloop>
 		<cfset C1WellsFileText = "Click for Class 1 Wells File">
@@ -180,21 +180,21 @@
         <!--- Prepare output file: --->
         <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
         <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
-        <cfset Headers = "WELL_NAME,UIC_ID,YEAR,MONTH,BARRELS">
+        <cfset Headers = "WELL_NAME,UIC_PERMIT,YEAR,MONTH,BARRELS">
         <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
 
         <!--- Get data: --->
         <cfif Len(form.c1injvolwhere) gt 11> <!--- Only run if C1s exist in spatial select (objectids were found) --->
             <cfquery name="qC1Data" datasource="plss">
                 select
-                    b.well_name,a.uic_id, a.year, a.month, a.barrels
+                    b.well_name,a.uic_permit, a.year, a.month, a.barrels
                 from
                     MK_CLASS1_INJECTIONS_MONTHS a,
-                    tremor.class_1_injection_wells b
+                    INJECTION.CLASS_I_PERMITS_VIEW b
                 where
-                    a.uic_id = b.uic_id
+                    a.uic_permit = b.uic_permit
                     and
-                    a.uic_id in (select uic_id from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
+                    a.uic_permit in (select uic_permit from class1_wells where status = 'Drilled' and #PreserveSingleQuotes(c1injvolwhere)#)
                     <cfif IsDefined("fromYear") and IsDefined("ToYear")>
                         and
                         to_date(month || '/' || year, 'mm/yyyy') >= to_date('#FromMonth#/#FromYear#','mm/yyyy')
@@ -215,17 +215,17 @@
                     </cfif>
                     <cfif IsDefined("form.arb")>
                         and
-                        a.uic_id in (select uic_id from tremor.class_1_injection_wells where status = 'Drilled' and injection_zone = 'Arbuckle')
+                        a.uic_permit in (select uic_permit from INJECTION.CLASS_I_PERMITS_VIEW where status = 'Drilled' and formation = 'Arbuckle')
                     </cfif>
                 order by
-                    uic_id, year, month
+                    uic_permit, year, month
             </cfquery>
         </cfif>
 
         <!--- Write file: --->
         <cfif IsDefined("qC1Data") AND  #qC1Data.recordcount# gt 0>
             <cfloop query="qC1Data">
-                <cfset Data = '"#well_name#","#uic_id#","#year#","#month#","#barrels#"'>
+                <cfset Data = '"#well_name#","#uic_permit#","#year#","#month#","#barrels#"'>
                 <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
             </cfloop>
             <cfset C1InjFileText = "Click for Class 1 Injection File">
