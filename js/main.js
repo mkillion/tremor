@@ -3703,13 +3703,44 @@ function(
     }
 
 
+	// function class1Content(feature) {
+	// 	var f = feature.attributes;
+	// 	var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+	//
+	// 	var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_WELL}</td></tr>";
+	// 	// content += "<tr><td>Name:</td><td>{WELL_NAME}</td></tr>";
+	// 	content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
+    //     content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr>";
+	// 	content += "<tr><td>Formation:</td><td>{FORMATION}</td></tr></table>";
+	//
+    //     return content;
+	// }
+
+	// Class I well content:
 	function class1Content(feature) {
 		var f = feature.attributes;
-		var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		// var lv = f.LAST_VOLUME.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+		var c1Vol = null;
+		var c1Date = null;
+		var url = "getLastVolumes.cfm?welltype=c1&wellkid=" + f.UIC_PERMIT
+
+		$.ajax( {
+			url: url,
+			type: "get",
+			dataType: "text",
+			async: false,
+			success: function(response) {
+				arrC1data = response.split(",");
+				c1Vol = arrC1data[0];
+				c1Vol = c1Vol.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+				c1Date = arrC1data[1];
+			}
+		} );
 
 		var content = "<table id='popup-tbl'><tr><td>Facility-Well:</td><td>{FACILITY_WELL}</td></tr>";
 		// content += "<tr><td>Name:</td><td>{WELL_NAME}</td></tr>";
-		content += "<tr><td>Most Recent Monthly Volume (bbls):</td><td>" + lv + "</td></tr>";
+		content += "<tr><td>Last Reported Monthly Injection (BBLS):</td><td>" + c1Vol + " in " + c1Date + "</td></tr>";
         content += "<tr><td>County:</td><td>{COUNTY_NAME}</td></tr>";
 		content += "<tr><td>Formation:</td><td>{FORMATION}</td></tr></table>";
 
@@ -3766,20 +3797,75 @@ function(
     }
 
 
+    // function wellContent(feature) {
+	// 	var f = feature.attributes;
+    //     var dpth = f.ROTARY_TOTAL_DEPTH !== "Null" ? f.ROTARY_TOTAL_DEPTH.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
+    //     var elev = f.ELEVATION_KB !== "Null" ? f.ELEVATION_KB.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
+	// 	// var avgVol = f.MOST_RECENT_TOTAL_FLUID !== "Null" ? f.MOST_RECENT_TOTAL_FLUID : "";
+	// 	// avgVol = avgVol.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+	// 	if (f.MOST_RECENT_TOTAL_FLUID !== "Null") {
+	// 		var avg = parseInt(f.MOST_RECENT_TOTAL_FLUID/12);
+	// 		var avgVol = avg.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+	// 	} else {
+	// 		var avgVol = "";
+	// 	}
+	//
+    //     var content = "<table id='popup-tbl'><tr><td>Most Recent Average Monthly Injection (bbls):</td><td>" + avgVol + "</td></tr>";
+	// 	content += "<tr><td>API:</td><td>{API_NUMBER}</td></tr>";
+	// 	content += "<tr><td>Original Operator:</td><td>{OPERATOR_NAME}</td></tr>";
+    //     content += "<tr><td>Current Operator:</td><td>{CURR_OPERATOR}</td></tr>";
+    //     content += "<tr><td>Well Type:</td><td>{STATUS_TXT}</td></tr>";
+    //     content += "<tr><td>Status:</td><td>{WELL_CLASS}</td></tr>";
+    //     content += "<tr><td>Lease:</td><td>{LEASE_NAME}</td></tr>";
+    //     content += "<tr><td>Well:</td><td>{WELL_NAME}</td></tr>";
+    //     content += "<tr><td>Field:</td><td>{FIELD_NAME}</td></tr>";
+    //     content += "<tr><td>Location:</td><td>T{TOWNSHIP}S&nbsp;&nbsp;R{RANGE}{RANGE_DIRECTION}&nbsp;&nbsp;Sec {SECTION}<br>{SPOT}&nbsp;{SUBDIVISION_4_SMALLEST}&nbsp;{SUBDIVISION_3}&nbsp;{SUBDIVISION_2}&nbsp;{SUBDIVISION_1_LARGEST}</td></tr>";
+    //     content += "<tr><td>Latitude, Longitude (NAD27):</td><td>{NAD27_LATITUDE},&nbsp;&nbsp;{NAD27_LONGITUDE}</td></tr>";
+    //     content += "<tr><td>County:</td><td>{COUNTY}</td></tr>";
+    //     content += "<tr><td>Permit Date:</td><td>{PERMIT_DATE_TXT}</td></tr>";
+    //     content += "<tr><td>Spud Date:</td><td>{SPUD_DATE_TXT}</td></tr>";
+    //     content += "<tr><td>Completion Date:</td><td>{COMPLETION_DATE_TXT}</td></tr>";
+    //     content += "<tr><td>Plug Date:</td><td>{PLUG_DATE_TXT}</td></tr>";
+    //     content += "<tr><td>Total Depth (ft):</td><td>" + dpth + "</td></tr>";
+    //     content += "<tr><td>Elevation (KB, ft):</td><td>" + elev + "</td></tr>";
+    //     // content += "<tr><td>Producing Formation:</td><td>{PRODUCING_FORMATION}</td></tr>";
+    //     content += "<span id='well-kid' class='hide'>{KID}</span></table>";
+	//
+    //     return content;
+    // }
+
+	// Class II well content:
     function wellContent(feature) {
 		var f = feature.attributes;
         var dpth = f.ROTARY_TOTAL_DEPTH !== "Null" ? f.ROTARY_TOTAL_DEPTH.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
         var elev = f.ELEVATION_KB !== "Null" ? f.ELEVATION_KB.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,") : "";
 		// var avgVol = f.MOST_RECENT_TOTAL_FLUID !== "Null" ? f.MOST_RECENT_TOTAL_FLUID : "";
 		// avgVol = avgVol.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-		if (f.MOST_RECENT_TOTAL_FLUID !== "Null") {
-			var avg = parseInt(f.MOST_RECENT_TOTAL_FLUID/12);
-			var avgVol = avg.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-		} else {
-			var avgVol = "";
-		}
+		// if (f.MOST_RECENT_TOTAL_FLUID !== "Null") {
+		// 	var avg = parseInt(f.MOST_RECENT_TOTAL_FLUID/12);
+		// 	var avgVol = avg.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		// } else {
+		//	var avgVol = "";
+		// }
 
-        var content = "<table id='popup-tbl'><tr><td>Most Recent Average Monthly Injection (bbls):</td><td>" + avgVol + "</td></tr>";
+		var c2Vol = null;
+		var c2Date = null;
+		var url = "getLastVolumes.cfm?welltype=c2&wellkid=" + f.KID
+
+	    $.ajax( {
+	    	url: url,
+	        type: "get",
+	        dataType: "text",
+	        async: false,
+	        success: function(response) {
+				arrC2data = response.split(",");
+	            c2Vol = arrC2data[0];
+				c2Vol = c2Vol.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+				c2Date = arrC2data[1];
+	        }
+	    } );
+
+        var content = "<table id='popup-tbl'><tr><td>Last Reported Monthly Injection (BBLS):</td><td>" + c2Vol + " in " + c2Date + "</td></tr>";
 		content += "<tr><td>API:</td><td>{API_NUMBER}</td></tr>";
 		content += "<tr><td>Original Operator:</td><td>{OPERATOR_NAME}</td></tr>";
         content += "<tr><td>Current Operator:</td><td>{CURR_OPERATOR}</td></tr>";
