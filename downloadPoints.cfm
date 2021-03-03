@@ -42,7 +42,7 @@
 
 <!--- wellwhere (class IIs): --->
 <cfif Find("injections", #form.wellwhere#) AND NOT Find("mk_class2_injections_months ", #form.wellwhere#)>
-    <cfset form.wellwhere = ReplaceNoCase(#form.wellwhere#, "injections", "qualified.injections")>
+    <cfset form.wellwhere = ReplaceNoCase(#form.wellwhere#, "injections", "injection.class_ii_injections_view")>
 </cfif>
 
 <!--- Both from and to date selected: --->
@@ -296,7 +296,7 @@
                 inj.injection_zone,
                 inj.max_authorized_pressure
             from
-                qualified.injections inj,
+                injection.class_ii_injections_view inj,
                 swd_wells swd,
                 qualified.well_headers qwh
             where
@@ -364,7 +364,7 @@
                 inj.injection_zone,
                 inj.max_authorized_pressure
             from
-                qualified.injections inj,
+                injection.class_ii_injections_view inj,
                 qualified.well_headers qwh,
                 mk_class2_injections_months  m
             where

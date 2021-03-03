@@ -21,7 +21,7 @@
                 distinct ( trunc( to_date('01/15/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,
                 sum(total_fluid_volume) over (partition by year) as volume
             from
-                qualified.injections
+                injection.class_ii_injections_view
             where
                 well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
                 and
@@ -46,7 +46,7 @@
             select
                 distinct well_header_kid
             from
-                qualified.injections
+                injection.class_ii_injections_view
             where
                 well_header_kid in ( select kid from swd_wells where #PreserveSingleQuotes(form.injvolwhere)# )
                 and

@@ -590,8 +590,8 @@ function(
 	var class1Layer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 6,
-		 	renderer: c1GrayRenderer
+			id: 6
+		 	// renderer: c1GrayRenderer
 		} ],
 		id:"Class 1 Wells",
 		visible: c1Visibility
@@ -652,7 +652,7 @@ function(
 		} )
 	} );
 	c2GrayRenderer.legendOptions = {
-  		title: "2019 Total Fluid Injection (bbls)"
+  		title: "Total Fluid Injection (bbls)"
 	};
 
 	var c2ColorRenderer = new ClassBreaksRenderer( {
@@ -709,14 +709,14 @@ function(
 		} )
 	} );
 	c2ColorRenderer.legendOptions = {
-  		title: "2019 Total Fluid Injection (bbls)"
+  		title: "Total Fluid Injection (bbls)"
 	};
 
 	var swdLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 7,
-		 	renderer: c2GrayRenderer
+			id: 7
+		 	// renderer: c2GrayRenderer
 		} ],
 		id:"Class 2 Wells",
 		visible: swdVisibility
@@ -1042,7 +1042,7 @@ function(
 
 		var dtC1AvailFromDate = new Date(2000, 1, 15);	// January 2000 is the min date in MK_CLASS1_INJECTIONS_MONTHS.
 		var dtC1AvailToDate = new Date(arrLastAvailableC1Data[1], arrLastAvailableC1Data[2], 15);
-		var dtC2AvailFromDate = new Date(1910, 1, 15);	// 1910 is the min date in QUALIFIED.INJECTIONS (so first available c2 annual data).
+		var dtC2AvailFromDate = new Date(1981, 1, 15);	// 1981 is the min date in injection.class_ii_injections_view (so first available c2 annual data).
 		var dtC2AvailToDate = new Date(arrLastAvailableC1Data[4], arrLastAvailableC1Data[5], 15);
 
 		var c1Available, c2Available;
@@ -1122,21 +1122,21 @@ function(
 		}
 
 		// Swap renderers:
-		if (c1Available) {
-			var theLayer = class1Layer.findSublayerById(6);
-			theLayer.renderer = c1ColorRenderer;
-		} else {
-			var theLayer = class1Layer.findSublayerById(6);
-			theLayer.renderer = c1GrayRenderer;
-		}
-
-		if (c2Available) {
-			var theLayer = swdLayer.findSublayerById(7);
-			theLayer.renderer = c2ColorRenderer;
-		} else {
-			var theLayer = swdLayer.findSublayerById(7);
-			theLayer.renderer = c2GrayRenderer;
-		}
+		// if (c1Available) {
+		// 	var theLayer = class1Layer.findSublayerById(6);
+		// 	theLayer.renderer = c1ColorRenderer;
+		// } else {
+		// 	var theLayer = class1Layer.findSublayerById(6);
+		// 	theLayer.renderer = c1GrayRenderer;
+		// }
+		//
+		// if (c2Available) {
+		// 	var theLayer = swdLayer.findSublayerById(7);
+		// 	theLayer.renderer = c2ColorRenderer;
+		// } else {
+		// 	var theLayer = swdLayer.findSublayerById(7);
+		// 	theLayer.renderer = c2GrayRenderer;
+		// }
 	}
 
 
@@ -1477,8 +1477,10 @@ function(
 		switch (well) {
 			case "all":
 				if (chkArbuckle) {
-					// wellsWhere = "kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
-					wellsWhere = "kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
+					// oracle version:
+					wellsWhere = "kid in (select well_header_kid from injection.class_ii_injections_view where upper(injection_zone) in (select upper(injection_zone) from arbuckle_injection_zones))";
+					//fgdb version:
+					//wellsWhere = "kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones))";
 					// c1WellsWhere = "uic_id in (select uic_id from TREMOR.CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
 					c1WellsWhere = "uic_permit in (select uic_id from TREMOR_CLASS_1_INJECTION_WELLS where injection_zone = 'Arbuckle' and status = 'Drilled')";
 
@@ -1491,14 +1493,17 @@ function(
 				var dateClause, c1DateClause;
 
 				// Calculate most recent injection data availability for SWDs:
-				var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
-				if (today > mostRecentDataDate) {
-					var y = thisYear - 1;
-					dateClause = "year = " + y;
-				} else {
-					var y = thisYear - 2;
-					dateClause = "year = " + y;
-				}
+
+				// Commented out and replaced w/ following block, 03/03/21:
+				// var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
+				// if (today > mostRecentDataDate) {
+				// 	var y = thisYear - 1;
+				// 	dateClause = "year = " + y;
+				// } else {
+				// 	var y = thisYear - 2;
+				// 	dateClause = "year = " + y;
+				// }
+				dateClause = "year = " + arrLastAvailableC1Data[4] + " and month = " + arrLastAvailableC1Data[5];
 
 				if ( $("#tim-date").prop("checked") ) {
 					// Use date range.
@@ -1518,8 +1523,10 @@ function(
 							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 							c1DateClause = "month <= " + toMonth + " and year <= " + toYear;
 						}
-						// wellsWhere = "kid in (select well_header_kid from qualified.injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
-						wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+						// oracle version:
+						wellsWhere = "kid in (select well_header_kid from injection.class_ii_injections_view where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+						// fgdb version:
+						// wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
 						c1WellsWhere = "uic_permit in (select uic_permit from TREMOR_CLASS_1_INJECTION_VOLUMES where " + c1DateClause + " and barrels >= " + bbls + ")";
 					} else if (fromYear == thisYear) {
@@ -1567,7 +1574,7 @@ function(
 				} else {
 					// Date presets, use most recent year data is available.
 					// Class 2:
-					wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
+					wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months where " + dateClause + " and fluid_injected >= " + bbls + ")";
 
 					// Class 1:
 					if ( $("[name=time-type]").filter("[value='week']").prop("checked") || $("[name=time-type]").filter("[value='month']").prop("checked") ) {
@@ -1603,8 +1610,10 @@ function(
 		// Class 2:
 		if (wellsWhere !== "") {
 			if (chkArbuckle) {
-				// wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from qualified.injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
-				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
+				// oracle version:
+				wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from injection.class_ii_injections_view where upper(injection_zone) in (select upper(injection_zone) from arbuckle_injection_zones)) and ";
+				// fgdb version:
+				// wellsAttrWhere += wellsWhere + " and kid in (select well_header_kid from injections where injection_zone in (select injection_zone from arbuckle_injection_zones)) and ";
 			} else {
 				wellsAttrWhere += wellsWhere + " and ";
 			}
@@ -1918,7 +1927,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-
+		console.log(wellsComboWhere);
 		swdLayer.findSublayerById(7).definitionExpression = wellsComboWhere;
 		idDef[7] = wellsComboWhere;
 
@@ -3590,6 +3599,7 @@ function(
         identifyParams.geometry = event.mapPoint;
         identifyParams.mapExtent = view.extent;
 		identifyParams.layerDefinitions = idDef;
+
         dom.byId("mapDiv").style.cursor = "wait";
 
         identifyTask.execute(identifyParams).then(function(response) {
@@ -3602,6 +3612,7 @@ function(
 				dom.byId("mapDiv").style.cursor = "auto";
 			}
         } );
+
     }
 
 
