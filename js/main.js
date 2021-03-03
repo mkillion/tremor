@@ -593,7 +593,7 @@ function(
 			id: 6
 		 	// renderer: c1GrayRenderer
 		} ],
-		id:"Class 1 Wells",
+		id:"Class I Wells",
 		visible: c1Visibility
 	} );
 
@@ -718,7 +718,7 @@ function(
 			id: 7
 		 	// renderer: c2GrayRenderer
 		} ],
-		id:"Class 2 Wells",
+		id:"Class II Wells",
 		visible: swdVisibility
 	} );
 
@@ -962,7 +962,7 @@ function(
 		},
 		{
 			layer: swdLayer,
-			title: "Class 2 Wells"
+			title: "Class II Wells"
 		},
 		{
 			layer: basementStructuresLayer,
@@ -970,7 +970,7 @@ function(
 		},
 		{
 			layer: class1Layer,
-			title: "Class 1 Wells"
+			title: "Class I Wells"
 		}
 		// ,
 		// {
@@ -1492,8 +1492,7 @@ function(
 				var bbls = $("#bbls").val().replace(/,/g, "");
 				var dateClause, c1DateClause;
 
-				// Calculate most recent injection data availability for SWDs:
-
+				// Calculate most recent injection data availability for ***SWDs***:
 				// Commented out and replaced w/ following block, 03/03/21:
 				// var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
 				// if (today > mostRecentDataDate) {
@@ -2572,10 +2571,10 @@ function(
 			}
 
 			if (class1Option && !classBothOption) {
-				var jointCountTitle = "Event Counts & Monthy Injection Volumes For Class 1 Wells";
-				var jointMagTitle = "Event Magnitudes & Monthy Injection Volumes For Class 1 Wells";
+				var jointCountTitle = "Event Counts & Monthy Injection Volumes For Class I Wells";
+				var jointMagTitle = "Event Magnitudes & Monthy Injection Volumes For Class I Wells";
 				var xDate = "{value:%b %Y}";
-				var volTitle = "Total Monthy Injection Volume - Class 1 Wells";
+				var volTitle = "Total Monthy Injection Volume - Class I Wells";
 
 				if (c1InjvolWhere === "objectid in") {
 					if (graphType != "count" && graphType != "mag" && graphType != "cumulative") {
@@ -2586,14 +2585,14 @@ function(
 				}
 			}
 			if (class2Option && !classBothOption) {
-				var jointCountTitle = "Event Counts & Injection Volumes For Class 2 Wells";
-				var jointMagTitle = "Event Magnitudes & Injection Volumes For Class 2 Wells";
+				var jointCountTitle = "Event Counts & Injection Volumes For Class II Wells";
+				var jointMagTitle = "Event Magnitudes & Injection Volumes For Class II Wells";
 				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
 					var xDate = "{value:%Y}";
-					var volTitle = "Total Annual Injection Volume - Class 2 Wells";
+					var volTitle = "Total Annual Injection Volume - Class II Wells";
 				} else {
 					var xDate = "{value:%b %Y}";
-					var volTitle = "Total Monthy Injection Volume - Class 2 Wells";
+					var volTitle = "Total Monthy Injection Volume - Class II Wells";
 				}
 
 				if (injvolWhere === "objectid in") {
@@ -2603,16 +2602,16 @@ function(
 				}
 			}
 			if (classBothOption) {
-				var jointCountTitle = "Event Counts & Injection Volumes For Class 1 and Class 2 Wells";
-				var jointMagTitle = "Event Magnitudes & Injection Volumes For Class 1 and Class 2 Wells";
+				var jointCountTitle = "Event Counts & Injection Volumes For Class I and Class II Wells";
+				var jointMagTitle = "Event Magnitudes & Injection Volumes For Class I and Class II Wells";
 				if ( ( fromYear && fromYear < 2015 ) || ( toYear && toYear < 2015 ) ) {
 					var xDate = "{value:%Y}";
 					var xTooltipDate = "%Y";
-					var volTitle = "Total Annual Injection Volumes for Class 1 and Class 2 Wells";
+					var volTitle = "Total Annual Injection Volumes for Class I and Class II Wells";
 				} else {
 					var xDate = "{value:%b %Y}";
 					var xTooltipDate = "%b %Y";
-					var volTitle = "Total Monthy Injection Volumes for Class 1 and Class 2 Wells";
+					var volTitle = "Total Monthy Injection Volumes for Class I and Class II Wells";
 				}
 
 				if (c1InjvolWhere === "objectid in") {
@@ -3050,8 +3049,8 @@ function(
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
 		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c1s' value='wells'> Class 1 Wells & Injection Data</label></td></tr>";
-		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c2s' value='wells'> Class 2 Wells & Injection Data</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c1s' value='wells'> Class I Wells & Injection Data</label></td></tr>";
+		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c2s' value='wells'> Class II Wells & Injection Data</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Create File</button></td></tr></table>";
 		content += "<div class='download-link' id='wells-link'></div>";
 		content += '</div>';	// end download div.
@@ -3069,12 +3068,12 @@ function(
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' class='inj-graph' value='jointcount' disabled> <span class='inj-graph-text'>Joint Count/Volume Plot</span></label></td></tr>";
 		content += "<tr><td></td><td>Apply to:</td></tr>";
 		if (n == "29") {
-			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2' checked>Class 2 Wells</td></tr>";
+			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2' checked>Class II Wells</td></tr>";
 		} else if (n == "43") {
-			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
+			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class I Wells</td></tr>";
 		} else {
-			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class 1 Wells</td></tr>";
-			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class 2 Wells</td></tr>";
+			content += "<tr><td></td><td><label><input type='checkbox' name='c1w' id='c1w' value='c1' checked>Class I Wells</td></tr>";
+			content += "<tr><td></td><td><label><input type='checkbox' name='c2w' id='c2w' value='c2'>Class II Wells</td></tr>";
 		}
 		content += "<tr><td colspan='2'><hr></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' id='chart-btn' onclick='makeChart()'>Create Plot</button></td></tr>";
@@ -3463,7 +3462,7 @@ function(
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
 		var earthquakeGroup = ["KGS-Permanent-Events","KGS-Preliminary-Events"];
 		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
-		var wellsGroup = ["Class-2-Wells","Class-1-Wells"];
+		var wellsGroup = ["Class-II-Wells","Class-I-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Precambrian-Top","Basement-Structures"];
 
@@ -3585,10 +3584,10 @@ function(
 				case "NEIC Permanent Events":
 					idLayers.push(4);
 					break;
-				case "Class 2 Wells":
+				case "Class II Wells":
 					idLayers.push(7);
 					break;
-				case "Class 1 Wells":
+				case "Class I Wells":
 					idLayers.push(6);
 					break;
 			}
@@ -3628,7 +3627,7 @@ function(
 				} );
 				feature.popupTemplate = ogWellsTemplate;
 			}
-			else if (layerName === 'Class 1 Wells') {
+			else if (layerName === 'Class I Wells') {
 				var class1Template = new PopupTemplate( {
 					title: "UIC-PERMIT: {UIC_PERMIT}",
 					content: class1Content(feature)
