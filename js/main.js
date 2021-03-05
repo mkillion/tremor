@@ -1493,7 +1493,7 @@ function(
 				var dateClause, c1DateClause;
 
 				// Calculate most recent injection data availability for ***SWDs***:
-				// Commented out and replaced w/ following block, 03/03/21:
+				// Commented out and replaced w/ following line, 03/03/21:
 				// var mostRecentDataDate = new Date("April 1, " + thisYear);	// Date when last year's data should be available.
 				// if (today > mostRecentDataDate) {
 				// 	var y = thisYear - 1;
@@ -1524,6 +1524,7 @@ function(
 						}
 						// oracle version:
 						wellsWhere = "kid in (select well_header_kid from injection.class_ii_injections_view where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
+
 						// fgdb version:
 						// wellsWhere = "kid in (select well_header_kid from injections where " + yearClause + " and total_fluid_volume/12 >= " + bbls + ")";
 						// c1WellsWhere = "uic_id in (select uic_id from MK_CLASS1_INJECTIONS_MONTHS where " + c1DateClause + " and barrels >= " + bbls + ")";
@@ -1538,20 +1539,29 @@ function(
 						dateClause = "";
 						// Use monthly volumes for C2s.
 						if (fromYear && toYear) {
-							// dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "' and month_year <= date'" + toMonth + "/" + toYear + "'";
+							// For oracle datasources:
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy') and to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+
+							// For fgdb datasources:
+							// dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "' and month_year <= date'" + toMonth + "/" + toYear + "'";
 							// for FGDB. will not work if to/from months etc are "crossed":
 							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear + " and month <= " + toMonth + " and year <= " + toYear;
 						} else if (fromYear && !toYear) {
-							// dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
-							dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "'";
+							// For oracle datasources:
+							dateClause = "month_year >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
 							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') >= to_date('" + fromMonth + "/" + fromYear + "','mm/yyyy')";
+
+							// For fgdb datasources:
+							// dateClause = "month_year >= date'" + fromMonth + "/" + fromYear + "'";
 							c1DateClause = "month >= " + fromMonth + " and year >= " + fromYear;
 						} else if (!fromYear && toYear) {
-							// dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
-							dateClause = "month_year <= date'" + toMonth + "/" + toYear + "'";
+							// For oracle datasources:
+							dateClause = "month_year <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
 							// c1DateClause = "to_date(month || '/' || year, 'mm/yyyy') <= to_date('" + toMonth + "/" + toYear + "','mm/yyyy')";
+
+							// For fgdb datasources:
+							// dateClause = "month_year <= date'" + toMonth + "/" + toYear + "'";
 							c1DateClause = "month <= " + toMonth + " and year <= " + toYear;
 						}
 						wellsWhere = "kid in (select well_header_kid from mk_class2_injections_months  where " + dateClause + " and fluid_injected >= " + bbls + ")";
