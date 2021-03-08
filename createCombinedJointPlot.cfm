@@ -48,7 +48,7 @@
 
 <cfif #form.plotc1# eq "true">
     <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
-        <!--- CLASS 1 ANNUAL: --->
+        <!--- CLASS I ANNUAL: --->
             <cfquery name="qC1Volumes" datasource="plss">
             select
                 distinct (to_date('01/15/' || year,'mm/dd/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
@@ -116,9 +116,9 @@
         </cfquery>
 
         <cfset DateFormat = "%Y">
-        <cfset C1SeriesName = "Class 1 (" & #qC1Count.recordcount# & ")">
+        <cfset C1SeriesName = "Class I (" & #qC1Count.recordcount# & ")">
     <cfelse>
-        <!--- CLASS 1 MONTHLY: --->
+        <!--- CLASS I MONTHLY: --->
         <cfquery name="qC1Volumes" datasource="plss">
             select
                 distinct (to_date(month || '/' || year,'mm/yyyy') - to_date('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
@@ -185,13 +185,13 @@
                 </cfif>
         </cfquery>
 
-        <cfset C1SeriesName = "Class 1 (" & #qC1Count.recordcount# & ")">
+        <cfset C1SeriesName = "Class I (" & #qC1Count.recordcount# & ")">
     </cfif>
 </cfif>
 
 <cfif #form.plotc2# eq "true">
     <cfif (isDefined("FromYear") and #FromYear# lt 2015) or (isDefined("ToYear") and #ToYear# lt 2015)>
-        <!--- CLASS 2 ANNUAL VOLUMES: --->
+        <!--- CLASS II ANNUAL VOLUMES: --->
         <cfquery name="qC2Volumes" datasource="plss">
             select
                 distinct ( trunc( to_date('01/15/' || year,'mm/dd/yyyy' ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS') ) * 24 * 60 * 60 * 1000) as ms,
@@ -242,9 +242,9 @@
         </cfquery>
 
         <cfset DateFormat = "%Y">
-        <cfset C2SeriesName = "Class 2 (" & #qC2Count.recordcount# & ")">
+        <cfset C2SeriesName = "Class II (" & #qC2Count.recordcount# & ")">
     <cfelse>
-        <!--- CLASS 2 MONTHLY VOLUMES: --->
+        <!--- CLASS II MONTHLY VOLUMES: --->
         <cfquery name="qC2Volumes" datasource="plss">
             select
                 distinct (trunc( month_year ) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000 as ms,
@@ -295,7 +295,7 @@
                 </cfif>
         </cfquery>
 
-        <cfset C2SeriesName = "Class 2 (" & #qC2Count.recordcount# & ")">
+        <cfset C2SeriesName = "Class II (" & #qC2Count.recordcount# & ")">
     </cfif>
 </cfif>
 
@@ -306,8 +306,8 @@
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'USGS'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "'C1'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "'C2'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class I Wells", "'C1'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class II Wells", "'C2'")>
 
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer

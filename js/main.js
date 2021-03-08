@@ -1936,7 +1936,7 @@ function(
 		if (!wellsAttrWhere && !wellsGeomWhere) {
 			wellsComboWhere = "";
 		}
-		console.log(wellsComboWhere);
+
 		swdLayer.findSublayerById(7).definitionExpression = wellsComboWhere;
 		idDef[7] = wellsComboWhere;
 
@@ -2643,6 +2643,7 @@ function(
 			if (graphType === "count" || graphType === "mag" || graphType === "cumulative") {
 				// Events.
 				$("#loader").show();
+				
 				$.post("createChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
 

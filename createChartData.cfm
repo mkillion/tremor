@@ -1,7 +1,7 @@
+
 <!--- NOTE: keep changes to this query synced with createJointPlotData.cfm --->
 
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
-
 
 <!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
 <!--- where: --->
@@ -15,6 +15,7 @@
     <cfset form.where = Replace(#form.where#, "CURRENT_DATE", "sysdate")>
     <cfset form.where = Replace(#form.where#, "local_time", "cast(local_time as date)")>
 </cfif>
+
 
 <!--- Both from and to date selected: --->
 <cfif Find("local_time >= date '", #form.where#) AND Find("local_time <= date '", #form.where#)>
@@ -46,8 +47,8 @@
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "'C1'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "'C2'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class I Wells", "'C1'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class II Wells", "'C2'")>
 
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer

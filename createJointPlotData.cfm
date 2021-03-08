@@ -242,8 +242,8 @@
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'USGS'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "'C1'")>
-<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "'C2'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class I Wells", "'C1'")>
+<cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class II Wells", "'C2'")>
 
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer
