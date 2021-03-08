@@ -43,7 +43,8 @@
 
 
 
-<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>
+<!---<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>--->
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Events", "'KGS'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
@@ -139,7 +140,7 @@
                 <cfset Lyr = #layer#>
                 {
                 <cfif #layer# eq "KGS">
-                    "name": "KGS Permanent",
+                    "name": "KGS Events",
                     "color": "rgba(255,85,0,0.85)",
                 <cfelseif #layer# eq "EWA">
                     "name": "KGS Preliminary",

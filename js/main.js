@@ -733,25 +733,35 @@ function(
   	} );
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
+	var kgsEventsLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 11
+		} ],
+		id:"KGS Events",
+		visible: true
+	} );
+
+
 	switch (n) {
 		case "23":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "29":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "37":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "43":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsPrelimLayer, kgsCatalogedLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 
@@ -940,12 +950,16 @@ function(
 			layer: seismicConcernExpandedLayer,
 			title: " "
 		},
+		// {
+	    // 	layer: kgsCatalogedLayer,
+		// 	title: " "
+	  	// },
+	 	// {
+		// 	layer: kgsPrelimLayer,
+		// 	title: " "
+		// },
 		{
-	    	layer: kgsCatalogedLayer,
-			title: " "
-	  	},
-	 	{
-			layer: kgsPrelimLayer,
+			layer: kgsEventsLayer,
 			title: " "
 		},
 		{
@@ -1236,8 +1250,9 @@ function(
 		$("#chkArb").prop("checked", false);
 
 		swdLayer.findSublayerById(7).definitionExpression = "";
-		kgsCatalogedLayer.findSublayerById(2).definitionExpression = "";
-		kgsPrelimLayer.findSublayerById(3).definitionExpression = "";
+		// kgsCatalogedLayer.findSublayerById(2).definitionExpression = "";
+		// kgsPrelimLayer.findSublayerById(3).definitionExpression = "";
+		kgsEventsLayer.findSublayerById(11).definitionExpression = "";
 		neicLayer.findSublayerById(4).definitionExpression = "";
 		historicLayer.findSublayerById(8).definitionExpression = "";
 		swdLayer.findSublayerById(7).definitionExpression = "";
@@ -1248,6 +1263,7 @@ function(
 		idDef[6] = "";
 		idDef[8] = "";
 		idDef[7] = "";
+		idEf[11] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
@@ -1372,17 +1388,17 @@ function(
 		switch (time) {
 			case "week":
 				// For Oracle:
-				// timeWhere = "sysdate - cast(local_time as date) <= 7";
+				timeWhere = "sysdate - cast(local_time as date) <= 7";
 				// For file geodatabase:
-				timeWhere = "CURRENT_DATE - local_time <= 7";
+				// timeWhere = "CURRENT_DATE - local_time <= 7";
 				break;
 			case "month":
-				// timeWhere = "sysdate - cast(local_time as date) <= 29";
-				timeWhere = "CURRENT_DATE - local_time <= 29";
+				timeWhere = "sysdate - cast(local_time as date) <= 29";
+				// timeWhere = "CURRENT_DATE - local_time <= 29";
 				break
 			case "year":
-				// timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
-				timeWhere = 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)';
+				timeWhere = "to_char(local_time,'YYYY') = to_char(sysdate, 'YYYY')";
+				// timeWhere = 'EXTRACT(YEAR FROM " LOCAL_TIME ") = EXTRACT(YEAR FROM CURRENT_DATE)';
 				break;
 			case "all":
 				timeWhere = "";
@@ -1435,14 +1451,20 @@ function(
 				}
 
 				if (fromDate && toDate) {
-					// timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
-					timeWhere = "local_time >= date '" + fromDate  + "' and local_time <= date '" + toDate + "'";
+					// For oracle:
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy') and trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					// For fgdb:
+					// timeWhere = "local_time >= date '" + fromDate  + "' and local_time <= date '" + toDate + "'";
 				} else if (fromDate && !toDate) {
-					// timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
-					timeWhere = "local_time >= date '" + fromDate  + "'";
+					// For oracle:
+					timeWhere = "trunc(local_time) >= to_date('" + fromDate + "','mm/dd/yyyy')";
+					// For fgdb:
+					// timeWhere = "local_time >= date '" + fromDate  + "'";
 				} else if (!fromDate && toDate) {
-					// timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
-					timeWhere = "local_time <= date '" + toDate  + "'";
+					// For oracle:
+					timeWhere = "trunc(local_time) <= to_date('" + toDate + "','mm/dd/yyyy')";
+					// For fgdb:
+					// timeWhere = "local_time <= date '" + toDate  + "'";
 				}
 				break;
 		}
@@ -1915,12 +1937,14 @@ function(
 			comboWhere = "";
 		}
 
-		kgsCatalogedLayer.findSublayerById(2).definitionExpression = comboWhere;
-		kgsPrelimLayer.findSublayerById(3).definitionExpression = comboWhere;
+		// kgsCatalogedLayer.findSublayerById(2).definitionExpression = comboWhere;
+		// kgsPrelimLayer.findSublayerById(3).definitionExpression = comboWhere;
+		kgsEventsLayer.findSublayerById(11).definitionExpression = comboWhere;
 		neicLayer.findSublayerById(4).definitionExpression = comboWhere;
 		historicLayer.findSublayerById(8).definitionExpression = comboWhere;
-		idDef[2] = comboWhere;
-		idDef[3] = comboWhere;
+		// idDef[2] = comboWhere;
+		// idDef[3] = comboWhere;
+		idDef[11] = comboWhere;
 		idDef[4] = comboWhere;
 		idDef[8] = comboWhere;
 
@@ -2227,13 +2251,17 @@ function(
         findTask.execute(findParams).then(function(response) {
 			if (what === "event" && response.results.length > 0) {
 				switch (response.results[0].layerName) {
-					case "KGS Permanent Events":
-						kgsCatalogedLayer.visible = true;
-						$("#KGS-Cataloged-Events input").prop("checked", true);
-						break;
-					case "KGS Preliminary Events":
-						kgsPrelimLayer.visible = true;
-						$("#KGS-Preliminary-Events input").prop("checked", true);
+					// case "KGS Permanent Events":
+					// 	kgsCatalogedLayer.visible = true;
+					// 	$("#KGS-Cataloged-Events input").prop("checked", true);
+					// 	break;
+					// case "KGS Preliminary Events":
+					// 	kgsPrelimLayer.visible = true;
+					// 	$("#KGS-Preliminary-Events input").prop("checked", true);
+					// 	break;
+					case "KGS Events":
+						kgsEventsLayer.visible = true;
+						$("#KGS-Events input").prop("checked", true);
 						break;
 					case "NEIC Permaent Events":
 						neicLayer.visible = true;
@@ -2643,7 +2671,7 @@ function(
 			if (graphType === "count" || graphType === "mag" || graphType === "cumulative") {
 				// Events.
 				$("#loader").show();
-				
+
 				$.post("createChartData.cfm", packet, function(response) {
 					var data = JSON.parse(response);
 
@@ -3471,7 +3499,8 @@ function(
 		otherEqContent += '<div class="find-body hide" id="other-group-body">';
 
         // var transparentLayers = ["Oil and Gas Fields","Topography","Aerial Imagery","2002 Aerials","1991 Aerials"];
-		var earthquakeGroup = ["KGS-Permanent-Events","KGS-Preliminary-Events"];
+		// var earthquakeGroup = ["KGS-Permanent-Events","KGS-Preliminary-Events"];
+		var earthquakeGroup = ["KGS-Events"];
 		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
 		var wellsGroup = ["Class-II-Wells","Class-I-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
@@ -3583,11 +3612,14 @@ function(
 
 		for (var i = 0; i < visLayers.length; i++) {
 			switch (visLayers[i]) {
-				case "KGS Permanent Events":
-					idLayers.push(2);
-					break;
-				case "KGS Preliminary Events":
-					idLayers.push(3);
+				// case "KGS Permanent Events":
+				// 	idLayers.push(2);
+				// 	break;
+				// case "KGS Preliminary Events":
+				// 	idLayers.push(3);
+				// 	break;
+				case "KGS Events":
+					idLayers.push(11);
 					break;
 				case "Historic Events":
 					idLayers.push(8);
