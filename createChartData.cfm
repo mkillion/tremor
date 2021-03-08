@@ -44,20 +44,22 @@
 
 
 <!---<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>--->
-<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Events", "'KGS'")>
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Events", "'KGS','EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class I Wells", "'C1'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class II Wells", "'C2'")>
 
+<!--- tremor_quakes_3857_fgdb --->
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer
-    from tremor_quakes_3857_fgdb
+    from tremor.quakes
     where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
 <cfset DateToMS = "(trunc(local_time) - TO_DATE('01-01-1970 00:00:00', 'DD-MM-YYYY HH24:MI:SS')) * 24 * 60 * 60 * 1000">
+
 
 <cfif #form.type# eq "cumulative">
     <cfquery name="qCumulative" datasource="gis_webinfo">
@@ -67,7 +69,7 @@
             sum(daily_total) over (order by ms range unbounded preceding) running_total
         from
             (select #PreserveSingleQuotes(DateToMS)# as ms, count(*) as daily_total
-                from tremor_quakes_3857_fgdb
+                from tremor.quakes
                 where layer in (#PreserveSingleQuotes(Lyrs)#)
                 <cfif #form.where# neq "">
                     and #PreserveSingleQuotes(form.where)#
@@ -102,7 +104,7 @@
                     magnitude,
                     #PreserveSingleQuotes(DateToMS)# as ms
                 from
-                    tremor_quakes_3857_fgdb
+                    tremor.quakes
                 where
                     magnitude is not null
                     and
@@ -118,7 +120,7 @@
                     count(*) as cnt,
                     #PreserveSingleQuotes(DateToMS)# as ms
                 from
-                    tremor_quakes_3857_fgdb
+                    tremor.quakes
                 where
                     magnitude is not null
                     and
@@ -139,12 +141,12 @@
             <cfloop query="qLayers">
                 <cfset Lyr = #layer#>
                 {
-                <cfif #layer# eq "KGS">
+                <cfif #layer# eq "KGS" OR #layer# eq "EWA">
                     "name": "KGS Events",
                     "color": "rgba(255,85,0,0.85)",
-                <cfelseif #layer# eq "EWA">
+                <!---<cfelseif #layer# eq "EWA">
                     "name": "KGS Preliminary",
-                    "color": "rgba(223,115,255,0.85)",
+                    "color": "rgba(223,115,255,0.85)",--->
                 <cfelseif #layer# eq "US">
                     "name": "NEIC",
                     "color": "rgba(0,197,255,0.85)",
