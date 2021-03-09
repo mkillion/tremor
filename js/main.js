@@ -967,10 +967,6 @@ function(
 			title: " "
 		},
 		{
-			layer: neicLayer,
-			title: " "
-		},
-		{
 			layer: historicLayer,
 			title: " "
 		},
@@ -1976,7 +1972,7 @@ function(
 		if (!c1WellsAttrWhere && !class1GeomWhere) {
 			class1ComboWhere = "";
 		}
-		console.log(class1ComboWhere);
+
 		class1Layer.findSublayerById(6).definitionExpression = class1ComboWhere;
 		idDef[6] = class1ComboWhere;
 	}
@@ -2265,7 +2261,7 @@ function(
 						break;
 					case "NEIC Permaent Events":
 						neicLayer.visible = true;
-						$("#NEIC-Cataloged-Events input").prop("checked", true);
+						$("#NEIC-Permanent-Events input").prop("checked", true);
 						break;
 					case "OGS Permaent Events":
 						ogsLayer.visible = true;
