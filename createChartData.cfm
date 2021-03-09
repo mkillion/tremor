@@ -100,7 +100,8 @@
         <cfif #form.type# eq "mag" OR #form.type# eq "joint">
             <cfquery name="q#layer#" datasource="gis_webinfo">
                 select
-                    layer,
+                    decode (layer,'KGS','KGS',
+                        'EWA','KGS') as layer,
                     magnitude,
                     #PreserveSingleQuotes(DateToMS)# as ms
                 from
@@ -108,7 +109,7 @@
                 where
                     magnitude is not null
                     and
-                        layer = '#layer#'
+                        layer in ('EWA','KGS')
                     <cfif #form.where# neq "">
                         and #PreserveSingleQuotes(form.where)#
                     </cfif>
@@ -116,7 +117,8 @@
         <cfelseif #form.type# eq "count">
             <cfquery name="q#layer#" datasource="gis_webinfo">
                 select
-                    layer,
+                    decode (layer,'KGS','KGS',
+                        'EWA','KGS') as layer,
                     count(*) as cnt,
                     #PreserveSingleQuotes(DateToMS)# as ms
                 from
@@ -124,7 +126,7 @@
                 where
                     magnitude is not null
                     and
-                        layer = '#layer#'
+                        layer in ('EWA','KGS')
                     <cfif #form.where# neq "">
                         and #PreserveSingleQuotes(form.where)#
                     </cfif>

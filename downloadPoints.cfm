@@ -421,7 +421,8 @@
 	<cffile action="write" file="#EventsOutputFile#" output="#Headers#" addnewline="yes">
 
 	<!--- GET DATA: --->
-    <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>
+    <!---<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>--->
+    <cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Events", "'KGS','EWA'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
@@ -432,11 +433,11 @@
 
 	<cfquery name="qEventData" datasource="gis_webinfo">
 		select origin_time,latitude,longitude,depth,magnitude,magnitude_type,sas,nst,gap,rms,latitude_err,longitude_err,depth_err,county_name,local_time,agency,agency_id,
-            decode(layer,'EWA','Preliminary',
-                'KGS','Permanent',
+            decode(layer,'EWA','KGS',
+                'KGS','KGS',
                 'US','NEIC',
                 'KSNE','KSNE') as type
-		from tremor_quakes_3857_fgdb
+		from tremor.quakes
 		<cfif #form.evtwhere# neq "">
 			where #PreserveSingleQuotes(form.evtwhere)#
 			and layer in (#PreserveSingleQuotes(Lyrs)#)

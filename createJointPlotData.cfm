@@ -238,7 +238,8 @@
 
 <!--- Earthquake query: --->
 <!--- NOTE: keep changes to this query synced with createChartData.cfm --->
-<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>
+<!---<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Permanent Events", "'KGS'")>--->
+<cfset Lyrs = ReplaceNoCase(#form.includelayers#, "KGS Events", "'KGS','EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
 <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'USGS'")>
@@ -247,7 +248,7 @@
 
 <cfquery name="qLayers" datasource="gis_webinfo">
     select distinct layer
-    from tremor_quakes_3857_fgdb
+    from tremor.quakes
     where layer in (#PreserveSingleQuotes(Lyrs)#)
 </cfquery>
 
@@ -257,15 +258,16 @@
     <cfif #form.type# eq "mag" OR #form.type# eq "joint">
         <cfquery name="q#layer#" datasource="gis_webinfo">
             select
-                layer,
+                decode (layer,'KGS','KGS',
+                    'EWA','KGS') as layer,
                 magnitude,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
-                tremor_quakes_3857_fgdb
+                tremor.quakes
             where
                 magnitude is not null
                 and
-                    layer = '#layer#'
+                    layer in ('EWA','KGS')
                 <cfif #form.jointeqwhere# neq "">
         			and #PreserveSingleQuotes(form.jointeqwhere)#
         		</cfif>
@@ -273,15 +275,16 @@
     <cfelseif #form.type# eq "jointcount">
         <cfquery name="q#layer#" datasource="gis_webinfo">
             select
-                layer,
+            decode (layer,'KGS','KGS',
+                'EWA','KGS') as layer,
                 count(*) as cnt,
                 #PreserveSingleQuotes(DateToMS)# as ms
             from
-                tremor_quakes_3857_fgdb
+                tremor.quakes
             where
                 magnitude is not null
                 and
-                    layer = '#layer#'
+                    layer in ('EWA','KGS')
                 <cfif #form.where# neq "">
         			and #PreserveSingleQuotes(form.jointeqwhere)#
         		</cfif>
@@ -323,14 +326,14 @@
         <cfloop query="qLayers">
             <cfset Lyr = #layer#>
             {
-            <cfif #layer# eq "KGS">
-                "name": "KGS Permanent",
+            <cfif #layer# eq "KGS" OR #layer# eq "EWA">
+                "name": "KGS Events",
                 "type": "scatter",
                 "color": "rgba(255,85,0,0.85)",
-            <cfelseif #layer# eq "EWA">
+            <!---<cfelseif #layer# eq "EWA">
                 "name": "KGS Preliminary",
                 "type": "scatter",
-                "color": "rgba(223,115,255,0.85)",
+                "color": "rgba(223,115,255,0.85)",--->
             <cfelseif #layer# eq "USGS">
                 "name": "NEIC",
                 "type": "scatter",

@@ -1976,7 +1976,7 @@ function(
 		if (!c1WellsAttrWhere && !class1GeomWhere) {
 			class1ComboWhere = "";
 		}
-
+		console.log(class1ComboWhere);
 		class1Layer.findSublayerById(6).definitionExpression = class1ComboWhere;
 		idDef[6] = class1ComboWhere;
 	}
@@ -3097,7 +3097,7 @@ function(
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="grph"><span class="find-hdr-txt"> Plots</span></div>';
 		content += '<div class="data-body hide" id="data-grph">';
 		content += "<table><tr><td colspan='2'><span class='note'>Some options disabled when there's no injection data available</span></td></tr>";
-		content += "<tr><td colspan='2'>Earthquakes:</td></tr>";
+		content += "<tr><td colspan='2'>KGS Earthquakes:</td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='mag' checked> Magnitude</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='count'> Count</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='radio' name='graph-type' value='cumulative'> Cumulative</label></td></tr>";
