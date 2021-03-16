@@ -1,3 +1,4 @@
+
 <cfsetting requestTimeOut = "180" showDebugOutput = "yes">
 
 <!--- Reformat where clauses (formatted for FGDB) to a format that works with Oracle SQL: --->
@@ -102,27 +103,27 @@
 	<cfset WellsOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1WellsFileName#">
 
 	<!--- PREPARE OUTPUT FILE: --->
-	<cfset Headers = "UIC_PERMIT,WELL_NAME,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,INJECTION_ZONE">
+	<cfset Headers = "UIC_PERMIT,FACILITY_NAME,COUNTY,LATITUDE,LONGITUDE,INJECTION_ZONE">
 	<cffile action="write" file="#WellsOutputFile#" output="#Headers#" addnewline="yes">
 
     <!--- GET DATA: --->
     <cfif FindNoCase("objectid in)", #form.c1wellwhere#) eq 0> <!--- Only run if C1s exist in spatial select (objectids were found) --->
         <cfquery name="qC1WellData" datasource="plss">
     		select
-                uic_permit, well_name, facility_well, county_name, latitude, longitude, formation
+                uic_permit, to_char(facility_well) as facility_well, county_name, latitude, longitude, to_char(formation) as formation
             from
                 class1_wells
     		<cfif #form.c1wellwhere# neq "">
     			where status = 'Drilled' and #PreserveSingleQuotes(form.c1wellwhere)#
     		</cfif>
-            order by well_name
+            order by facility_well
     	</cfquery>
     </cfif>
 
     <!--- WRITE FILE: --->
     <cfif IsDefined("qC1WellData") AND #qC1WellData.recordcount# gt 0>
         <cfloop query="qC1WellData">
-    		<cfset Data = '"#uic_permit#","#well_name#","#facility_well#","#county_name#","#latitude#","#longitude#","#formation#"'>
+    		<cfset Data = '"#uic_permit#","#facility_well#","#county_name#","#latitude#","#longitude#","#formation#"'>
     		<cffile action="append" file="#WellsOutputFile#" output="#Data#" addnewline="yes">
     	</cfloop>
 		<cfset C1WellsFileText = "Click for Class 1 Wells File">
@@ -143,7 +144,7 @@
     <cfset DataIsAvailable = False>
 
     <cfif #form.time# eq "week">
-        <cfif DateCompare(T7, LAD, "d") eq -1>   <!--- -1 if first date is earlier than second date, so if 7 days ago is earlier than last avaialable data date. --->
+        <cfif DateCompare(T7, LAD, "d") eq -1>   <!--- -1 if first date is earlier than second date, so if 7 days ago is earlier than last avavialable data date. --->
             <cfset DataIsAvailable = True>
         </cfif>
     </cfif>
@@ -180,14 +181,14 @@
         <!--- Prepare output file: --->
         <cfset C1InjFileName = "CLASS1-INJ-#TimeStamp#.csv">
         <cfset C1InjOutputFile = "\\vmpyrite\d$\webware\Apache\Apache2\htdocs\kgsmaps\oilgas\output\#C1InjFileName#">
-        <cfset Headers = "WELL_NAME,UIC_PERMIT,YEAR,MONTH,BARRELS">
+        <cfset Headers = "FACILITY_WELL,UIC_PERMIT,YEAR,MONTH,BARRELS">
         <cffile action="write" file="#C1InjOutputFile#" output="#Headers#" addnewline="yes">
 
         <!--- Get data: --->
         <cfif Len(form.c1injvolwhere) gt 11> <!--- Only run if C1s exist in spatial select (objectids were found) --->
             <cfquery name="qC1Data" datasource="plss">
                 select
-                    b.well_name,a.uic_permit, a.year, a.month, a.barrels
+                    b.facility_well,a.uic_permit, a.year, a.month, a.barrels
                 from
                     MK_CLASS1_INJECTIONS_MONTHS a,
                     INJECTION.CLASS_I_PERMITS_VIEW b
@@ -225,7 +226,7 @@
         <!--- Write file: --->
         <cfif IsDefined("qC1Data") AND  #qC1Data.recordcount# gt 0>
             <cfloop query="qC1Data">
-                <cfset Data = '"#well_name#","#uic_permit#","#year#","#month#","#barrels#"'>
+                <cfset Data = '"#facility_well#","#uic_permit#","#year#","#month#","#barrels#"'>
                 <cffile action="append" file="#C1InjOutputFile#" output="#Data#" addnewline="yes">
             </cfloop>
             <cfset C1InjFileText = "Click for Class 1 Injection File">
@@ -426,8 +427,8 @@
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "KGS Preliminary Events", "'EWA'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Historic Events", "'KSNE'")>
     <cfset Lyrs = ReplaceNoCase(#Lyrs#, "NEIC Permanent Events", "'US'")>
-    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 2 Wells", "")>
-    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class 1 Wells", "")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class II Wells", "'Class II Wells'")>
+    <cfset Lyrs = ReplaceNoCase(#Lyrs#, "Class I Wells", "'Class I Wells'")>
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
     <cfset Lyrs = REReplace(Lyrs, ",$", "")>
 

@@ -1830,7 +1830,7 @@ function(
 		var qry = new Query();
 		geomWhere = "";
 
-		qt.url = tremorGeneralServiceURL + "/9";	// Note this selects all events so objectids are already in where clause when layer is made visible.
+		qt.url = tremorGeneralServiceURL + "/11";	// Note this selects all events so objectids are already in where clause when layer is made visible.
 		qry.geometry = geom;
 
 		qt.executeForIds(qry).then(function(ids) {
@@ -1972,7 +1972,8 @@ function(
 		if (!c1WellsAttrWhere && !class1GeomWhere) {
 			class1ComboWhere = "";
 		}
-
+		console.log("CII: " + wellsComboWhere);
+		console.log("CI: " + class1ComboWhere);
 		class1Layer.findSublayerById(6).definitionExpression = class1ComboWhere;
 		idDef[6] = class1ComboWhere;
 	}

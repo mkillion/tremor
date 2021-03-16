@@ -7,6 +7,8 @@
         MK_CLASS1_INJECTIONS_MONTHS
     where
         year = (select max(year) from MK_CLASS1_INJECTIONS_MONTHS)
+        and
+        barrels is not null
 </cfquery>
 
 <cfquery name="qC2Date" datasource="plss">
@@ -17,6 +19,8 @@
         mk_class2_injections_months
     where
         year = (select max(year) from mk_class2_injections_months )
+        and
+        fluid_injected is not null
 </cfquery>
 
 
