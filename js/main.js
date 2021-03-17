@@ -742,21 +742,30 @@ function(
 		visible: true
 	} );
 
+	var c2SpudsLayer = new MapImageLayer( {
+		url:tremorGeneralServiceURL,
+		sublayers:[ {
+			id: 12
+		} ],
+		id:"Class II Spuds Last 60 Days",
+		visible: false
+	} );
+
 
 	switch (n) {
 		case "23":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "29":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "37":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "43":
@@ -973,6 +982,10 @@ function(
 		{
 			layer: swdLayer,
 			title: "Class II Wells"
+		},
+		{
+			layer: c2SpudsLayer,
+			title: "Class II Spuds, Last 60 Days"
 		},
 		{
 			layer: basementStructuresLayer,
@@ -3499,7 +3512,7 @@ function(
 		// var earthquakeGroup = ["KGS-Permanent-Events","KGS-Preliminary-Events"];
 		var earthquakeGroup = ["KGS-Events"];
 		var otherEarthquakeGroup = ["NEIC-Permanent-Events","Historic-Events"];
-		var wellsGroup = ["Class-II-Wells","Class-I-Wells"];
+		var wellsGroup = ["Class-II-Spuds-Last-60-Days","Class-II-Wells","Class-I-Wells"];
 		var boundariesGroup = ["2015-Areas-of-Seismic-Concern","2016-Specified-Area","Section-Township-Range","Counties"];
 		var basemapGroup = ["Base-Map","Topo","Aerial-Imagery","Precambrian-Top","Basement-Structures"];
 
@@ -3630,6 +3643,9 @@ function(
 				case "Class I Wells":
 					idLayers.push(6);
 					break;
+				case "Class II Spuds Last 60 Days":
+					idLayers.push(12);
+					break;
 			}
 		}
 		var layerids = idLayers.join(",");
@@ -3659,8 +3675,8 @@ function(
 		return arrayUtils.map(response, function(result) {
 			var feature = result.feature;
 			var layerName = result.layerName;
-
-			if (layerName === 'OG_WELLS' || layerName === 'Salt Water Disposal Wells') {
+			
+			if (layerName === 'OG_WELLS' || layerName === 'Salt Water Disposal Wells' || layerName === 'New Class II Spuds') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
 					content: wellContent(feature)
