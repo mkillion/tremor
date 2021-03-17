@@ -3556,7 +3556,7 @@ function(
 		$("#eq-group-body").html(eqTocContent);
 		$("#eq-group-body").append(eventDisclaimer);
 		$("#wells-group-body").html(wellsTocContent);
-		$("#wells-group-body").append(wellsDisclaimer);
+		// $("#wells-group-body").append(wellsDisclaimer);
 		$("#boundaries-group-body").html(boundariesTocContent);
 		basemapTocContent += "<div class='toc-sub-item' id='" + htmlID + "'><label><input type='radio' name='bm' value='none' onclick='toggleBasemapLayer();'> None</label></div>";
 		$("#basemap-group-body").html(basemapTocContent);
