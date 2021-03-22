@@ -3560,14 +3560,14 @@ function(
 
 		eqTocContent += otherEqContent;
 
-		var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Permanent earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
+		// var eventDisclaimer = "<span class='note'>Preliminary earthquakes are auto-located using the KGS Earthworm detection system and have not undergone final review by an analyst. Permanent earthquakes are manually located by an analyst. All earthquakes are subject to revision.</span>";
 		var wellsDisclaimer = "<span class='note'>Well symbols are initially gray if there's no injection data for the current year.</span>";
 		var pcTopDisclaimer = 'Source: "Cole, V.B. 1976.  Configuration of the top of Precambrian rocks in Kansas. Kansas Geological Survey, Map Series, no. M-7, 1 sheet, scale 1:500,000". Note: Control points have been removed to avoid confusion with earthquakes. Click <a href="http://www.kgs.ku.edu/Publications/Bulletins/Map7/ks_precambrian_map.pdf" target="_blank">here</a> to view the original map with control points.';
 
         // tocContent += "<span class='toc-note'>* Some layers only visible when zoomed in</span>";
         $("#lyrs-toc").html(tocContent);
 		$("#eq-group-body").html(eqTocContent);
-		$("#eq-group-body").append(eventDisclaimer);
+		// $("#eq-group-body").append(eventDisclaimer);
 		$("#wells-group-body").html(wellsTocContent);
 		// $("#wells-group-body").append(wellsDisclaimer);
 		$("#boundaries-group-body").html(boundariesTocContent);
@@ -3675,7 +3675,7 @@ function(
 		return arrayUtils.map(response, function(result) {
 			var feature = result.feature;
 			var layerName = result.layerName;
-			
+
 			if (layerName === 'OG_WELLS' || layerName === 'Salt Water Disposal Wells' || layerName === 'New Class II Spuds') {
 				var ogWellsTemplate = new PopupTemplate( {
 					title: "<span class='pu-title'>Well: {WELL_LABEL} </span><span class='pu-note'>{API_NUMBER}</span>",
