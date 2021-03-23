@@ -1772,8 +1772,8 @@ function(
 		$(".esri-icon-erase").show();
 
 		view.goTo( {
-			target: buffPoly.extent,
-			scale: 200000
+			target: buffPoly.extent
+			// scale: 200000
 		}, {duration: 500} );
 
 		createGeomWhere(buffPoly);
