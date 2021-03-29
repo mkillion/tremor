@@ -1272,13 +1272,13 @@ function(
 		idDef[6] = "";
 		idDef[8] = "";
 		idDef[7] = "";
-		idEf[11] = "";
+		idDef[11] = "";
 		identifyParams.layerDefinitions = idDef;
 
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
 		wellsGeomWhere = "clear";	// ditto.
 		class1GeomWhere = "clear";
-
+		
 		// Save default settings to local storage:
 		saveRadioPrefs("loc-state");
 		saveTextboxPrefs("loc-buff");
