@@ -1278,7 +1278,7 @@ function(
 		geomWhere = "clear";	// Gets reset to "" in applyDefExp().
 		wellsGeomWhere = "clear";	// ditto.
 		class1GeomWhere = "clear";
-		
+
 		// Save default settings to local storage:
 		saveRadioPrefs("loc-state");
 		saveTextboxPrefs("loc-buff");
@@ -3236,6 +3236,14 @@ function(
 		// Legend panel:
         content = '';
         content += '<div class="panel-container">';
+
+		content += '<div style="padding:10px;">';
+		content += 'Earthquake symbols:<p style="font:normal normal 400 14px helvetica;color:#323232;">';
+		content += '<input type="radio" name="eventsym" value="default" checked="checked" onchange="changeSymbol(&quot;default&quot;);">&nbsp;Default<br>';
+		content += '<input type="radio" name="eventsym" value="mag" onchange="changeSymbol(&quot;mag&quot;);">&nbsp;Color by magnitude</p>';
+		content += '</div>';
+		content += '<hr>';
+
         content += '<div class="panel-header">Legend</div>';
 		content += '<div class="panel-padding">';
         content += '<div id="legend-content"></div>';
@@ -3280,6 +3288,11 @@ function(
 			$("#general-name").html(con);
 		} );
     }
+
+
+	changeSymbol = function(val) {
+		console.log(val);
+	}
 
 
 	dataDownload = function() {
