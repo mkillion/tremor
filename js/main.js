@@ -293,7 +293,7 @@ function(
 		label: "Less than 1.0",
   		symbol: new SimpleMarkerSymbol( {
     		style: "circle",
-    		size: 10,
+    		size: 6,
     		color: [245, 122, 122, 0.80]
 		} )
 	} );
@@ -303,7 +303,7 @@ function(
 		label: "1 to 1.9",
   		symbol: new SimpleMarkerSymbol( {
     		style: "circle",
-    		size: 14,
+    		size: 10,
     		color: [245, 122, 122, 0.80]
 		} )
 	} );
@@ -313,7 +313,7 @@ function(
 		label: "2 to 2.9",
   		symbol: new SimpleMarkerSymbol( {
     		style: "circle",
-    		size: 18,
+    		size: 14,
     		color: [245, 122, 122, 0.80]
 		} )
 	} );
@@ -323,7 +323,7 @@ function(
 		label: "3 to 3.9",
   		symbol: new SimpleMarkerSymbol( {
     		style: "circle",
-    		size: 22,
+    		size: 18,
     		color: [245, 122, 122, 0.80]
 		} )
 	} );
@@ -333,7 +333,7 @@ function(
 		label: "4.0 and greater",
   		symbol: new SimpleMarkerSymbol( {
     		style: "circle",
-    		size: 26,
+    		size: 22,
     		color: [245, 122, 122, 0.80]
 		} )
 	} );
@@ -733,10 +733,66 @@ function(
   	} );
 	var countiesLayer = new FeatureLayer( {url:"http://services1.arcgis.com/q2CglofYX6ACNEeu/arcgis/rest/services/KS_CountyBoundaries/FeatureServer/0", renderer: countyRenderer, id:"Counties", visible:true} );
 
+
+	var kgsMagRenderer = new ClassBreaksRenderer( {
+		field: "magnitude"
+	} );
+	kgsMagRenderer.addClassBreakInfo( {
+		minValue: 0,
+		maxValue: 1,
+		label: "Less than 1.0",
+		symbol: new SimpleMarkerSymbol( {
+			style: "circle",
+			size: 6,
+			color: [255, 255, 128, 0.80]
+		} )
+	} );
+	kgsMagRenderer.addClassBreakInfo( {
+		minValue: 1,
+		maxValue: 2,
+		label: "1 to 1.9",
+		symbol: new SimpleMarkerSymbol( {
+			style: "circle",
+			size: 10,
+			color: [250, 229, 85, 0.70]
+		} )
+	} );
+	kgsMagRenderer.addClassBreakInfo( {
+		minValue: 2,
+		maxValue: 3,
+		label: "2 to 2.9",
+		symbol: new SimpleMarkerSymbol( {
+			style: "circle",
+			size: 14,
+			color: [242, 167, 46, 0.80]
+		} )
+	} );
+	kgsMagRenderer.addClassBreakInfo( {
+		minValue: 3,
+		maxValue: 4,
+		label: "3 to 3.9",
+		symbol: new SimpleMarkerSymbol( {
+			style: "circle",
+			size: 18,
+			color: [173, 83, 19, 0.80]
+		} )
+	} );
+	kgsMagRenderer.addClassBreakInfo( {
+		minValue: 4,
+		maxValue: 9,
+		label: "4.0 and greater",
+		symbol: new SimpleMarkerSymbol( {
+			style: "circle",
+			size: 22,
+			color: [225, 0, 0, 0.80]
+		} )
+	} );
+
 	var kgsEventsLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
-			id: 11
+			id: 11,
+			renderer: kgsMagRenderer
 		} ],
 		id:"KGS Events",
 		visible: true
@@ -3239,8 +3295,8 @@ function(
 
 		content += '<div style="padding:10px;">';
 		content += 'Earthquake symbols:<p style="font:normal normal 400 14px helvetica;color:#323232;">';
-		content += '<input type="radio" name="eventsym" value="default" checked="checked" onchange="changeSymbol(&quot;default&quot;);">&nbsp;Default<br>';
-		content += '<input type="radio" name="eventsym" value="mag" onchange="changeSymbol(&quot;mag&quot;);">&nbsp;Color by magnitude</p>';
+		content += '<input type="radio" name="eventsym" value="magcolors" checked="checked" onchange="changeSymbol(&quot;magcolors&quot;);">&nbsp;Color by magnitude<br>';
+		content += '<input type="radio" name="eventsym" value="singlecolor" onchange="changeSymbol(&quot;singlecolor&quot;);">&nbsp;Single Color</p>';
 		content += '</div>';
 		content += '<hr>';
 
@@ -3291,7 +3347,12 @@ function(
 
 
 	changeSymbol = function(val) {
-		console.log(val);
+		var theLayer = kgsEventsLayer.findSublayerById(11);
+		if (val === "singlecolor") {
+			theLayer.renderer = catalogedEventRenderer;
+		} else {
+			theLayer.renderer = kgsMagRenderer;
+		}
 	}
 
 
