@@ -172,29 +172,26 @@ function(
 	switch (n) {
 		case "23":
 			console.log("kgs user");
-			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_kgs_3857/MapServer";
 			var swdVisibility = true;
 			var c1Visibility = true;
-			var userDefExp = "objectid > 0";
+			// var userDefExp = "objectid > 0";
+			var userDefExp = "magnitude > 2.4";
 			break;
 		case "29":
 			console.log("kcc user");
-			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
 			var swdVisibility = true;
-			var c1Visibility = false;
+			var c1Visibility = true;
 			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
 			break;
 		case "37":
 			console.log("csts user");
-			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_csts_3857/MapServer";
-			var swdVisibility = false;
+			var swdVisibility = true;
 			var c1Visibility = true;
 			var userDefExp = "GAP <= 240";
 			break;
 		case "43":
 			console.log("kdhe user");
-			// var tremorGeneralServiceURL = "http://services.kgs.ku.edu/arcgis2/rest/services/tremor/quakes_reg_3857/MapServer";
-			var swdVisibility = false;
+			var swdVisibility = true;
 			var c1Visibility = true;
 			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
 			break;
@@ -787,17 +784,18 @@ function(
 			color: [225, 0, 0, 0.80]
 		} )
 	} );
-
+	
 	var kgsEventsLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
 			id: 11,
-			renderer: kgsMagRenderer
+			renderer: kgsMagRenderer,
+			definitionExpression: "magnitude > 2.4"
 		} ],
 		id:"KGS Events",
 		visible: true
 	} );
-
+	console.log(kgsEventsLayer.definitionExpression);
 	var c2SpudsLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
@@ -929,14 +927,14 @@ function(
 			arrLastAvailableC1Data = response.split(",");
 			// Values: [1] and [2] = class1 year and month. [4] and [5] = class2 year and month.
 
-			// 20190822: Is get dates used anymore? Why is the following in this section?
+			// 20190822: Is get dates used anymore? Why is the following in this section? Makes no sense.
 			// Set specific user preferences before updating map:
 			switch (n) {
 				case "23":
-					// General user - default, no modifications.
+					// KGS user - default, no modifications.
 					break;
 				case "29":
-					// Reg users - as of 20190724 same as general.
+					// KCC user.
 					break;
 				case "37":
 					// Consortium user.
@@ -944,7 +942,7 @@ function(
 					$("input[name=well-type][value='all']").prop("checked",true);
 					break;
 				case "43":
-					// kdhe user.
+					// KDHE user.
 					$("#bbls").val("0");
 					$("input[name=well-type][value='all']").prop("checked",true);
 					break;
