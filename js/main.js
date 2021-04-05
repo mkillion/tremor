@@ -136,6 +136,7 @@ function(
 	var fromMonth, toMonth;
 	var userDefinedPoint = new Graphic();
 	var facilities;
+	var userDefExp;
 	var cntyArr = new Array("Allen", "Anderson", "Atchison", "Barber", "Barton", "Bourbon", "Brown", "Butler", "Chase", "Chautauqua", "Cherokee", "Cheyenne", "Clark", "Clay", "Cloud", "Coffey", "Comanche", "Cowley", "Crawford", "Decatur", "Dickinson", "Doniphan", "Douglas", "Edwards", "Elk", "Ellis", "Ellsworth", "Finney", "Ford", "Franklin", "Geary", "Gove", "Graham", "Grant", "Gray", "Greeley", "Greenwood", "Hamilton", "Harper", "Harvey", "Haskell", "Hodgeman", "Jackson", "Jefferson", "Jewell", "Johnson", "Kearny", "Kingman", "Kiowa", "Labette", "Lane", "Leavenworth", "Lincoln", "Linn", "Logan", "Lyon", "McPherson", "Marion", "Marshall", "Meade", "Miami", "Mitchell", "Montgomery", "Morris", "Morton", "Nemaha", "Neosho", "Ness", "Norton", "Osage", "Osborne", "Ottawa", "Pawnee", "Phillips", "Pottawatomie", "Pratt", "Rawlins", "Reno", "Republic", "Rice", "Riley", "Rooks", "Rush", "Russell", "Saline", "Scott", "Sedgwick", "Seward", "Shawnee", "Sheridan", "Sherman", "Smith", "Stafford", "Stanton", "Stevens", "Sumner", "Thomas", "Trego", "Wabaunsee", "Wallace", "Washington", "Wichita", "Wilson", "Woodson", "Wyandotte");
 	var today = new Date();
 	var thisYear = today.getFullYear();
@@ -174,26 +175,25 @@ function(
 			console.log("kgs user");
 			var swdVisibility = true;
 			var c1Visibility = true;
-			// var userDefExp = "objectid > 0";
-			var userDefExp = "magnitude > 2.4";
+			userDefExp = "objectid > 0";
 			break;
 		case "29":
 			console.log("kcc user");
 			var swdVisibility = true;
 			var c1Visibility = true;
-			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
+			userDefExp = "GAP <= 240 AND magnitude >= 1.8";
 			break;
 		case "37":
 			console.log("csts user");
 			var swdVisibility = true;
 			var c1Visibility = true;
-			var userDefExp = "GAP <= 240";
+			userDefExp = "GAP <= 240";
 			break;
 		case "43":
 			console.log("kdhe user");
 			var swdVisibility = true;
 			var c1Visibility = true;
-			var userDefExp = "origin_time < date '01/01/2015' OR (GAP <= 240 AND origin_time >= date '01/01/2015' AND origin_time <  date '07/01/2017') OR (GAP <= 240 AND origin_time >= date '07/01/2017' AND magnitude >= 1.8)";
+			userDefExp = "GAP <= 240 AND magnitude >= 1.8";
 			break;
 	}
 
@@ -784,18 +784,17 @@ function(
 			color: [225, 0, 0, 0.80]
 		} )
 	} );
-	
+
 	var kgsEventsLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
 			id: 11,
-			renderer: kgsMagRenderer,
-			definitionExpression: "magnitude > 2.4"
+			renderer: kgsMagRenderer
 		} ],
 		id:"KGS Events",
 		visible: true
 	} );
-	console.log(kgsEventsLayer.definitionExpression);
+
 	var c2SpudsLayer = new MapImageLayer( {
 		url:tremorGeneralServiceURL,
 		sublayers:[ {
@@ -1686,6 +1685,11 @@ function(
 		}
 
 		// Put where clauses together (excluding wells clause which is created below):
+
+		// Add user-specific definition expression (set in switch block at line 173). Bit of a kludge, setting
+		// definitionExpression in sublayers of MapImageLayer wasn't working - api version might be too old.
+		attrWhere = userDefExp + " and ";
+
 		if (locWhere !== "") {
 			attrWhere += locWhere + " and ";
 		}
