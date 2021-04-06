@@ -185,13 +185,13 @@ function(
 			break;
 		case "37":
 			console.log("csts user");
-			var swdVisibility = true;
+			var swdVisibility = false;
 			var c1Visibility = true;
 			userDefExp = "GAP <= 240";
 			break;
 		case "43":
 			console.log("kdhe user");
-			var swdVisibility = true;
+			var swdVisibility = false;
 			var c1Visibility = true;
 			userDefExp = "GAP <= 240 AND magnitude >= 1.8";
 			break;
@@ -813,7 +813,7 @@ function(
 			break;
 		case "29":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 		case "37":
@@ -823,7 +823,7 @@ function(
 			break;
 		case "43":
 			var map = new Map( {
-				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
+				layers: [basemapLayer, esriImageryLayer, topoLayer, precambrianLayer, basementStructuresLayer, plssLayer, c2SpudsLayer, swdLayer, class1Layer, seismicConcernExpandedLayer, seismicConcernLayer, neicLayer, kgsEventsLayer, historicLayer, countiesLayer]
 			} );
 			break;
 
@@ -934,6 +934,7 @@ function(
 					break;
 				case "29":
 					// KCC user.
+					$("#earthquake-download").hide();
 					break;
 				case "37":
 					// Consortium user.
@@ -944,6 +945,7 @@ function(
 					// KDHE user.
 					$("#bbls").val("0");
 					$("input[name=well-type][value='all']").prop("checked",true);
+					$("#earthquake-download").hide();
 					break;
 			}
 
@@ -3155,7 +3157,7 @@ function(
 
 		content += '<div class="data-header esri-icon-right-triangle-arrow" id="dwnload"><span class="find-hdr-txt"> Download</span></div>';
 		content += '<div class="data-body hide" id="data-dwnload">';
-		content += "<table><tr><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
+		content += "<table><tr id='earthquake-download'><td></td><td><label><input type='checkbox' class='dwnld-type' value='events' id='chk-dwn-evts'> Earthquakes</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c1s' value='wells'> Class I Wells & Injection Data</label></td></tr>";
 		content += "<tr><td></td><td><label><input type='checkbox' class='dwnld-type' id='chk-dwn-c2s' value='wells'> Class II Wells & Injection Data</label></td></tr>";
 		content += "<tr><td></td><td><button class='find-button' onclick='dataDownload()'> Create File</button></td></tr></table>";
